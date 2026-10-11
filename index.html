@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 22
+  Feed the Dinos, Save the Sheep 23
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -22,7 +22,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 22</title>
+<title>Feed the Dinos, Save the Sheep 23</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1305,7 +1305,8 @@ function update(dt) {
     return;
   }
   if (state === 'over' || state === 'won') {
-    G.overT += dt; updateFireflies(dt);
+    if (!celebTick(dt)) G.overT += dt;
+    updateFireflies(dt);
     G.dinos.forEach(function (d) { d.anim += dt; });
     updateParticles(dt); updatePopups(dt);
     return;
@@ -2947,7 +2948,7 @@ function drawLeg(T, Gr, hx, hy, fx, lift, near) {
   capsule(ctx, ax, ay, 2.9, fx, fy - 1.8, 2.4);
   capsule(ctx, fx - 1, fy - 1.8, 2.4, fx + 8.5, fy - 0.8, 1.3);
   capsule(ctx, fx - 1, fy - 1.4, 2.1, fx + 6.2, fy + 0.6, 1.15);
-  ctx.strokeStyle = T.ol; ctx.lineWidth = 2.4; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.strokeStyle = T.ol; ctx.lineWidth = 2.4 * (T.olw || 1); ctx.lineJoin = 'round'; ctx.stroke();
   ctx.fillStyle = near ? Gr.shin : Gr.far; ctx.fill();
   if (near) {
     // scaly foot bands and a light edge on the shin
@@ -2963,7 +2964,7 @@ function drawLeg(T, Gr, hx, hy, fx, lift, near) {
   const tx0 = hx - ux * th * 0.45, ty0 = hy - uy * th * 0.45;
   ctx.beginPath(); capsule(ctx, tx0, ty0, th * 1.02, kx, ky, th * 0.5);
   ctx.fillStyle = near ? Gr.thigh : Gr.far; ctx.fill();
-  ctx.strokeStyle = T.ol; ctx.globalAlpha = 0.8; ctx.lineWidth = 1.4; ctx.stroke(); ctx.globalAlpha = 1;
+  ctx.strokeStyle = T.ol; ctx.globalAlpha = T.olw ? 1 : 0.8; ctx.lineWidth = 1.4 * (T.olw || 1); ctx.stroke(); ctx.globalAlpha = 1;
   if (near) {
     ctx.save(); ctx.beginPath(); capsule(ctx, tx0, ty0, th * 1.02, kx, ky, th * 0.5); ctx.clip();
     ctx.globalAlpha = 0.35; ctx.fillStyle = skinPattern(); ctx.fillRect(hx - 20, hy - 20, 40, 44); ctx.globalAlpha = 1;
@@ -3024,7 +3025,7 @@ function drawArm(T, Gr, d, moving) {
   ctx.beginPath();
   capsule(ctx, sx, sy, T.arms ? 2.8 : 3.4, e[0], e[1], 2.2);
   capsule(ctx, e[0], e[1], 2.1, h[0], h[1], 1.7);
-  ctx.strokeStyle = T.ol; ctx.lineWidth = 2; ctx.stroke();
+  ctx.strokeStyle = T.ol; ctx.lineWidth = 2 * (T.olw || 1); ctx.stroke();
   ctx.fillStyle = Gr.shin; ctx.fill();
   claw(h[0] + 0.8, h[1] - 0.6, 2.8, 0.7);
   claw(h[0] + 0.2, h[1] + 0.6, 2.6, 1.2);
@@ -3063,7 +3064,7 @@ function drawHead(T, Gr, d, jaw, tilt, chewing, headBob) {
     for (let x = 5; x < sn - 2; x += ts * 1.6) { ctx.beginPath(); ctx.moveTo(x, 3); ctx.lineTo(x + ts * 0.45, 3 - ts); ctx.lineTo(x + ts * 0.9, 3); ctx.closePath(); ctx.fill(); }
   }
   ctx.strokeStyle = 'rgba(0,0,0,0.16)'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(1, 3 + jh * 0.62); ctx.quadraticCurveTo(sn * 0.5, 3 + jh * 0.85, sn - 4, 3 + jh * 0.5); ctx.stroke();
-  jawPath(); ctx.strokeStyle = ol; ctx.lineWidth = 1.6; ctx.stroke();
+  jawPath(); ctx.strokeStyle = ol; ctx.lineWidth = 1.6 * (T.olw || 1); ctx.stroke();
   ctx.restore();
   // food (or wool) in the mouth
   if (d.state === 'eat' || d.state === 'munch') {
@@ -3099,7 +3100,7 @@ function drawHead(T, Gr, d, jaw, tilt, chewing, headBob) {
   if (T.faint) { ctx.fillStyle = 'rgba(40,30,10,0.22)'; [[sn * 0.42, -hh * 0.92], [sn * 0.5, -hh * 0.86], [ex - 1, ey - 4.2], [ex + 2, ey - 4.5]].forEach(function (p) { ell(ctx, p[0], p[1], 1.4, 0.9); ctx.fill(); }); }
   if (T.stripes) { ctx.strokeStyle = 'rgba(60,35,10,0.45)'; ctx.lineWidth = 1.4; line(ctx, ex + 3, ey + 1, sn * 0.75, -hh * 0.1); }
   ctx.restore();
-  skull(); ctx.strokeStyle = ol; ctx.lineWidth = 1.7; ctx.stroke();
+  skull(); ctx.strokeStyle = ol; ctx.lineWidth = 1.7 * (T.olw || 1); ctx.stroke();
   // upper teeth
   ctx.fillStyle = '#fbf5e2'; ctx.strokeStyle = 'rgba(80,60,30,0.35)'; ctx.lineWidth = 0.5;
   const ts = T.tooth;
@@ -3269,7 +3270,7 @@ function drawDino(d, overrideScale) {
   ao.addColorStop(0, 'rgba(0,0,0,0.22)'); ao.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = ao; ctx.fillRect(-18, -48, 32, 32);
   ctx.restore();
-  bodyOutline(sp); ctx.strokeStyle = T.ol; ctx.lineWidth = 1.5; ctx.stroke();
+  bodyOutline(sp); ctx.strokeStyle = T.ol; ctx.lineWidth = 1.5 * (T.olw || 1); ctx.stroke();
   // ridge details on the back
   if (T.crest || T.bumps) {
     ctx.fillStyle = T.crest ? shade(T.color, -30) : T.light; ctx.strokeStyle = T.ol; ctx.lineWidth = 0.8;
@@ -4436,10 +4437,24 @@ function drawEgg(e) {
 }
 
 // ---------------------------------------------------------------- drawing: scene
+// v23: on phones text is bigger and gets a darker, thicker outline (BIG23.on is set at start-up on a phone)
+const BIG23 = { on: false, label: 13.5, pop: 1.18, note: 16, card: 1.2, boss: 1.12 };
+const TXT_LIGHT = {};
+function txtLight(c) {
+  if (typeof c !== 'string') return false;
+  if (TXT_LIGHT[c] !== undefined) return TXT_LIGHT[c];
+  let r = 0, g = 0, b = 0, m;
+  if (c[0] === '#') { const h = c.length === 4 ? c[1] + c[1] + c[2] + c[2] + c[3] + c[3] : c.slice(1, 7); const n = parseInt(h, 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; }
+  else if ((m = c.match(/rgba?\(([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/))) { r = +m[1]; g = +m[2]; b = +m[3]; }
+  return (TXT_LIGHT[c] = (0.299 * r + 0.587 * g + 0.114 * b) > 120);
+}
 function txt(t, x, y, size, color, align, weight, outline) {
   ctx.font = (weight || 'bold') + ' ' + size + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
   ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
-  if (outline !== false) { ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(20,12,4,0.85)'; ctx.lineWidth = Math.max(3, size / 5); ctx.strokeText(t, x, y); }
+  if (BIG23.on) {
+    if (outline !== false) { ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(6,4,1,0.95)'; ctx.lineWidth = Math.max(3.6, size / 3.6); ctx.strokeText(t, x, y); }
+    else if (txtLight(color)) { ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(6,4,1,0.78)'; ctx.lineWidth = Math.max(2.2, size / 6); ctx.strokeText(t, x, y); }
+  } else if (outline !== false) { ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(20,12,4,0.85)'; ctx.lineWidth = Math.max(3, size / 5); ctx.strokeText(t, x, y); }
   ctx.fillStyle = color; ctx.fillText(t, x, y);
 }
 function wrapText(t, maxW, size, weight) {
@@ -4530,7 +4545,7 @@ function render() {
   G.notes.forEach(function (n) {
     const a = clamp(Math.min(n.t / 0.12, (n.life - n.t) / 0.35), 0, 1);
     ctx.globalAlpha = a * 0.95;
-    txt(n.text, n.s.x + 16, n.s.y - 36 - n.t * 14, 13, '#ffffff', 'center', 'italic bold', true);
+    txt(n.text, n.s.x + 16, n.s.y - 36 - n.t * 14, BIG23.on ? BIG23.note : 13, '#ffffff', 'center', 'italic bold', true);
   });
   ctx.globalAlpha = 1;
 
@@ -4561,7 +4576,7 @@ function render() {
     const a = clamp(p.life / p.max * 2, 0, 1);
     const grow = 1 + Math.max(0, (p.life - p.max + 0.15)) * 3;
     ctx.globalAlpha = a;
-    txt(p.text, p.x, p.y, Math.round(p.size * grow), p.color);
+    popupText(p, Math.round(p.size * grow));
   });
   ctx.globalAlpha = 1;
   ctx.restore();
@@ -4576,7 +4591,7 @@ function render() {
   if (state === 'title') drawTitle();
   if (state === 'intro') drawIntro();
   if (state === 'over') drawGameOver();
-  if (state === 'won') drawWon();
+  if (state === 'won') { if (G.celeb) drawCeleb(); else drawWon(); }
   if (state === 'brief') drawBrief();
   if (state === 'play') { drawRushTag(); drawVegCue(); if (!paused) drawMenuBtn(); }
   if (paused && state === 'play') drawPause();
@@ -5640,7 +5655,8 @@ function uiButton(label, x, y, w, h, act, primary) {
   if (primary) { g.addColorStop(0, '#ffd65a'); g.addColorStop(1, '#d8901c'); } else { g.addColorStop(0, '#8aa070'); g.addColorStop(1, '#4a6038'); }
   ctx.fillStyle = g; rr(ctx, x, y, w, h, h / 2); ctx.fill();
   ctx.strokeStyle = primary ? '#7a4a08' : '#2a3a1a'; ctx.lineWidth = 1.5; ctx.stroke();
-  txt(label, x + w / 2, y + h / 2 + 1, 16, primary ? '#3a2208' : '#ffffff', 'center', 'bold', false);
+  const ls = h >= 48 ? Math.min(24, h * 0.4) : 16;
+  txt(label, x + w / 2, y + h / 2 + 1, fitFont(label, w - 20, ls), primary ? '#3a2208' : '#ffffff', 'center', 'bold', false);
   UI_BTNS.push({ x: x, y: y, w: w, h: h, act: act });
 }
 function uiClick(x, y) {
@@ -5648,6 +5664,7 @@ function uiClick(x, y) {
   return false;
 }
 function drawBrief() {
+  if (phoneScreens()) return drawBriefPhone();
   const L = G.cfg, t = G.briefT;
   const px = 150, py = 54, pw = 600, ph = 500;
   const k = easeOutBack(clamp(t / 0.35, 0, 1));
@@ -5702,6 +5719,7 @@ function drawBrief() {
   }
 }
 function drawWon() {
+  if (phoneScreens()) return drawWonPhone();
   const L = G.cfg, r = G.result, t = G.overT;
   const a = clamp(t / 0.4, 0, 1);
   ctx.save(); ctx.globalAlpha = a;
@@ -6051,6 +6069,7 @@ function cardCorner(x) { const w = 372; return { x: x < W / 2 ? W - 8 - w : 8, y
 function cardFrame(C, a, k, col) {
   const cx = C.x + C.w / 2, cy = C.y;
   ctx.globalAlpha = a;
+  if (BIG23.on) { const ax = C.x < W / 2 ? C.x : C.x + C.w; ctx.translate(ax, cy); ctx.scale(BIG23.card, BIG23.card); ctx.translate(-ax, -cy); }
   ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy);
   ctx.fillStyle = 'rgba(0,0,0,0.3)'; rr(ctx, C.x + 3, C.y + 4, C.w, C.h, 14); ctx.fill();
   ctx.fillStyle = 'rgba(24,40,26,0.95)'; rr(ctx, C.x, C.y, C.w, C.h, 14); ctx.fill();
@@ -8580,7 +8599,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 22', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 23', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   drawStar(W - 112, 28, 13, true, true);
   txt(totalStars() + ' / ' + (LAST_LEVEL * 3), W - 92, 29, 20, '#ffe27a', 'left', 'bold', true);
   const L = LEVELS[MAP.sel - 1];
@@ -15547,7 +15566,7 @@ const drawWonV14 = drawWon;
 drawWon = function () {
   drawWonV14();
   const r = G.result;
-  if (r && r.wool && G.overT > 1.2) { ctx.save(); ctx.globalAlpha = clamp((G.overT - 1.2) / 0.4, 0, 1); drawWoolGain(r.wool, r.finale ? 470 : 545, WOOL.wool); ctx.restore(); }
+  if (r && r.wool && G.overT > 1.2) { ctx.save(); ctx.globalAlpha = clamp((G.overT - 1.2) / 0.4, 0, 1); drawWoolGain(r.wool, r.finale ? 470 : phoneScreens() ? 568 : 545, WOOL.wool); ctx.restore(); }
 };
 const drawGameOverV14 = drawGameOver;
 drawGameOver = function () {
@@ -16405,12 +16424,12 @@ drawHUD = function () {
   ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(0, 0, W, 1);
   ctx.fillStyle = 'rgba(200,150,80,0.55)'; ctx.fillRect(0, HUD_H - 2, W, 2);
   const y = HUD_H / 2;
-  txt('Level ' + G.level, 10, y - 6, 23, '#ffffff', 'left', 'bold', false);
-  txt('Score ' + G.score, 10, y + 13.5, 15, '#ffe27a', 'left', 'bold', false);
+  txt('Level ' + G.level, 10, y - 6, 25, '#ffffff', 'left', 'bold', false);
+  txt('Score ' + G.score, 10, y + 14, 16.5, '#ffe27a', 'left', 'bold', false);
   drawSheep({ x: 158, y: y + 12, phase: 0 }, 0.95, 1, false);
   const st = CAMP() ? campHudText() : 'Saved: ' + G.saved;
-  txt(st, 182, y + 1, fitFont(st, 230, 26), '#a8ff8a', 'left', 'bold', false);
-  txt('Lost', 418, y + 1, 21, '#ff9a8a', 'left', 'bold', false);
+  txt(st, 182, y + 1, fitFont(st, 228, 28), '#a8ff8a', 'left', 'bold', false);
+  txt('Lost', 416, y + 1, 22.5, '#ff9a8a', 'left', 'bold', false);
   for (let i = 0; i < MAX_LOST; i++) {
     const cx = 490 + i * Math.min(34, 150 / Math.max(1, MAX_LOST - 1));
     if (i < G.lost) {
@@ -16420,7 +16439,7 @@ drawHUD = function () {
   }
   // goal progress
   const prog = CAMP() ? campProgress() : clamp(Math.max(G.levelSaved / levelNeed(G.level), G.levelTime / 50), 0, 1);
-  txt('Goal', 664, y + 1, 18, '#c8e8ff', 'left', 'bold', false);
+  txt('Goal', 662, y + 1, 19.5, '#c8e8ff', 'left', 'bold', false);
   ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, 714, y - 7.5, 176, 16, 8); ctx.fill();
   const pg = ctx.createLinearGradient(0, y - 7.5, 0, y + 8.5); pg.addColorStop(0, '#a8e4ff'); pg.addColorStop(1, '#3c9ad8');
   ctx.fillStyle = pg; rr(ctx, 714, y - 7.5, Math.max(10, 176 * prog), 16, 8); ctx.fill();
@@ -17122,11 +17141,13 @@ function wideMapStrips() {
     for (let y = 0; y < mh; y++) { let a = 0, b = 0, c = 0, n = 0; for (let d = -3; d <= 3; d++) { const q = rows[clamp(y + d, 0, mh - 1)]; a += q[0]; b += q[1]; c += q[2]; n++; } img.data[y * 4] = a / n; img.data[y * 4 + 1] = b / n; img.data[y * 4 + 2] = c / n; img.data[y * 4 + 3] = 255; }
     o.putImageData(img, 0, 0);
     // a short cross-fade from the real edge pixels into the row colour
-    const fade = document.createElement('canvas'); fade.width = 24; fade.height = src.height;
+    // v23: a mirror image of the map's edge (continuous at the seam) fading out, instead of one stretched column
+    const FW = Math.ceil(30 * s), fade = document.createElement('canvas'); fade.width = FW; fade.height = src.height;
     const f = fade.getContext('2d');
-    f.drawImage(src, dir < 0 ? 0 : src.width - 1, 0, 1, src.height, 0, 0, 24, src.height);
-    const gr = f.createLinearGradient(dir < 0 ? 24 : 0, 0, dir < 0 ? 0 : 24, 0); gr.addColorStop(0, 'rgba(0,0,0,0.9)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-    f.globalCompositeOperation = 'destination-in'; f.fillStyle = gr; f.fillRect(0, 0, 24, src.height);
+    f.save(); f.translate(FW, 0); f.scale(-1, 1); f.drawImage(src, dir < 0 ? 0 : src.width - FW, 0, FW, src.height, 0, 0, FW, src.height); f.restore();
+    const gr = f.createLinearGradient(dir < 0 ? FW : 0, 0, dir < 0 ? 0 : FW, 0); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.4, 'rgba(0,0,0,0.75)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    f.globalCompositeOperation = 'destination-in'; f.fillStyle = gr; f.fillRect(0, 0, FW, src.height);
+    if (dir < 0) { f.globalCompositeOperation = 'destination-out'; f.fillStyle = '#000'; for (const b of MAP_BANDS) f.fillRect(0, (b[0] + 2) * s, FW, 40 * s); }   // never under the area signs
     // soft texture (light and dark patches, a few tufts) so it is not flat
     const tex = document.createElement('canvas'); tex.width = 240; tex.height = mh;
     const t = tex.getContext('2d'), R = mulberry(dir < 0 ? 77 : 78);
@@ -17166,7 +17187,7 @@ widePaint = function () {
       g.imageSmoothingEnabled = true;
       g.drawImage(S.col, 0, 0, 1, M.mh, x0, -cam, x1 - x0, M.mh);
       for (let tx = x0; tx < x1; tx += 240) g.drawImage(S.tex, tx, -cam);
-      g.drawImage(S.fade, 0, 0, 24, S.fade.height, dir < 0 ? -24 : W, -cam, 24, S.fade.height / s);
+      g.drawImage(S.fade, 0, 0, S.fade.width, S.fade.height, dir < 0 ? -30 : W, -cam, 30, S.fade.height / s);
     });
     // the map's title bar runs to the edges
     const hg = g.createLinearGradient(0, 0, 0, 56); hg.addColorStop(0, 'rgba(38,58,36,1)'); hg.addColorStop(1, 'rgba(14,26,16,1)');
@@ -17231,6 +17252,7 @@ function mapSideSetup() {
     '#mspR canvas { width: 100%; pointer-events: none; }',
     '#mspR { cursor: pointer; }', '.msp canvas { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: none !important; aspect-ratio: auto !important; }',
     'body.phone.briefside #mspR { display: flex; pointer-events: none; } body.phone.briefside .mstest { display: none; }',
+    '.msp.compact .msb span { display: none; } .msp.compact .msb canvas { width: 70%; height: auto; } .msp.compact .mstest { font-size: 8px; padding: 3px 2px; }',
     '.mstest { font: bold 10px Arial, sans-serif; color: #ffe0e0; background: rgba(120,20,20,.85); border: 0; border-radius: 6px; padding: 4px 6px; }'
   ].join('\n');
   document.head.appendChild(st);
@@ -17296,6 +17318,7 @@ function heartOn(g, x, y, r, full) {
 function mapSideRight(wcss) {
   const c = MAPSIDE.els.rc, n = livesSync(), left = livesLeftMs(), full = n >= LIVES_CFG.max;
   const tm = full ? 'full' : fmtMS(left);
+  if (wcss < 70) return mapSideRightCompact(wcss, n, tm, full);
   const twoRows = wcss < 112;
   const hcss = twoRows ? 104 : 92;
   const key = [wcss, WOOL.wool, n, tm].join(',');
@@ -17334,14 +17357,18 @@ function mapSideTick() {
   const L = document.getElementById('mspL'), R = document.getElementById('mspR');
   let lk;
   if (sl >= 66) lk = [cv.safeL + (sl - 58) / 2, top, 58];
+  else if (sl >= 40) lk = [cv.safeL + 3, top, Math.floor(sl - 6)];   // v23: narrow strip (e.g. 667x375): compact icon buttons, still off the map
   else lk = [cv.x + 6, top, 58];
   let rw, rx;
   if (sr >= 70) { rw = Math.min(150, sr - 10); rx = cv.x + cv.w + (sr - rw) / 2; }
+  else if (sr >= 40) { rw = Math.floor(sr - 6); rx = cv.x + cv.w + 3; }
   else { rw = 120; rx = cv.x + cv.w - rw - 6; }
   const key = [lk.join(','), rx, rw, top].join(';');
   if (key !== MAPSIDE.key) {
     MAPSIDE.key = key;
     Object.assign(L.style, { left: lk[0] + 'px', top: lk[1] + 'px', width: lk[2] + 'px' });
+    L.classList.toggle('compact', lk[2] < 58); R.classList.toggle('compact', rw < 70);
+    [MAPSIDE.els.mspShop, MAPSIDE.els.mspGear].forEach(function (b) { if (b) { b.style.width = lk[2] + 'px'; b.style.height = lk[2] + 'px'; } });
     Object.assign(R.style, { left: rx + 'px', top: top + 'px', width: rw + 'px' });
     if (MAPSIDE.icons) MAPSIDE.icons();
   }
@@ -17354,7 +17381,7 @@ const livesPillV21 = livesPill;
 livesPill = function (xr, y, size) {
   if (MAPSIDE.on && state === 'map' && y === 102) return { x: -1000, w: 0, h: 0 };
   if (MAPSIDE.brief && state === 'brief') return { x: -1000, w: 0, h: 0 };   // shown bigger on the right strip instead
-  if (PHONE.on && state === 'brief') { size = (size || 1) * 1.3; y += 6; }   // (narrow screens: a bit bigger in place)
+  if (PHONE.on && state === 'brief') { size = (size || 1) * 1.3; if (phoneScreens()) { xr = W - 34; y = 34; } else y += 6; }   // (narrow screens: a bit bigger in place)
   return livesPillV21(xr, y, size);
 };
 const livesTestBtnV21 = livesTestBtn;
@@ -17373,7 +17400,7 @@ drawBanner = function () {
   const b = G.banner;
   if (!b || G.announce || G.toolCard) return;
   const a = clamp(Math.min(b.t / 0.25, (b.dur - b.t) / 0.5), 0, 1);
-  const B = bannerBox(), y = UI_TOP, h = 56, T1 = 23, T2 = 16.5;
+  const B = bannerBox(), y = UI_TOP, h = 62, T1 = 26, T2 = 19;
   ctx.save(); ctx.globalAlpha = a;
   ctx.font = 'bold ' + T1 + 'px "Segoe UI", Arial, sans-serif';
   const tw = Math.max(ctx.measureText(b.title).width, (ctx.font = '600 ' + T2 + 'px "Segoe UI", Arial, sans-serif', ctx.measureText(b.sub || '').width)) + 40;
@@ -17383,12 +17410,431 @@ drawBanner = function () {
   g.addColorStop(0, 'rgba(34,56,32,0.92)'); g.addColorStop(1, 'rgba(14,26,14,0.92)');
   ctx.fillStyle = g; rr(ctx, x, y, w, h, 12); ctx.fill();
   ctx.strokeStyle = 'rgba(255,220,120,0.65)'; ctx.lineWidth = 1.8; ctx.stroke();
-  txt(b.title, cx, y + 18, fitFont(b.title, w - 24, T1), '#ffd04a', 'center', 'bold', true);
-  if (b.sub) txt(b.sub, cx, y + 41, fitFont(b.sub, w - 24, T2, '600'), '#ffffff', 'center', '600', false);
+  txt(b.title, cx, y + 20, fitFont(b.title, w - 24, T1), '#ffd04a', 'center', 'bold', true);
+  if (b.sub) txt(b.sub, cx, y + 45, fitFont(b.sub, w - 24, T2, '600'), '#ffffff', 'center', '600', false);
   ctx.restore();
 };
 mapSideSetup();
 
+// ================================================================ v23: bigger, easier-to-read text on phones
+// Every txt() on a phone gets a darker, thicker outline (light text that had no outline gets a thin dark one, so it reads on
+// grass, snow, sky...). Name tags, popups, sheep notes, the corner cards, the start banner, the boss bar, the HUD and the
+// screen buttons are a clear step bigger. Desktop draws exactly as before.
+BIG23.on = !!PHONE.on;
+function nameTag(nm, x, y, bg, col) {
+  const fs = BIG23.on ? BIG23.label : 11, h = BIG23.on ? 20 : 16;
+  ctx.font = 'bold ' + fs + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+  const w = ctx.measureText(nm).width + (BIG23.on ? 14 : 10);
+  ctx.globalAlpha = 0.88;
+  ctx.fillStyle = bg; rr(ctx, x - w / 2, y - h / 2, w, h, h / 2); ctx.fill();
+  ctx.globalAlpha = 1;
+  txt(nm, x, y + 0.5, fs, col, 'center', 'bold', false);
+}
+if (BIG23.on) {
+  drawDinoLabel = function (d) {
+    if (SPOT.corn && inCorn(d.x, d.y)) return;
+    if (G.announce && G.announce.dino === d) return;
+    const s = d.T.s * (1 - d.appear * 0.6);
+    nameTag(d.T.name, d.x - d.dir * (14 + 6 * s), d.y - s * (d.T.sail ? 112 : 88) - 8, 'rgba(14,18,10,0.72)', '#fff6d8');
+  };
+  drawVickyLabel = function (v) { nameTag('Vicky', v.x, v.y - (v.pose === 'sit' ? 46 : 40) - (v.hop || 0) - 2, 'rgba(120,70,20,0.85)', '#fff3d0'); };
+  drawFarmerLabel = function (f) {
+    const nm = G.costume ? 'Mrs. Dino' : 'Robner';
+    nameTag(nm, f.x, FARMER_Y - 84, G.costume ? 'rgba(110,20,60,0.75)' : 'rgba(14,18,10,0.72)', G.costume ? '#ffd6ea' : '#fff6d8');
+  };
+  const drawBossBarV22 = drawBossBar;
+  drawBossBar = function () {
+    ctx.save(); ctx.translate(W - 8, UI_TOP); ctx.scale(BIG23.boss, BIG23.boss); ctx.translate(-(W - 8), -UI_TOP);
+    try { drawBossBarV22(); } finally { ctx.restore(); }
+  };
+}
+// popups: bigger on a phone and always kept fully on the screen
+function popupText(p, size) {
+  if (!BIG23.on) { txt(p.text, p.x, p.y, size, p.color); return; }
+  size = Math.round(size * BIG23.pop);
+  ctx.font = 'bold ' + size + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+  let hw = ctx.measureText(p.text).width / 2 + 8;
+  if (hw * 2 > W - 16) { size = fitFont(p.text, W - 32, size); hw = W / 2; }
+  txt(p.text, clamp(p.x, hw, W - hw), p.y, size, p.color);
+}
+
+// ================================================================ v23: phone level-start and level-complete screens
+// On a phone the two screens use (almost) the whole field: a wide two-column panel with bigger text and big buttons.
+// The picture of the level is the same one as before (same drawing, just placed in the left column).
+function drawBriefPictureAt(L, dx, dy) {
+  const px = 150, pw = 600, picY = 196, picH = 112;
+  ctx.save(); ctx.translate(dx, dy);
+  const sky = ctx.createLinearGradient(0, picY, 0, picY + picH);
+  sky.addColorStop(0, L.spot === 'night' ? '#2a3a6a' : '#bfe6ff'); sky.addColorStop(0.62, L.spot === 'night' ? '#4a5a8a' : '#e3f4ff');
+  sky.addColorStop(0.63, L.area === 1 ? '#c8a848' : '#79b85a'); sky.addColorStop(1, L.area === 1 ? '#a8882a' : '#5a9a42');
+  if (L.spot === 'storm') { sky.addColorStop(0, '#2a3050'); sky.addColorStop(0.62, '#4a5070'); }
+  ctx.fillStyle = sky; rr(ctx, px + 40, picY, pw - 80, picH, 12); ctx.fill();
+  ctx.save(); rr(ctx, px + 40, picY, pw - 80, picH, 12); ctx.clip();
+  if (L.boss) {
+    drawBossPicture(L, picY, picH);
+  } else {
+    const list = L.dinos.map(function (k) { return L.herb && HERB_MAP[k] ? HERB_MAP[k] : k; }).filter(function (k, i, a) { return a.indexOf(k) === i; });
+    const n = list.length, cw = (pw - 100) / n;
+    list.forEach(function (key, i) { drawDinoPicture(TYPES[key], px + 50 + cw * (i + 0.5), picY + picH - 14, cw - 16, picH - 28, animT + i * 1.3); });
+    if (L.goal.type === 'lamb') drawSheep({ x: px + pw - 80, y: picY + picH - 14, phase: animT * 10 }, 0.74, -1, true);
+  }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(90,60,30,0.6)'; ctx.lineWidth = 2; rr(ctx, px + 40, picY, pw - 80, picH, 12); ctx.stroke();
+  if (L.newDino) { ctx.fillStyle = '#e8473a'; rr(ctx, px + 50, picY + 8, 104, 25, 12.5); ctx.fill(); txt('NEW DINO!', px + 102, picY + 21, 15, '#ffffff', 'center', 'bold', false); }
+  drawVegBadge(L, W / 2, picY + picH - 26);
+  ctx.restore();
+}
+// a star rule: one line if it fits at a readable size, else two lines
+function ruleText(r, x, y, maxW, size, col, outline) {
+  const f = fitFont(r, maxW, size);
+  if (f >= size * 0.8) { txt(r, x, y, f, col, 'left', 'bold', outline); return; }
+  const s2 = Math.round(size * 0.82), ls = wrapText(r, maxW, s2, 'bold').slice(0, 2);
+  ls.forEach(function (l, i) { txt(l, x, y + (i - (ls.length - 1) / 2) * (s2 + 3), fitFont(l, maxW, s2), col, 'left', 'bold', outline); });
+}
+function phoneScreens() { return !!(PHONE.on && BIG23.on); }
+function drawBriefPhone() {
+  const L = G.cfg, t = G.briefT;
+  const px = 12, py = 6, pw = 876, ph = 544;
+  const k = easeOutBack(clamp(t / 0.35, 0, 1));
+  ctx.fillStyle = 'rgba(0,0,0,0.42)'; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.translate(W / 2, py + ph / 2); ctx.scale(k, k); ctx.translate(-W / 2, -(py + ph / 2));
+  drawPanel(px, py, pw, ph, true);
+  // left column: where, which level, the picture and the tip
+  const lx = 34, lw = 520, lc = lx + lw / 2;
+  const area = 'Area ' + (L.area + 1) + ': ' + AREAS[L.area].name;
+  ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
+  const aw = Math.min(lw, ctx.measureText(area).width + 44);
+  ctx.fillStyle = AREAS[L.area].col; rr(ctx, lc - aw / 2, py + 18, aw, 28, 14); ctx.fill();
+  txt(area, lc, py + 32.5, fitFont(area, aw - 20, 16), '#1d2a18', 'center', 'bold', false);
+  txt('LEVEL ' + L.n, lc, py + 76, 44, L.boss ? '#ff7a5a' : '#ffb347');
+  txt(L.place, lc, py + 117, fitFont(L.place, lw, 28), '#ffffff', 'center', 'bold', true);
+  const ti = '"' + L.title + '"';
+  txt(ti, lc, py + 148, fitFont(ti, lw, 20, 'italic bold'), '#e8d8a8', 'center', 'italic bold', false);
+  drawBriefPictureAt(L, lx - 190, py + 170 - 196);
+  wrapText(L.tip, lw, 19.5, '600').slice(0, 3).forEach(function (l, i) { txt(l, lc, py + 330 + i * 27, 19.5, '#f0f0e8', 'center', '600', false); });
+  // right column: the goal, the news and the stars
+  const rx = 586, rw = 280, rc = rx + rw / 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 2; line(ctx, rx - 14, py + 30, rx - 14, py + ph - 100);
+  const off = MAPSIDE.brief ? 0 : 36;   // the hearts sit in the panel's top-right corner when there is no side strip for them
+  txt('GOAL', rc, py + 40 + off, 17, '#ffd07a', 'center', 'bold', false);
+  const gl = wrapText(goalText(L), rw, 24, 'bold').slice(0, 2);
+  gl.forEach(function (l, i) { txt(l, rc, py + 72 + off + i * 29, fitFont(l, rw, 24), '#ffe27a', 'center', 'bold', true); });
+  let y = py + 86 + off + gl.length * 29;
+  wrapText(L.news, rw, 19, 'bold').slice(0, 2).forEach(function (l, i) { txt(l, rc, y + i * 24, 19, '#a8e0ff', 'center', 'bold', false); });
+  y = Math.max(y + 70, py + 236);
+  const rules = starRules(L), have = PROG.stars[L.n] | 0;
+  rules.forEach(function (r, i) {
+    const yy = y + i * 44;
+    for (let k2 = 0; k2 <= i; k2++) drawStar(rx + 12 + k2 * 22, yy, 10.5, have > i, false);
+    ruleText(r, rx + 80, yy + 1, rw - 80, 19.5, have > i ? '#ffe27a' : '#e8e8e0', false);
+  });
+  ctx.restore();
+  UI_BTNS.length = 0;
+  if (t > 0.3) {
+    uiButton('ESC  Map', px + 40, py + ph - 80, 250, 58, function () { openMap(); }, false);
+    ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
+    uiButton('ENTER  Play!', px + pw - 40 - 330, py + ph - 80, 330, 58, function () { beginLevel(); }, true);
+    ctx.globalAlpha = 1;
+  }
+}
+function drawWonPhone() {
+  const L = G.cfg, r = G.result, t = G.overT;
+  const a = clamp(t / 0.4, 0, 1);
+  ctx.save(); ctx.globalAlpha = a;
+  const px = 20, py = 6, pw = 860, ph = 540;
+  drawPanel(px, py, pw, ph);
+  const head = L.n === 50 ? 'SPRING IS ON ITS WAY!' : L.boss ? 'BOSS BEATEN!' : 'LEVEL COMPLETE!';
+  txt(head, W / 2, py + 54, fitFont(head, pw - 80, 50), '#9cff7a');
+  const sub = 'Level ' + L.n + ': ' + L.place;
+  txt(sub, W / 2, py + 100, fitFont(sub, pw - 80, 23), '#ffffff', 'center', 'bold', true);
+  // left: the stars pop in one by one, the numbers below
+  const lc = 250;
+  for (let i = 0; i < 3; i++) {
+    const st = t - 0.5 - i * 0.35, got = i < r.stars;
+    const k = got ? easeOutBack(clamp(st / 0.35, 0, 1)) : 1;
+    const cx = lc - 104 + i * 104, cy = py + 190 - (i === 1 ? 14 : 0);
+    if (got && st <= 0) { drawStar(cx, cy, 40, false, false); continue; }
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy);
+    drawStar(cx, cy, 40, got, true);
+    ctx.restore();
+  }
+  const stat = (L.goal.type === 'boss' ? '' : 'Saved: ' + r.saved + '    ') + 'Lost: ' + r.lost + '    Time: ' + fmtTime(r.time);
+  txt(stat, lc, py + 284, fitFont(stat, 400, 21), '#a8ff8a', 'center', 'bold', true);
+  txt('Score: ' + G.score, lc, py + 326, 30, '#ffe27a');
+  if (r.newBest && r.prev) txt('New best for this level!', lc, py + 366, 19, '#6ec6ff', 'center', 'bold', true);
+  else if (r.prev > r.stars) txt('Your best here is still ' + r.prev + ' stars', lc, py + 366, 17, '#d8d8d0', 'center', 'bold', true);
+  // right: which star rules were met
+  const rx = 486, rw = 850 - rx;
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 2; line(ctx, rx - 18, py + 130, rx - 18, py + 390);
+  starRules(L).forEach(function (rule, i) {
+    const yy = py + 170 + i * 52, ok = i < r.stars;
+    txt(ok ? '\u2714' : '\u2716', rx + 10, yy, 22, ok ? '#9cff7a' : '#ff8a7a', 'center', 'bold', true);
+    for (let k2 = 0; k2 <= i; k2++) drawStar(rx + 36 + k2 * 20, yy, 8.5, ok, false);
+    ruleText(rule, rx + 100, yy + 1, rw - 100, 19, ok ? '#f0f0e0' : '#c0c0b8', true);
+  });
+  const next = r.thawDone ? 'The big thaw! Next: Spring Returns (Levels 51-61)' : r.ankyDone ? 'The Tank is full! Next: First Snow (Levels 41-50)'
+    : r.mamaDone ? 'Big Mama is calm! Next: Summer Shearing (Levels 31-40)' : r.queenDone ? 'The Dino Queen is full! Next: the Spring Meadow (Levels 21-30)' : '';
+  if (next) txt(next, W / 2, py + 418, fitFont(next, pw - 60, 18), '#ffd9a0', 'center', 'bold', true);
+  ctx.restore();
+  UI_BTNS.length = 0;
+  if (t > 0.9) {
+    uiButton('R  Play again', px + 40, py + ph - 80, 270, 58, function () { retryLevel(); }, false);
+    ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
+    uiButton(L.n < BUILT_MAX ? 'ENTER  Next spot' : 'ENTER  To Endless', px + pw - 40 - 310, py + ph - 80, 310, 58, function () { openMap(); }, true);
+    ctx.globalAlpha = 1;
+  }
+}
+// v23: the map's wool / hearts panel for a narrow side strip (about 40-70 px): stacked, still readable
+function mapSideRightCompact(wcss, n, tm, full) {
+  const c = MAPSIDE.els.rc, hcss = 168;
+  const key = ['c', wcss, WOOL.wool, n, tm].join(',');
+  if (key === MAPSIDE.rkey) return; MAPSIDE.rkey = key;
+  const r = Math.min(3, window.devicePixelRatio || 1);
+  c.width = Math.round(wcss * r); c.height = Math.round(hcss * r); c.style.height = hcss + 'px';
+  const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, wcss, hcss);
+  const pill = function (y, h) { g.fillStyle = 'rgba(20,14,6,0.7)'; g.beginPath(); g.roundRect ? g.roundRect(1, y, wcss - 2, h, 10) : g.rect(1, y, wcss - 2, h); g.fill(); g.strokeStyle = 'rgba(255,235,200,0.5)'; g.lineWidth = 1.2; g.stroke(); };
+  pill(0, 46);
+  tuftOn(g, wcss / 2, 14, 9, 1);
+  g.fillStyle = '#ffffff'; g.textBaseline = 'middle'; g.textAlign = 'center';
+  const ws = String(WOOL.wool); let fs = 17; g.font = 'bold ' + fs + 'px "Segoe UI", Arial, sans-serif';
+  while (fs > 10 && g.measureText(ws).width > wcss - 8) { fs--; g.font = 'bold ' + fs + 'px "Segoe UI", Arial, sans-serif'; }
+  g.fillText(ws, wcss / 2, 34);
+  pill(54, hcss - 54);
+  for (let i = 0; i < LIVES_CFG.max; i++) heartOn(g, wcss / 2, 68 + i * 15, 6.5, i < n);
+  g.fillStyle = n ? '#ffe0e0' : '#ffb0b0';
+  if (full) { g.font = 'bold 13px "Segoe UI", Arial, sans-serif'; g.fillText('full', wcss / 2, hcss - 18); }
+  else {
+    g.font = 'bold 11px "Segoe UI", Arial, sans-serif'; g.fillText('next', wcss / 2, hcss - 28);
+    let f2 = 14; g.font = 'bold ' + f2 + 'px "Segoe UI", Arial, sans-serif'; while (f2 > 9 && g.measureText(tm).width > wcss - 6) { f2--; g.font = 'bold ' + f2 + 'px "Segoe UI", Arial, sans-serif'; }
+    g.fillText(tm, wcss / 2, hcss - 13);
+  }
+}
+
+// ================================================================ v23: raptors that stand out (desktop + phone)
+// Same raptor shape, but deeper colours, more contrast and a strong dark outline, so the little ones are easy to spot on green
+// grass and on snow. Mama Raptor and the Baby Raptors (and every raptor helper, which uses the same 'raptor' type) too.
+// Herbivore helpers (Little Duckbill etc.) keep their look.
+const RAPTOR_LOOK = { raptor: ['#9a6420', '#e6cb86'], mama: ['#86441c', '#ecc995'], baby: ['#b98e2c', '#f2dda6'] };
+(function () {
+  for (const key in RAPTOR_LOOK) {
+    const T = TYPES[key]; if (!T) continue;
+    T.color = RAPTOR_LOOK[key][0]; T.belly = RAPTOR_LOOK[key][1];
+    T.dark = shade(T.color, -50); T.back = shade(T.color, -30); T.light = shade(T.color, 20);
+    T.bellyDark = shade(T.belly, -34); T.ol = shade(T.color, -130); T.olw = key === 'mama' ? 1.5 : 1.9; T.grads = null;
+  }
+})();
+
+// ================================================================ v23: tiny random win celebrations
+// When an ordinary level is won, a short (1.8 s) cheerful scene plays before the Level Complete card: one of six variants,
+// picked at random (never the same twice in a row). Tap, click or any key skips it. Bosses (and the Grand Finale) keep their
+// own win scenes. The sheep are the normal sheep drawing; only where they stand, hop, tilt or bow changes.
+const CELEB = { dur: 1.8, last: -1, kinds: ['hop', 'belly', 'vicky', 'bow', 'hearts', 'jump'],
+  title: { hop: 'Hop hop hooray!', belly: 'Boing! Boing!', vicky: 'Good girl, Vicky!', bow: 'Thank ewe!', hearts: 'Ewe did it!', jump: 'Woolly good jumping!' } };
+function celebOK() {
+  const L = G.cfg;
+  return !!(state === 'won' && L && !L.boss && G.result && !G.result.finale && !G.attract);
+}
+function celebStart() {
+  if (G.celebFor === G.result) return; G.celebFor = G.result;
+  if (!celebOK()) return;
+  const q = params.get('celeb');
+  let i = q && CELEB.kinds.indexOf(q) >= 0 ? CELEB.kinds.indexOf(q) : Math.floor(Math.random() * CELEB.kinds.length);
+  if (!q && i === CELEB.last) i = (i + 1 + Math.floor(Math.random() * (CELEB.kinds.length - 1))) % CELEB.kinds.length;
+  CELEB.last = i;
+  G.celeb = { kind: CELEB.kinds[i], t: 0, stars: G.result.stars | 0, seed: Math.random() * 10 };
+  G.stats.celeb = G.celeb.kind;
+}
+// returns true while the scene plays (the Level Complete card waits)
+function celebTick(dt) {
+  if (state !== 'won') return false;
+  celebStart();
+  const c = G.celeb; if (!c) return false;
+  c.t += dt;
+  if (c.t >= CELEB.dur) { G.celeb = null; return false; }
+  return true;
+}
+function celebSkip() { if (state === 'won' && G.celeb) { G.celeb = null; G.overT = 0; return true; } return false; }
+['keydown', 'mousedown', 'touchstart', 'pointerdown'].forEach(function (ev) {
+  window.addEventListener(ev, function (e) {
+    if (!(state === 'won' && G && G.celeb)) return;
+    if (ev === 'pointerdown' && e.pointerType === 'touch') return;   // the touchstart already skipped it
+    celebSkip(); e.stopImmediatePropagation(); if (ev !== 'keydown' || e.key === 'Enter' || e.key === ' ') e.preventDefault();
+  }, { capture: true, passive: false });
+});
+function cSheep(x, y, sc, dir, rot, ph) {
+  ctx.save(); ctx.translate(x, y); if (rot) ctx.rotate(rot); drawSheep({ x: 0, y: 0, phase: ph || 0 }, sc, dir, !!ph); ctx.restore();
+}
+function cConfetti(c, n, x0, y0, w, h, a) {
+  const cols = ['#ff5a5a', '#ffd84a', '#5ac8ff', '#7ee081', '#ff9ad0', '#c08aff'];
+  for (let i = 0; i < n; i++) {
+    const r1 = Math.sin(i * 12.9898 + c.seed) * 43758.5453, fr = r1 - Math.floor(r1), r2 = Math.sin(i * 78.233 + c.seed) * 12345.678, f2 = r2 - Math.floor(r2);
+    const x = x0 + fr * w + Math.sin(c.t * 3 + i) * 8, y = y0 + ((f2 * h + c.t * (60 + fr * 70)) % h);
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.rotate(c.t * 5 + i); ctx.fillStyle = cols[i % 6]; ctx.fillRect(-3.5, -2, 7, 4); ctx.restore();
+  }
+}
+function drawCeleb() {
+  const c = G.celeb, t = c.t, D = CELEB.dur;
+  UI_BTNS.length = 0;
+  const inA = clamp(t / 0.25, 0, 1), outA = clamp((D - t) / 0.25, 0, 1), a = Math.min(inA, outA), k = easeOutBack(clamp(t / 0.35, 0, 1));
+  const big = PHONE.on;
+  const cw = big ? 640 : 560, ch = big ? 380 : 320, cx = W / 2, cy = H / 2 + (big ? 8 : 10), x0 = cx - cw / 2, y0 = cy - ch / 2, gy = y0 + ch - 62;
+  ctx.save(); ctx.globalAlpha = 0.45 * a; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.restore();
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy);
+  // the little stage: sky and the farm's ground (snowy on winter farms)
+  const snow = !!(SPOT && SPOT.winter), night = !!G.night;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; rr(ctx, x0 + 4, y0 + 7, cw, ch, 22); ctx.fill();
+  ctx.save(); rr(ctx, x0, y0, cw, ch, 22); ctx.clip();
+  const sky = ctx.createLinearGradient(0, y0, 0, gy);
+  sky.addColorStop(0, night ? '#24305e' : snow ? '#cfe0f0' : '#8fd0ff'); sky.addColorStop(1, night ? '#4a5a8a' : snow ? '#eef4fa' : '#e3f6ff');
+  ctx.fillStyle = sky; ctx.fillRect(x0, y0, cw, ch);
+  const gr = ctx.createLinearGradient(0, gy - 30, 0, y0 + ch);
+  gr.addColorStop(0, snow ? '#f4f8fc' : '#86c55a'); gr.addColorStop(1, snow ? '#cddbe8' : '#4f9238');
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x0, gy - 22);
+  for (let x = 0; x <= cw; x += 20) ctx.lineTo(x0 + x, gy - 22 + Math.sin(x / 70) * 6);
+  ctx.lineTo(x0 + cw, y0 + ch); ctx.lineTo(x0, y0 + ch); ctx.closePath(); ctx.fill();
+  // sun rays turning slowly behind everything
+  ctx.save(); ctx.translate(cx, gy - 90); ctx.rotate(t * 0.5); ctx.fillStyle = night ? 'rgba(255,240,180,0.08)' : 'rgba(255,255,255,0.22)';
+  for (let i = 0; i < 12; i++) { ctx.rotate(Math.PI / 6); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-26, -330); ctx.lineTo(26, -330); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+  celebScene(c, cx, gy, cw, x0, y0, ch);
+  ctx.restore();
+  ctx.strokeStyle = c.stars >= 3 ? '#ffd23a' : '#a8743c'; ctx.lineWidth = c.stars >= 3 ? 6 : 5; rr(ctx, x0, y0, cw, ch, 22); ctx.stroke();
+  const tt = CELEB.title[c.kind], ty = y0 + 40, pop = 1 + 0.06 * Math.sin(t * 9);
+  txt(tt, cx, ty, Math.round((big ? 40 : 34) * pop), '#ffe27a');
+  // three stars: a little extra sparkle around the stage
+  if (c.stars >= 3) {
+    for (let i = 0; i < 14; i++) {
+      const an = i / 14 * Math.PI * 2 + t * 0.8, rx = cw / 2 + 10, ry = ch / 2 + 10, tw = 0.5 + 0.5 * Math.sin(t * 10 + i * 1.7);
+      const sx = cx + Math.cos(an) * rx, sy = cy + Math.sin(an) * ry;
+      ctx.save(); ctx.globalAlpha = a * (0.4 + 0.6 * tw); starPath(ctx, sx, sy, 6 + 6 * tw, 2.4 + 2 * tw); ctx.fillStyle = i % 2 ? '#fff6c0' : '#ffd23a'; ctx.fill(); ctx.restore();
+    }
+    txt('\u2605 \u2605 \u2605', cx, y0 + ch - 22, big ? 26 : 22, '#ffd23a');
+  }
+  txt(big ? 'tap to skip' : 'click or press a key to skip', x0 + cw - 16, y0 + ch - 14, big ? 14 : 11, 'rgba(255,255,255,0.85)', 'right', 'bold', true);
+  ctx.restore();
+}
+function celebScene(c, cx, gy, cw, x0, y0, ch) {
+  const t = c.t, S = PHONE.on ? 2.1 : 1.9;
+  if (c.kind === 'hop') {
+    // happy sheep hopping in the pen
+    ctx.strokeStyle = '#8a5a30'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+    ctx.lineWidth = 7; for (let x = x0 + 40; x <= x0 + cw - 40; x += 56) line(ctx, x, gy - 96, x, gy - 8);
+    line(ctx, x0 + 34, gy - 84, x0 + cw - 34, gy - 84); line(ctx, x0 + 34, gy - 46, x0 + cw - 34, gy - 46);
+    for (let i = 0; i < 5; i++) {
+      const x = cx - 230 + i * 115, hop = Math.abs(Math.sin(t * 7 + i * 1.3)) * 46;
+      cSheep(x, gy + 30 - hop, S, i % 2 ? -1 : 1, Math.sin(t * 7 + i * 1.3) * 0.08, 0);
+      if (hop > 38 && i % 2 === 0) txt('baa!', x + 20, gy - 60 - hop, 18, '#ffffff', 'center', 'italic bold', true);
+    }
+  } else if (c.kind === 'belly') {
+    // a full, sleepy dino, and a sheep bouncing on its tummy
+    const T = TYPES[(G.cfg.dinos && G.cfg.dinos.indexOf('trex') >= 0) ? 'trex' : 'allo'] || TYPES.trex;
+    const d = { T: T, x: cx + 30, y: gy + 26, dir: -1, vx: 0, vy: 0, state: 'roam', anim: t * 2, walk: 0, appear: 0, food: 1, mood: { kind: 'sleep', t: 2 } };
+    const DS = PHONE.on ? 2.0 : 1.8; drawDino(d, DS);
+    const ph = (t * 2.3) % 1, hop = Math.sin(ph * Math.PI) * 70, top = gy + 26 - 50 * DS;
+    cSheep(cx + 44, top - hop, S * 0.9, 1, (ph - 0.5) * 0.5, 0);
+    if (ph < 0.14 || ph > 0.9) txt('boing!', cx - 70, top - 30, 24, '#ffd84a', 'center', 'bold', true);
+    for (let i = 0; i < 3; i++) { const z = (t * 0.9 + i / 3) % 1; ctx.globalAlpha *= 1; ctx.save(); ctx.globalAlpha *= 1 - z; txt('z', cx - 130 - z * 30, gy - 70 - z * 80, 18 + z * 16, '#ffffff', 'center', 'bold', true); ctx.restore(); }
+  } else if (c.kind === 'vicky') {
+    // Vicky spins round and round, wagging, with two cheering sheep
+    const flip = Math.floor(t * 6) % 2 ? -1 : 1, hop = Math.abs(Math.sin(t * 6 * Math.PI / 2)) * 26;
+    drawVicky({ x: cx, y: gy + 20, dir: flip, hop: hop, t: t * 3, ph: t * 14, pose: t % 0.9 < 0.45 ? 'sit' : null }, PHONE.on ? 3.4 : 3.0);
+    for (let i = 0; i < 4; i++) { const q = (t * 0.8 + i / 4) % 1; ctx.save(); ctx.globalAlpha = (1 - q); drawHeart(cx - 50 + i * 32 + Math.sin(q * 6 + i) * 10, gy - 90 - q * 110, 22, '#ff5a8a'); ctx.restore(); }
+    cSheep(cx - 215, gy + 30 - Math.abs(Math.sin(t * 8)) * 26, S, 1, 0, 0);
+    cSheep(cx + 215, gy + 30 - Math.abs(Math.sin(t * 8 + 1.2)) * 26, S, -1, 0, 0);
+  } else if (c.kind === 'bow') {
+    // a sheep on a little stage takes a bow, flowers fly in
+    ctx.fillStyle = '#a8743c'; rr(ctx, cx - 150, gy + 8, 300, 24, 6); ctx.fill(); ctx.fillStyle = '#7a4f24'; ctx.fillRect(cx - 140, gy + 32, 280, 12);
+    const spot = ctx.createRadialGradient(cx, gy - 30, 10, cx, gy - 30, 170); spot.addColorStop(0, 'rgba(255,250,210,0.55)'); spot.addColorStop(1, 'rgba(255,250,210,0)');
+    ctx.fillStyle = spot; ctx.fillRect(cx - 200, gy - 210, 400, 260);
+    const bow = Math.sin(clamp((t - 0.35) / 1.0, 0, 1) * Math.PI) * 0.42;
+    cSheep(cx, gy + 10, S * 1.3, 1, bow, 0);
+    for (let i = 0; i < 7; i++) {
+      const q = clamp((t - 0.2 - i * 0.12) / 0.7, 0, 1); if (q <= 0) continue;
+      const sx = i % 2 ? x0 + 30 : x0 + cw - 30, fx = cx - 120 + i * 40, x = lerp(sx, fx, q), y = lerp(gy - 140, gy + 4, q) - Math.sin(q * Math.PI) * 60;
+      ctx.fillStyle = ['#ff5a7a', '#ffd84a', '#ff9ad0', '#ffffff'][i % 4]; for (let p = 0; p < 5; p++) { ell(ctx, x + Math.cos(p * 1.256) * 6, y + Math.sin(p * 1.256) * 6, 5, 5); ctx.fill(); }
+      ctx.fillStyle = '#ffd23a'; ell(ctx, x, y, 3.6, 3.6); ctx.fill();
+    }
+    if (t > 0.6) txt('*clap clap*', cx, gy - 150, 20, '#ffffff', 'center', 'italic bold', true);
+  } else if (c.kind === 'hearts') {
+    // three sheep swaying happily, hearts and confetti
+    for (let i = 0; i < 3; i++) cSheep(cx - 170 + i * 170, gy + 30 - Math.abs(Math.sin(t * 5 + i)) * 14, S * 1.15, i === 2 ? -1 : 1, Math.sin(t * 5 + i) * 0.14, 0);
+    for (let i = 0; i < 9; i++) { const q = (t * 0.7 + i / 9) % 1; ctx.save(); ctx.globalAlpha = 1 - q; drawHeart(cx - 240 + i * 60 + Math.sin(q * 7 + i) * 12, gy - 50 - q * 170, 20 + (i % 3) * 6, i % 2 ? '#ff6a9a' : '#ff3a6a'); ctx.restore(); }
+    cConfetti(c, 40, x0, y0 + 50, cw, ch - 60, 0.95);
+  } else {
+    // counting sheep: one after another they jump the fence
+    ctx.strokeStyle = '#8a5a30'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    line(ctx, cx - 10, gy - 52, cx - 10, gy + 22); line(ctx, cx + 34, gy - 52, cx + 34, gy + 22); line(ctx, cx - 26, gy - 38, cx + 50, gy - 38); line(ctx, cx - 26, gy - 8, cx + 50, gy - 8);
+    for (let i = 0; i < 4; i++) {
+      const q = clamp((t - i * 0.32) / 0.75, 0, 1); if (q <= 0) { cSheep(x0 + 60 - i * 12, gy + 30, S * 0.85, 1, 0, 0); continue; }
+      const x = lerp(x0 + 70, x0 + cw - 80, q), y = gy + 30 - Math.max(0, Math.sin(clamp((q - 0.3) / 0.4, 0, 1) * Math.PI)) * 110;
+      cSheep(x, y, S * 0.85, 1, q > 0.3 && q < 0.7 ? -0.25 + (q - 0.3) * 1.25 : 0, q < 1 ? t * 9 : 0);
+      if (q > 0.45 && q < 0.8) txt(String(i + 1), cx + 12, gy - 150, 36, '#ffe27a');
+    }
+  }
+}
+
+// ================================================================ v23: no seam where the phone side strips meet the field
+// A short symmetric cross-fade across the seam: the last 28 world units of the strip blend towards a mirror image of the
+// field edge, and the first 28 units of the field's background blend towards a mirror image of the strip (both 50/50 exactly
+// at the seam, so there is no line at all). Things on the field (barn, path, pen, fences, shrubs, the tree row) are left out
+// of the blend so nothing gets copied or ghosted; the top band and the rivers were already mirrored and continuous.
+const SEAM23 = { B: 28 };
+function wideXfade(st, side, x0, scale) {
+  if (!st || !st.cv || !bg) return;
+  const B = SEAM23.B, seam = side < 0 ? 0 : W, cv = st.cv, sw = cv.width, sh = cv.height;
+  const fx0 = side < 0 ? 0 : Math.floor((W - B) * dpr), fw = Math.min(bg.width - fx0, Math.ceil(B * dpr) + 1);
+  const sx0 = side < 0 ? Math.max(0, Math.floor((-B - x0) * scale)) : 0, sx1 = side < 0 ? sw : Math.min(sw, Math.ceil(B * scale) + 1);
+  if (sx1 <= sx0 || fw <= 0) return;
+  let SI, FI;
+  const sc = cv.getContext('2d'), bc = bg.getContext('2d');
+  try { SI = sc.getImageData(sx0, 0, sx1 - sx0, sh); FI = bc.getImageData(fx0, 0, fw, bg.height); } catch (e) { return; }
+  const S0 = new Uint8ClampedArray(SI.data), F0 = new Uint8ClampedArray(FI.data), sd = SI.data, fd = FI.data, sW = sx1 - sx0;
+  // mask per world unit (x from the seam inwards 0..B, y 0..H)
+  const mask = new Uint8Array((B + 1) * H);
+  for (let y = 0; y < H; y++) for (let i = 0; i <= B; i++) {
+    const xw = side < 0 ? i + 0.5 : W - i - 0.5;
+    mask[y * (B + 1) + i] = (y < HUD_H + 4 || wideMask(xw, y + 0.5, side)) ? 1 : 0;
+  }
+  const wt = function (d) { const q = 1 - d / B; return 0.5 * q * q * (3 - 2 * q); };
+  const off = function (y, d) { return mask[clamp(Math.floor(y), 0, H - 1) * (B + 1) + clamp(Math.floor(d), 0, B)]; };
+  // strip side: towards the mirrored field
+  for (let py = 0; py < sh; py++) {
+    const yw = (py + 0.5) / scale, fy = Math.min(bg.height - 1, Math.floor(yw * dpr));
+    for (let px = 0; px < sW; px++) {
+      const xw = x0 + (sx0 + px + 0.5) / scale, d = Math.abs(xw - seam); if (d >= B) continue;
+      if (off(yw, d)) continue;
+      const xm = 2 * seam - xw, fpx = clamp(Math.floor(xm * dpr) - fx0, 0, fw - 1);
+      const i = (py * sW + px) * 4, j = (fy * fw + fpx) * 4, w = wt(d);
+      if (S0[i + 3] === 0) continue;
+      sd[i] = S0[i] + (F0[j] - S0[i]) * w; sd[i + 1] = S0[i + 1] + (F0[j + 1] - S0[i + 1]) * w; sd[i + 2] = S0[i + 2] + (F0[j + 2] - S0[i + 2]) * w;
+    }
+  }
+  sc.putImageData(SI, sx0, 0);
+  // field side (once per background): towards the mirrored strip
+  const key = side < 0 ? '_xfL' : '_xfR';
+  if (bg[key]) return; bg[key] = true;
+  for (let py = 0; py < bg.height; py++) {
+    const yw = (py + 0.5) / dpr, spy = Math.min(sh - 1, Math.floor(yw * scale));
+    for (let px = 0; px < fw; px++) {
+      const xw = (fx0 + px + 0.5) / dpr, d = Math.abs(xw - seam); if (d >= B) continue;
+      if (off(yw, d)) continue;
+      const xm = 2 * seam - xw, spx = Math.floor((xm - x0) * scale) - sx0; if (spx < 0 || spx >= sW) continue;
+      const i = (py * fw + px) * 4, j = (spy * sW + spx) * 4, w = wt(d);
+      if (S0[j + 3] === 0) continue;
+      fd[i] = F0[i] + (S0[j] - F0[i]) * w; fd[i + 1] = F0[i + 1] + (S0[j + 1] - F0[i + 1]) * w; fd[i + 2] = F0[i + 2] + (S0[j + 2] - F0[i + 2]) * w;
+    }
+  }
+  bc.putImageData(FI, fx0, 0);
+}
+const wideBuildStripV22 = wideBuildStrip;
+wideBuildStrip = function (side, x0, x1, scale, SP) {
+  const st = wideBuildStripV22(side, x0, x1, scale, SP);
+  try { wideXfade(st, side, x0, scale); } catch (e) { }
+  return st;
+};
+
+if (window.__dbg) window.__dbg.v23 = { BIG23: BIG23, CELEB: CELEB, celebSkip: celebSkip, phoneScreens: phoneScreens };
 if (window.__dbg) window.__dbg.v22 = { vickyGuards: vickyGuards, PHONE: PHONE, PHONE_DIFF: PHONE_DIFF, phoneEasy: phoneEasy, bot: { botTools: botTools, botBonus: botBonus, botBossFood: botBossFood, botPicky: botPicky, bossFeedable: bossFeedable, botAvoidLove: botAvoidLove, canReach: canReach, readyTool: readyTool } };
 if (!DEMO) {
   if (params.get('level') && !ENDLESS_MODE) { SESSION_OPEN = START_LEVEL; if (LEVELS[START_LEVEL - 1].built) showBrief(START_LEVEL); else openMap(); }
