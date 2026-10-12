@@ -1,0 +1,52 @@
+Feed the Dinos, Save the Sheep - third-party sound and music credits
+=====================================================================
+
+MUSIC INSTRUMENT SAMPLES (v26)
+  Source : FluidR3 GM SoundFont (FluidR3_GM.sf2), Debian/Ubuntu package "fluid-soundfont-gm"
+           (upstream: http://www.musescore.org/download/fluid-soundfont.tar.gz)
+  Author : Frank Wen and contributors (Suren M. Seron, Scott Hanan, Steve Aupperle, Chris Gillman,
+           Alex Taubr, Chris Prola, Andrew Klenk, Winfried Hubbe, Dylan, Tim, Gort, Uros Katic,
+           Ethan Winer)
+  Licence: MIT (commercial use allowed; keep the notice below)
+  Used   : piano (GM 0), steel-string guitar (GM 25), string ensemble (GM 48), acoustic bass (GM 32),
+           flute (GM 73), celesta (GM 8), GM drum kit (kick, snare, closed/open hat, tom, crash).
+           Single notes rendered with FluidSynth, trimmed, encoded as mono 22 kHz MP3 and embedded
+           in the game page. The tunes themselves are the game's own compositions.
+
+  Copyright (c) 2000-2002, 2008 Frank Wen
+  Copyright (c) 2008 Toby Smithe
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+  associated documentation files (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge, publish, distribute,
+  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all copies or
+  substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+  NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ANIMAL SOUNDS AND EFFECTS (unchanged from earlier versions)
+
+
+  Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
+  they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
+    Sheep bleats ......... "Sheep bleating.ogg" by earthcalling (public domain)
+                           "Sheep bleat.ogg" by Eviatar Bach (CC0)
+    Scared sheep ......... "Herd of goats bleating.ogg" by stephan (public domain)
+    Burp ................. "Burp.ogg" by ezwa (public domain, Wikimedia Commons)
+    Super burp ........... "Big Belch" by Ben_0815 (CC0, freesound.org #515796)
+    Dino chewing ......... "Munching Food" by Kodack (CC0, freesound.org #256311), cut into 7 chomps
+    Dino roars & growls .. a mix of "Lion raring-sound1TamilNadu178.ogg" by த*உழவன் (public domain),
+                           "Alligatorbellowedit.ogg" by Borisblue (public domain),
+                           "Elephant voice - trumpeting.ogg" by தகவலுழவன் (CC0),
+                           "439280 schots angry-tiger.wav" by schots (CC0)
+    Vicky's barks ........ recorded by Rony (Vicky is Rony's real Sheltie)
+
+Everything else (tossing, the v25 synth instruments used if the samples cannot load, whistle, panting, Mrs. Dino music, the music box
+playing Brahms' Lullaby - public domain) is synthesized in the browser.
