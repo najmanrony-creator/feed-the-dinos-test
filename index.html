@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 24
+  Feed the Dinos, Save the Sheep 25
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -22,7 +22,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 24</title>
+<title>Feed the Dinos, Save the Sheep 25</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1389,7 +1389,7 @@ function update(dt) {
   updatePopups(dt);
   if (G.banner) { G.banner.t += dt; if (G.banner.t > G.banner.dur) G.banner = null; }
   if (G.shake > 0) G.shake -= dt;
-  if (playing && G.overPending <= 0 && state === 'play') {
+  if (playing && (G.overPending <= 0 || (CAMP() && goalReached())) && state === 'play' && !G.offer && !AD.playing) {
     if (CAMP()) campCheck();
     else if (G.boss) endlessBossCheck();
     else if (G.levelSaved >= levelNeed(G.level) || G.levelTime >= 50) levelUp();
@@ -1416,12 +1416,15 @@ function updateFarmer(dt) {
       if (G.refT[i] >= F.refill) { G.refT[i] = 0; G.ammo[i]++; G.ammoFlash[i] = 0.8; if (i === 2 || G.ammo[i] === 1) SFX.refill(); }
     } else G.refT[i] = 0;
   }
+  const fireNow = !!(keys.fire || aiFire);
+  if (fireNow && !G._fireWas && !aiFire && G.throwCD > 0 && G.overPending <= 0) foodCapCue();
+  G._fireWas = fireNow;
   if ((keys.fire || aiFire) && G.throwCD <= 0 && G.overPending <= 0 && G.meats.length >= FOOD_CAP) foodCapCue();
   if ((keys.fire || aiFire) && G.throwCD <= 0 && G.overPending <= 0 && G.meats.length < FOOD_CAP) {
     if (!hasAmmo(G.food)) { G.food = foodStepDown(G.food); G.foodFlash = 0.5; }
     const F = FOODS[G.food];
     G.meats.push({ x: f.x + 4, y: THROW_Y, vy: -F.speed, rot: 0, vr: rand(-9, 9) * (F.ammo ? 0.5 : 1), trail: 0, f: G.food, veg: !!G.veg });
-    G.throwCD = F.cd; f.throwAnim = THROW_ANIM; f.throwFood = G.food; G.stats.throws++; G.stats.foods[G.food]++;
+    G.throwCD = Math.max(F.cd, THROW_GAP); f.throwAnim = THROW_ANIM; f.throwFood = G.food; G.stats.throws++; G.stats.foods[G.food]++;
     tossSound(f.x, F.tossPitch);
     if (F.ammo) {
       const fi = G.food;
@@ -4809,7 +4812,7 @@ function drawIntro() {
   const t = G.introT;
   const list = TYPE_ORDER.filter(function (k) { return unlocked(G.level).indexOf(k) >= 0; });
   const n = list.length;
-  const px = 40, py = 64, pw = 820, ph = 480;
+  const px = 40 + (W - 900) / 2, py = 64, pw = 820, ph = 480;
   drawPanel(px, py, pw, ph);
   txt('MEET THE DINOS!', W / 2, py + 44, 40, '#ffb347');
   txt('Help Robner the farmer: hit the dinos on the head with food so the sheep can pass', W / 2, py + 82, 16, '#f0f0e8', 'center', '600', false);
@@ -4835,7 +4838,7 @@ function drawIntro() {
 
 const demoDino = { T: TYPES.allo, x: 0, y: 0, dir: 1, vx: 0, vy: 0, state: 'eat', anim: 0, walk: 0, appear: 0, food: 1 };
 function drawTitle() {
-  const px = 100, py = 40, pw = 700, ph = 548;
+  const px = 100 + (W - 900) / 2, py = 40, pw = 700, ph = 548;
   drawPanel(px, py, pw, ph);
   txt('FEED THE DINOS', W / 2, py + 44, 44, '#ffb347');
   txt('SAVE THE SHEEP', W / 2, py + 86, 28, '#f7f7ee');
@@ -4912,7 +4915,7 @@ function drawFarmerLabel(f) {
 function drawLoveOver() {
   const a = clamp(G.overT / 0.4, 0, 1);
   ctx.save(); ctx.globalAlpha = a;
-  const px = 190, py = 58, pw = 520, ph = 486;
+  const px = 190 + (W - 900) / 2, py = 58, pw = 520, ph = 486;
   drawPanel(px, py, pw, ph);
   ctx.save(); ctx.beginPath(); rr(ctx, px + 8, py + 8, pw - 16, ph - 16, 14); ctx.clip();
   // pink glow and floating hearts
@@ -4958,7 +4961,7 @@ function drawGameOver() {
   if (CAMP()) { drawCampFail(); return; }
   const a = clamp(G.overT / 0.4, 0, 1);
   ctx.save(); ctx.globalAlpha = a;
-  const px = 220, py = 130, pw = 460, ph = 340;
+  const px = 220 + (W - 900) / 2, py = 130, pw = 460, ph = 340;
   drawPanel(px, py, pw, ph);
   txt('GAME OVER', W / 2, py + 52, 46, '#ff6a5a');
   txt('The dinos ate ' + MAX_LOST + ' of Robner\'s sheep!', W / 2, py + 96, 18, '#f0f0e8', 'center', '600', false);
@@ -5699,7 +5702,7 @@ function uiClick(x, y) {
 function drawBrief() {
   if (phoneScreens()) return drawBriefPhone();
   const L = G.cfg, t = G.briefT;
-  const px = 150, py = 54, pw = 600, ph = 500;
+  const px = 150 + (W - 900) / 2, py = 54, pw = 600, ph = 500;
   const k = easeOutBack(clamp(t / 0.35, 0, 1));
   ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.fillRect(0, 0, W, H);
   ctx.save(); ctx.translate(W / 2, py + ph / 2); ctx.scale(k, k); ctx.translate(-W / 2, -(py + ph / 2));
@@ -5756,7 +5759,7 @@ function drawWon() {
   const L = G.cfg, r = G.result, t = G.overT;
   const a = clamp(t / 0.4, 0, 1);
   ctx.save(); ctx.globalAlpha = a;
-  const px = 200, py = 82, pw = 500, ph = 440;
+  const px = 200 + (W - 900) / 2, py = 82, pw = 500, ph = 440;
   drawPanel(px, py, pw, ph);
   txt(r.finale ? 'A WHOLE YEAR SAVED!' : L.n === 50 ? 'SPRING IS ON ITS WAY!' : L.boss ? 'BOSS BEATEN!' : 'LEVEL COMPLETE!', W / 2, py + 52, r.finale ? 36 : 40, r.finale ? '#ffe27a' : '#9cff7a');
   txt('Level ' + L.n + ': ' + L.place, W / 2, py + 90, 18, '#ffffff', 'center', 'bold', false);
@@ -5799,7 +5802,7 @@ function drawWon() {
 function drawCampFail() {
   const a = clamp(G.overT / 0.4, 0, 1);
   ctx.save(); ctx.globalAlpha = a;
-  const px = 220, py = 130, pw = 460, ph = 330;
+  const px = 220 + (W - 900) / 2, py = 130, pw = 460, ph = 330;
   drawPanel(px, py, pw, ph);
   txt('LEVEL FAILED', W / 2, py + 52, 42, '#ff6a5a');
   const why = G.overReason === 'lamb' ? 'Oh no, the baby lamb was eaten!' : 'The dinos ate ' + MAX_LOST + ' of Robner\'s sheep!';
@@ -6333,7 +6336,7 @@ function bossFeed(d, m) {
       popup(h.x, h.y - 96, 'He still wants ' + miss + '!', '#ffb08a', 17, 1.6);
       if (!G.hint.kingMiss) { G.hint.kingMiss = true; showBanner('He still wants ' + miss + '!', 'King T-Rex only gets full after Sausage, Meat AND Big Ham'); }
     }
-  } else b.hp = Math.max(0, b.hp - dmg);
+  } else b.hp = Math.max(0, b.hp - dmg * RETUNE25.boss);
   dmg = Math.round(wasHp - b.hp);
   d.state = 'eat'; d.eatMax = d.timer = B.chew[m.f]; d.carry = null; d.target = null; d.food = m.f; d.bites = 0;
   G.stats.hits++; G.score += 10 + dmg;
@@ -6484,7 +6487,7 @@ function twinFeed(d, m) {
   }
   if (d.state === 'eat') { popup(h.x, h.y - 40, 'Still chewing!', '#ffe0b0', 15, 0.7); return true; }
   const was = p.hp;
-  p.hp = Math.max(0, p.hp - B.dmg[m.f] * Math.pow(1.15, b.cycle || 0));
+  p.hp = Math.max(0, p.hp - B.dmg[m.f] * Math.pow(1.15, b.cycle || 0) * RETUNE25.boss);
   const dmg = Math.round(was - p.hp);
   b.hp = b.parts[0].hp + b.parts[1].hp;
   d.state = 'eat'; d.eatMax = d.timer = B.chew[m.f]; d.carry = null; d.target = null; d.food = m.f; d.bites = 0;
@@ -8080,7 +8083,7 @@ function pteraCatch(m, F) {
   if (b.done) return false;
   if (p.st === 'eat') { popup(h.x, h.y - 30, 'Still chewing!', '#ffe0b0', 15, 0.7); burst(h.x, h.y, 6, ['#b5482f', '#f3ead7'], 90, 3); return true; }
   const B = BOSS_TUNE.ptera, wasHp = b.hp;
-  b.hp = Math.max(0, b.hp - B.dmg[m.f] * Math.pow(1.15, b.cycle || 0));
+  b.hp = Math.max(0, b.hp - B.dmg[m.f] * Math.pow(1.15, b.cycle || 0) * RETUNE25.boss);
   const dmg = Math.round(wasHp - b.hp);
   const wasDiving = p.st === 'aim' || p.st === 'dive' || !!p.carry;
   if (p.carry) pteraDrop(p);
@@ -8645,7 +8648,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 24', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 25', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   drawStar(W - 112, 28, 13, true, true);
   txt(totalStars() + ' / ' + (LAST_LEVEL * 3), W - 92, 29, 20, '#ffe27a', 'left', 'bold', true);
   const L = LEVELS[MAP.sel - 1];
@@ -10097,7 +10100,7 @@ function gangFeed(d, m) {
   }
   let dmg = B.dmg[m.f] * Math.pow(1.15, b.cycle || 0) * (line ? B.lineHit : 1);
   const was = p.hp;
-  p.hp = Math.max(0, p.hp - dmg); dmg = Math.round(was - p.hp);
+  p.hp = Math.max(0, p.hp - dmg * RETUNE25.boss); dmg = Math.round(was - p.hp);
   d.state = 'eat'; d.eatMax = d.timer = B.chew[m.f]; d.carry = null; d.target = null; d.food = m.f; d.bites = 0;
   G.stats.hits++; G.score += 10 + dmg; G.stats.bossHits = (G.stats.bossHits || 0) + 1;
   burst(h.x, h.y, 16, ['#b5482f', '#7a2e1d', '#f3ead7'], 150, 4);
@@ -10209,7 +10212,7 @@ function ankyFeed(d, m) {
   }
   let dmg = B.dmg[m.f] * Math.pow(1.15, b.cycle || 0);
   const was = b.hp;
-  b.hp = Math.max(0, b.hp - dmg); dmg = Math.round(was - b.hp);
+  b.hp = Math.max(0, b.hp - dmg * RETUNE25.boss); dmg = Math.round(was - b.hp);
   d.gulp = 0.45;
   G.stats.hits++; G.score += 10 + dmg; G.stats.bossHits = (G.stats.bossHits || 0) + 1;
   burst(h.x, h.y, 14, ['#b5482f', '#7a2e1d', '#f3ead7'], 140, 4);
@@ -11854,7 +11857,7 @@ function winterFeed(d, m) {
   if (d.state === 'eat') { popup(h.x, h.y - 40, 'Still chewing!', '#ffe0b0', 15, 0.7); burst(h.x, h.y, 6, ['#b5482f', '#f3ead7'], 90, 3); return true; }
   let dmg = B.dmg[m.f] * Math.pow(1.15, b.cycle || 0);
   const was = b.hp;
-  b.hp = Math.max(0, b.hp - dmg); dmg = Math.round(was - b.hp);
+  b.hp = Math.max(0, b.hp - dmg * RETUNE25.boss); dmg = Math.round(was - b.hp);
   d.state = 'eat'; d.eatMax = d.timer = B.chew[m.f]; d.carry = null; d.target = null; d.food = m.f; d.bites = 0;
   G.stats.hits++; G.score += 10 + dmg; G.stats.bossHits = (G.stats.bossHits || 0) + 1;
   burst(h.x, h.y, 14, ['#b5482f', '#7a2e1d', '#f3ead7'], 140, 4);
@@ -12979,7 +12982,7 @@ function springFeed(d, m) {
   }
   let dmg = B.dmg[m.f] * k * Math.pow(1.15, b.cycle || 0);
   const was = b.hp;
-  b.hp = Math.max(0, b.hp - dmg); dmg = Math.round(was - b.hp);
+  b.hp = Math.max(0, b.hp - dmg * RETUNE25.boss); dmg = Math.round(was - b.hp);
   d.state = 'eat'; d.eatMax = d.timer = B.chew[m.f]; d.carry = null; d.target = null; d.food = m.f; d.bites = 0;
   G.stats.hits++; G.score += 10 + dmg; G.stats.bossHits = (G.stats.bossHits || 0) + 1;
   burst(h.x, h.y, 14, k < 1 ? ['#7a5a32', '#5a3a1e', '#b08860'] : ['#b5482f', '#7a2e1d', '#f3ead7'], 140, 4);
@@ -15263,7 +15266,7 @@ function closeShop() { SHOPUI.open = false; SHOPUI.confirm = null; }
 function itemName(k) { return k === 'blacksheep' ? 'Bonus black sheep' : 'Extra ' + TOOLS[k].name; }
 function itemState(k) {
   const price = SHOP_PRICES[k];
-  if (k !== 'blacksheep' && !toolKnown(k)) return { locked: true, price: price };
+  if (!shopKnownReal(k)) return { locked: true, price: price };
   const owned = k === 'blacksheep' ? WOOL.bonus : WOOL.inv[k] | 0, max = k === 'blacksheep' ? 1 : WOOL_RULES.invMax;
   return { price: price, owned: owned, full: owned >= max, poor: WOOL.wool < price };
 }
@@ -15323,7 +15326,7 @@ function shopCard(k, x, y, w, h, sel) {
   txt(itemName(k), cx, y + 86, fitFont(itemName(k), w - 16, 14), s.locked ? '#7a7060' : '#4a2a10', 'center', 'bold', false);
   if (s.locked) {
     drawPadlock(cx, y + 41, 1.1);
-    txt('Meet it at Level ' + toolFirstLevel(k), cx, y + 108, 12, '#7a7060', 'center', 'bold', false);
+    txt('Unlocks at Level ' + shopUnlockLevel(k), cx, y + 108, 12, '#7a7060', 'center', 'bold', false);
   } else {
     // price
     const pc = s.poor && !s.full ? '#c0392b' : '#2a6a18';
@@ -15336,27 +15339,27 @@ function shopCard(k, x, y, w, h, sel) {
   ctx.restore();
 }
 function shopLayout() {
-  const x0 = 82, y0 = 124, w = 172, h = 146, gx = 14, gy = 10, out = [];
+  const x0 = 82 + (W - 900) / 2, y0 = 124, w = 172, h = 146, gx = 14, gy = 10, out = [];
   SHOP_ITEMS.forEach(function (k, i) { out.push({ k: k, x: x0 + (i % 4) * (w + gx), y: y0 + Math.floor(i / 4) * (h + gy), w: w, h: h }); });
   return out;
 }
 function drawShop() {
   SHOPUI.ctrls.length = 0;
-  const px = 60, py = 30, pw = 780, ph = 540;
+  const px = 60 + (W - 900) / 2, py = 30, pw = 780, ph = 540;
   drawBarnPanel(px, py, pw, ph);
   woolPill(px + pw - 26, py + 76, WOOL.wool + ' wool', 15, 'right');
   txt('Extra tool uses for your levels (max 1 extra of each tool per level)', px + 30, py + 76, 13, '#5a3a18', 'left', 'bold', false);
   const lay = shopLayout();
   lay.forEach(function (c, i) { shopCard(c.k, c.x, c.y, c.w, c.h, i === SHOPUI.sel && !SHOPUI.confirm); SHOPUI.ctrls.push({ x: c.x, y: c.y, w: c.w, h: c.h, act: function () { SHOPUI.sel = i; shopTry(c.k); } }); });
   // how to earn wool (the 8th spot)
-  const hx = 82 + 3 * 186, hy = 124 + 156;
+  const hx = 82 + (W - 900) / 2 + 3 * 186, hy = 124 + 156;
   ctx.fillStyle = 'rgba(120,80,30,0.12)'; rr(ctx, hx, hy, 172, 146, 12); ctx.fill();
   ctx.strokeStyle = 'rgba(120,80,30,0.35)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4; rr(ctx, hx, hy, 172, 146, 12); ctx.stroke(); ctx.setLineDash([]);
   drawWoolTuft(hx + 20, hy + 20, 10);
   txt('Earn wool', hx + 36, hy + 21, 15, '#5a3a18', 'left', 'bold', false);
   ['Clear a level:', '1 per 3 sheep saved', '+1 / +2 / +3 for stars', '+3 per black sheep', 'Endless: 1 per 25 sheep', 'Lose or quit: no wool'].forEach(function (l, i) { txt(l, hx + 12, hy + 46 + i * 17, 11.5, i === 0 ? '#5a3a18' : '#6a4a28', 'left', i === 0 ? 'bold' : '600', false); });
   // coming in the app (greyed out, nothing to buy)
-  const cy = 438;
+  const cy = 438; ctx.save(); ctx.translate((W - 900) / 2, 0);
   ctx.fillStyle = 'rgba(90,80,70,0.18)'; rr(ctx, 82, cy, 730, 74, 12); ctx.fill();
   txt('Coming in the app', 100, cy + 16, 13, '#7a6a58', 'left', 'bold', false);
   [['Robner hats', 'hat'], ['Vicky costumes', 'bow'], ['Wool bundles', 'bundle']].forEach(function (q, i) {
@@ -15370,6 +15373,7 @@ function drawShop() {
     txt('Coming in the app', bx + 58, by + 39, 10.5, '#6a6058', 'left', '600', false);
     ctx.restore();
   });
+  ctx.restore();
   txt('\u2190 \u2192 \u2191 \u2193 choose     ENTER buy     ESC back to the map', W / 2, py + ph - 10, 12, '#fff4d8', 'center', 'bold', true);
   shopBtn('ESC  Back', px + pw - 150, py + 30, 120, 30, closeShop, false);
   if (SHOPUI.toastT > 0) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.toastT / 0.3, 0, 1); const tw = 420; ctx.fillStyle = 'rgba(30,60,20,0.92)'; rr(ctx, W / 2 - tw / 2, 400, tw, 34, 12); ctx.fill(); txt(SHOPUI.toast, W / 2, 417, 14, '#e8ffd8', 'center', 'bold', false); ctx.restore(); }
@@ -15397,7 +15401,7 @@ function drawShopConfirm() {
     txt(head, W / 2, py + 46, 26, c.kind === 'poor' ? '#ff9a7a' : '#ffffff');
     const lines = c.kind === 'poor' ? [itemName(k) + ' costs ' + s.price + ' wool. You have ' + WOOL.wool + '.', 'You need ' + (s.price - WOOL.wool) + ' more: clear levels to earn wool!']
       : c.kind === 'full' ? [k === 'blacksheep' ? 'A bonus black sheep is already waiting for your next level.' : 'You can keep up to ' + WOOL_RULES.invMax + ' of each tool.', 'Use some first!']
-      : ['You meet the ' + TOOLS[k].title + ' at Level ' + toolFirstLevel(k) + '.', 'Then you can buy extra uses here.'];
+      : (k === 'blacksheep' ? ['Bonus black sheep unlock at Level ' + shopUnlockLevel(k) + '.', 'Beat it, then come back!'] : ['You meet the ' + TOOLS[k].title + ' at Level ' + shopUnlockLevel(k) + '.', 'Unlocks at Level ' + shopUnlockLevel(k) + ': then you can buy extra uses here.']);
     lines.forEach(function (l, i) { txt(l, W / 2, py + 90 + i * 22, 14, '#f0f0e8', 'center', 'bold', false); });
     if (c.kind === 'poor') drawWoolTuft(px + 40, py + 46, 12, 0.6);
     shopBtn('OK', W / 2 - 80, py + ph - 56, 160, 38, function () { SHOPUI.confirm = null; }, true);
@@ -16376,7 +16380,7 @@ function onTouchStart(e) {
     const p = tlog(t);
     if (state === 'play' && G && !G.attract && !phoneModal() && p.y > HUD_H + 2 && !inBtn(MENU_BTN, [p.x, p.y]) && !(p.x < 120 && p.x >= 0 && p.y > H - 46)) {
       if (p.y >= LANE_TOP - 8) { TOUCH.roles[t.identifier] = 'move'; TOUCH.moveId = t.identifier; TOUCH.moveX = clamp(p.x, 28, W - 28); }
-      else { TOUCH.roles[t.identifier] = 'fire'; TOUCH.fireId = t.identifier; TOUCH.aim = { x: p.x, y: p.y }; TOUCH.queued = true; TOUCH.queuedAim = true; }
+      else { TOUCH.roles[t.identifier] = 'fire'; TOUCH.fireId = t.identifier; TOUCH.aim = { x: p.x, y: p.y }; TOUCH.queued = !(G && G.throwCD > 0.1); TOUCH.queuedAim = true; if (!TOUCH.queued && G && state === 'play') foodCapCue(); }
       continue;
     }
     if (state === 'map' && !SHOPUI.open && !SETUI.open && !LIVESUI.open && !(AD.playing && AD.playing.map)) {
@@ -18009,7 +18013,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v24';
+const GAME_VER = 'v25';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -18270,6 +18274,271 @@ scheduleBar = function (T, bi, t0, out0) {
   if (last && T.once) m24Strings(st(0), mtof(root - 12), barT, 0.02, out, 0.05, 1500);
 };
 
+// ---- v25: every level always resolves.
+// Rule: reaching the goal wins. If the goal is reached in the same moment as the 5th lost sheep, or during the short
+// 'last sheep lost' pause before the fail/Keep going? screen, the win takes priority and the pending loss is dropped.
+// Root cause of the v24 freeze: the 5th loss started the 1.2 s pause; sheep kept reaching the pen (Saved 17/16) but the
+// goal check was skipped during the pause. When the pause ended, Keep going? opened (game paused) and in the very same
+// frame the goal check ran again and switched to the win screen - with the game still paused and the offer still open,
+// so neither screen could run and nothing could be tapped.
+function goalReached() {
+  if (!G || !G.cfg || !CAMP()) return false;
+  const g = G.cfg.goal;
+  if (g.type === 'save') return G.levelSaved >= g.n;
+  if (g.type === 'survive') return G.levelTime >= g.t;
+  if (g.type === 'lamb') return G.levelSaved >= g.n && !!G.lambSafe;
+  return false;   // bosses, lambs and the finale rush keep their own checks (see below)
+}
+const gameOverV24 = gameOver;
+gameOver = function () {
+  if (G && (state === 'won' || state === 'over')) return;   // already resolved: never a second ending
+  if (G && CAMP() && state === 'play' && !G.attract) {
+    if (goalReached()) { G.overPending = 0; G.stats.winOverLoss = (G.stats.winOverLoss | 0) + 1; winLevel(); return; }
+    // a boss already beaten: its win scene is playing, a late loss does not undo it
+    if (G.cfg.goal.type === 'boss' && G.boss && G.boss.done) { G.overPending = 0; G.stats.lossAfterBoss = (G.stats.lossAfterBoss | 0) + 1; return; }
+  }
+  gameOverV24();
+};
+const winLevelV24 = winLevel;
+winLevel = function () {
+  if (G && state === 'won') return;
+  if (G) { G.offer = null; G.overPending = 0; }
+  if (AD.playing && !AD.playing.map) AD.playing = null;
+  paused = false;
+  winLevelV24();
+};
+// safety net: if a level is ever left in an impossible state, resolve it instead of freezing
+const updateV24f = update;
+update = function (dt) {
+  updateV24f(dt);
+  try { resolveGuard(dt); } catch (e) { window.__errs.push(String(e && e.stack || e)); }
+};
+function resolveGuard(dt) {
+  if (!G || G.attract || !CAMP()) return;
+  if (state === 'won' || state === 'over') { if (G.offer) G.offer = null; if (AD.playing && !AD.playing.map) AD.playing = null; if (paused && state === 'won') paused = false; G._stuckT = 0; return; }
+  if (state !== 'play' || G.offer || AD.playing) { G._stuckT = 0; return; }
+  const bossWon = G.cfg.goal.type === 'boss' && G.boss && G.boss.done;
+  const lossStuck = G.lost >= MAX_LOST && G.overPending <= 0 && !bossWon;
+  if (bossWon && (G.boss.doneT || 0) > 8 && !G.rush) { G.stats.guard = (G.stats.guard | 0) + 1; winLevel(); return; }
+  const winStuck = goalReached() && !G.toolCard && !G.announce;
+  G._stuckT = (lossStuck || winStuck) ? (G._stuckT || 0) + dt : 0;
+  if (G._stuckT > 1.5) {
+    G._stuckT = 0; G.stats.guard = (G.stats.guard | 0) + 1;
+    if (goalReached()) winLevel(); else gameOver();
+  }
+}
+// ---- v25: throw cooldown. At most ~2 throws a second (0.5 s between throws) for every food, keys, hold-Space, taps and
+// hold-to-toss alike; the 5-piece cap stays. A press during the cooldown does nothing but the soft cue, and a small ring
+// by Robner's hand shows the cooldown filling up again.
+let THROW_GAP = 0.5;
+const drawFarmerV24c = drawFarmer;
+drawFarmer = function (f) {
+  const r = drawFarmerV24c.apply(this, arguments);
+  try {
+    if (G && f === G.farmer && G.throwCD > 0 && G.time - FCAP.t < 0.7 && state === 'play') {
+      const q = clamp(1 - G.throwCD / THROW_GAP, 0, 1), x = f.x + 24, y = FARMER_Y - 46;
+      ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = '#ffe27a'; ctx.beginPath(); ctx.arc(x, y, 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * q); ctx.stroke(); ctx.restore();
+    }
+  } catch (e) { }
+  return r;
+};
+// ---- v25: the LEVEL FAILED card gets the same big two-column phone layout as Level Complete, centred on the field
+function drawFailPhone() {
+  const L = G.cfg, g = L.goal, t = G.overT, a = clamp(t / 0.4, 0, 1);
+  ctx.save(); ctx.globalAlpha = a;
+  const X = W - 900, px = 20, py = 8, pw = W - 40, ph = 538;
+  drawPanel(px, py, pw, ph);
+  txt('LEVEL FAILED', W / 2, py + 54, 50, '#ff6a5a');
+  const sub = 'Level ' + L.n + ': ' + L.place;
+  txt(sub, W / 2, py + 100, fitFont(sub, pw - 80, 23), '#ffffff', 'center', 'bold', true);
+  // left: what happened, five crossed-out sheep
+  const lc = 250 + X * 0.3;
+  const why = G.overReason === 'lamb' ? 'Oh no, the baby lamb was eaten!' : 'The dinos ate ' + MAX_LOST + ' of Robner\'s sheep!';
+  txt(why, lc, py + 150, fitFont(why, 420, 22), '#ffd0c8', 'center', 'bold', true);
+  for (let i = 0; i < 5; i++) {
+    const cx = lc - 160 + i * 80, cy = py + 210, st = t - 0.3 - i * 0.12, k = easeOutBack(clamp(st / 0.3, 0, 1));
+    if (k <= 0) continue;
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(k, k); ctx.globalAlpha *= 0.55; drawSheep({ x: 0, y: 14, phase: 0 }, 1.3, 1, false); ctx.restore();
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(k, k); ctx.strokeStyle = '#ff5a4a'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    line(ctx, -16, -16, 16, 16); line(ctx, 16, -16, -16, 16); ctx.restore();
+  }
+  const prog = g.type === 'survive' ? 'You lasted ' + fmtTime(G.levelTime) + ' of ' + fmtTime(g.t)
+    : g.type === 'boss' ? 'Boss hunger left: ' + Math.ceil(G.boss ? G.boss.hp : 0) + '%' : 'Saved ' + G.levelSaved + ' of ' + (g.n || 0);
+  const q = g.type === 'survive' ? G.levelTime / g.t : g.type === 'boss' ? 1 - (G.boss ? G.boss.hp : 100) / 100 : G.levelSaved / Math.max(1, g.n || 1);
+  txt(prog, lc, py + 290, fitFont(prog, 420, 24), '#ffe27a', 'center', 'bold', true);
+  ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, lc - 180, py + 312, 360, 18, 9); ctx.fill();
+  ctx.fillStyle = '#ffd04a'; rr(ctx, lc - 180, py + 312, Math.max(18, 360 * clamp(q, 0, 1)), 18, 9); ctx.fill();
+  // right: encouragement and the level's own tip
+  const rx = 486 + X * 0.55, rw = W - 50 - rx, rc = rx + rw / 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 2; line(ctx, rx - 18, py + 130, rx - 18, py + 390);
+  txt('Don\'t give up!', rc, py + 160, 26, '#9cff7a', 'center', 'bold', true);
+  wrapText('You can try again as often as you like.', rw, 19, '600').slice(0, 2).forEach(function (l, i) { txt(l, rc, py + 200 + i * 26, 19, '#f0f0e8', 'center', '600', false); });
+  if (L.tip) { txt('TIP', rc, py + 270, 15, '#ffd07a', 'center', 'bold', false); wrapText(L.tip, rw, 18, '600').slice(0, 3).forEach(function (l, i) { txt(l, rc, py + 298 + i * 25, 18, '#e8e8d8', 'center', '600', false); }); }
+  ctx.restore();
+  UI_BTNS.length = 0;
+  if (t > 0.8) {
+    uiButton('ESC  Map', px + 40, py + ph - 80, 270, 58, function () { openMap(); }, false);
+    ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
+    uiButton('ENTER  Try again', px + pw - 40 - 310, py + ph - 80, 310, 58, function () { retryLevel(); }, true);
+    ctx.globalAlpha = 1;
+  }
+}
+const drawCampFailV24 = drawCampFail;
+drawCampFail = function () { if (phoneScreens()) return drawFailPhone(); return drawCampFailV24(); };
+// test hook: remember the panels drawn in a frame (for the centring test)
+const drawPanelV24 = drawPanel;
+drawPanel = function (x, y, w, h) {
+  if (window.__panels) { const m = ctx.getTransform(), s = m.a / dpr; window.__panels.push([(m.a * x + m.e) / dpr, (m.d * y + m.f) / dpr, w * s, h * s]); }
+  return drawPanelV24.apply(this, arguments);
+};
+const drawCelebV24 = drawCeleb;
+drawCeleb = function () {
+  if (window.__panels && G && G.celeb) { const big = PHONE.on, cw = big ? 640 : 560, ch = big ? 380 : 320, m = ctx.getTransform(), s = m.a / dpr; window.__panels.push([(m.a * (W / 2 - cw / 2) + m.e) / dpr, (m.d * (H / 2 - ch / 2) + m.f) / dpr, cw * s, ch * s, 'celeb']); }
+  return drawCelebV24.apply(this, arguments);
+};
+const cardFrameV24 = cardFrame;
+cardFrame = function (C, a, k, col) { if (window.__panels) window.__panels.push([C.x, C.y, C.w, C.h, 'card']); return cardFrameV24.apply(this, arguments); };
+// retune for the cooldown (fewer throws a second): a fed dino stays busy a bit longer, and boss hunger drops a bit faster per bite
+const RETUNE25 = { boss: 1.15, snack: 1.35, meat: 1.15 };
+FOODS[0].mult *= RETUNE25.snack; FOODS[1].mult *= RETUNE25.meat;
+// ---- v25: bigger phone menus. A small modal is drawn scaled up around the field centre and its tap areas are scaled
+// with it (Keep going?, lives/refill, the shop's buy/confirm box, Settings' new two-column phone layout).
+function bigModal(fn, arrs, pw, ph, maxS) {
+  if (!phoneScreens()) return fn();
+  const s = Math.min(maxS || 1.5, (H - 12) / ph, (W - 24) / pw);
+  if (s <= 1.01) return fn();
+  const cx = W / 2, cy = H / 2;
+  ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s); ctx.translate(-cx, -cy);
+  try { fn(); } finally { ctx.restore(); }
+  arrs.forEach(function (get) {
+    const a = get(); if (!a) return;
+    a.forEach(function (c) {
+      if (c._big) return; c._big = 1;
+      c.x = cx + (c.x - cx) * s; c.y = cy + (c.y - cy) * s; c.w *= s; c.h *= s;
+      if (c.slider) { c.slider.x = cx + (c.slider.x - cx) * s; c.slider.w *= s; }
+    });
+  });
+}
+const drawOfferV24 = drawOffer;
+drawOffer = function () { bigModal(drawOfferV24, [function () { return AD.ctrls; }], 600, 470, 1.3); };
+const drawLivesUIV24 = drawLivesUI;
+drawLivesUI = function () { bigModal(drawLivesUIV24, [function () { return LIVESUI.ctrls; }], 540, 400, 1.4); };
+const drawShopConfirmV24 = drawShopConfirm;
+drawShopConfirm = function () { bigModal(drawShopConfirmV24, [function () { return SHOPUI.ctrls; }], 440, 210, 1.6); };
+// Settings on the phone: sound on the left, display on the right, bigger text, then scaled up
+function drawSettingsPhone() {
+  SETUI.ctrls.length = 0;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(-W, -H, W * 3, H * 3);
+  const pw = 820, ph = 400, px = W / 2 - pw / 2, py = H / 2 - ph / 2;
+  drawPanel(px, py, pw, ph, true);
+  drawGear(W / 2 - 112, py + 32, 11, '#ffd65a');
+  txt('SETTINGS', W / 2 + 14, py + 32, 30, '#ffffff');
+  txt(GAME_VER, px + pw - 22, py + 22, 14, '#c8d8b8', 'right', 'bold', false);
+  const lx = px + 26;
+  txt('SOUND', lx, py + 70, 16, '#ffd65a', 'left', 'bold', false);
+  const rows = [['Master', null]].concat(SND_CATS.map(function (c) { return [c.name.replace(' sounds', '').replace('Other effects', 'Effects'), c]; }));
+  rows.forEach(function (r, i) {
+    const y = py + 104 + i * 44, c = r[1];
+    txt(r[0], lx, y, 18, '#ffffff', 'left', 'bold', false);
+    if (!c) {
+      setToggle(lx + 130, y - 11, !muted, function () { setMuted(!muted); }, 'master');
+      setSlider(lx + 210, y, 130, SET.master, !muted, function (v) { SET.master = v; applySettings(); }, 'master');
+    } else {
+      setToggle(lx + 130, y - 11, SET[c.k].on, function () { SET[c.k].on = !SET[c.k].on; applySettings(); }, c.k);
+      setSlider(lx + 210, y, 130, SET[c.k].vol, SET[c.k].on, function (v) { SET[c.k].vol = v; applySettings(); }, c.k);
+    }
+  });
+  const rx = px + 446;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 2; line(ctx, rx - 20, py + 60, rx - 20, py + ph - 70);
+  txt('DISPLAY', rx, py + 70, 16, '#ffd65a', 'left', 'bold', false);
+  [['popups', 'Text popups'], ['shake', 'Screen shake'], ['names', 'Dino names'], ['cards', 'Hint cards'], ['reduced', 'Reduced effects'], ['vibe', 'Phone vibration']].forEach(function (o, i) {
+    const y = py + 104 + i * 44;
+    txt(o[1], rx, y, 18, '#ffffff', 'left', 'bold', false);
+    setToggle(rx + 280, y - 11, SET[o[0]], function () { SET[o[0]] = !SET[o[0]]; applySettings(); }, o[0]);
+  });
+  uiButtonS('Done', W / 2 - 100, py + ph - 52, 200, 40, closeSettings, true);
+}
+const drawSettingsV24 = drawSettings;
+drawSettings = function () {
+  if (!phoneScreens()) return drawSettingsV24();
+  bigModal(drawSettingsPhone, [function () { return SETUI.ctrls; }], 820, 400, 1.45);
+};
+// the Wool Shop on the phone: the same 4 x 2 grid but the cards fill the whole field, with big text; no 'coming soon' row
+function shopKnownReal(k) {
+  if (k === 'blacksheep') return (PROG.stars[WOOL_RULES.shopAfter] | 0) > 0 || PROG.unlocked > WOOL_RULES.shopAfter + 1;
+  return PROG.unlocked > toolFirstLevel(k) || (PROG.stars[toolFirstLevel(k)] | 0) > 0;
+}
+function shopUnlockLevel(k) { return k === 'blacksheep' ? WOOL_RULES.shopAfter : toolFirstLevel(k); }
+function shopPhoneLayout() {
+  const px = 26, py = 30, pw = W - 52, ph = 552, gx = 14, gy = 12;
+  const cw = (pw - 52 - 3 * gx) / 4, ch = (ph - 128 - gy) / 2, x0 = px + 26, y0 = py + 108, out = [];
+  for (let i = 0; i < 8; i++) out.push({ k: SHOP_ITEMS[i], x: x0 + (i % 4) * (cw + gx), y: y0 + Math.floor(i / 4) * (ch + gy), w: cw, h: ch });
+  return { px: px, py: py, pw: pw, ph: ph, cards: out };
+}
+function shopCardBig(k, x, y, w, h, sel) {
+  const s = itemState(k), cx = x + w / 2;
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.18)'; rr(ctx, x + 3, y + 4, w, h, 14); ctx.fill();
+  ctx.fillStyle = s.locked ? '#d8d0c0' : '#fffaf0'; rr(ctx, x, y, w, h, 14); ctx.fill();
+  ctx.strokeStyle = sel ? '#e8a020' : 'rgba(120,80,30,0.45)'; ctx.lineWidth = sel ? 5 : 1.8; rr(ctx, x, y, w, h, 14); ctx.stroke();
+  ctx.globalAlpha = s.locked ? 0.35 : 1;
+  ctx.fillStyle = k === 'blacksheep' ? '#bfe3a0' : 'rgba(255,230,170,0.6)'; rr(ctx, x + 12, y + 10, w - 24, 80, 10); ctx.fill();
+  ctx.save(); rr(ctx, x + 12, y + 10, w - 24, 80, 10); ctx.clip();
+  if (k === 'blacksheep') drawSheepAny({ x: cx + 4, y: y + 78, phase: animT * 4, black: true }, 1.6, 1, sel);
+  else drawToolIcon(k, cx, y + 50, 62, sel ? animT : 0);
+  ctx.restore(); ctx.globalAlpha = 1;
+  const nm = itemName(k);
+  txt(nm, cx, y + 112, fitFont(nm, w - 14, 22), s.locked ? '#7a7060' : '#4a2a10', 'center', 'bold', false);
+  if (s.locked) {
+    drawPadlock(cx, y + 50, 1.6);
+    txt('Unlocks at', cx, y + 146, 18, '#7a6a58', 'center', 'bold', false);
+    txt('Level ' + shopUnlockLevel(k), cx, y + 172, 22, '#5a4a38', 'center', 'bold', false);
+  } else {
+    const poor = s.poor && !s.full, pc = poor ? '#c0392b' : '#2a6a18';
+    ctx.fillStyle = poor ? 'rgba(220,80,60,0.15)' : 'rgba(80,160,60,0.15)'; rr(ctx, cx - 56, y + 128, 112, 32, 16); ctx.fill();
+    drawWoolTuft(cx - 32, y + 144, 10); txt(String(s.price), cx + 8, y + 145, 24, pc, 'center', 'bold', false);
+    const own = k === 'blacksheep' ? (s.owned ? 'Ready for next level' : 'Joins your next level') : 'Owned: ' + s.owned + (s.full ? ' (max)' : '');
+    txt(own, cx, y + 178, fitFont(own, w - 14, 18), s.owned ? '#2a6a18' : '#7a5a30', 'center', 'bold', false);
+    if (poor) txt('Need ' + (s.price - WOOL.wool) + ' more wool', cx, y + 202, fitFont('Need 99 more wool', w - 14, 17), '#c0392b', 'center', 'bold', false);
+  }
+  ctx.restore();
+}
+function drawShopPhone() {
+  SHOPUI.ctrls.length = 0;
+  const Ly = shopPhoneLayout(), px = Ly.px, py = Ly.py, pw = Ly.pw, ph = Ly.ph;
+  drawBarnPanel(px, py, pw, ph);
+  ctx.fillStyle = 'rgba(40,25,10,0.75)'; rr(ctx, px + 26, py + 66, 170, 34, 17); ctx.fill();
+  drawWoolTuft(px + 48, py + 83, 11); txt(WOOL.wool + ' wool', px + 66, py + 84, 22, '#ffffff', 'left', 'bold', false);
+  txt('Extra tool uses for your levels', W / 2, py + 84, 19, '#5a3a18', 'center', 'bold', false);
+  Ly.cards.forEach(function (c, i) {
+    if (!c.k) {
+      // how to earn wool (the 8th spot)
+      ctx.fillStyle = 'rgba(120,80,30,0.12)'; rr(ctx, c.x, c.y, c.w, c.h, 14); ctx.fill();
+      ctx.strokeStyle = 'rgba(120,80,30,0.35)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.6; rr(ctx, c.x, c.y, c.w, c.h, 14); ctx.stroke(); ctx.setLineDash([]);
+      drawWoolTuft(c.x + 24, c.y + 26, 12); txt('Earn wool', c.x + 44, c.y + 27, 22, '#5a3a18', 'left', 'bold', false);
+      ['Clear a level: 1 per', '3 sheep saved', '+1 / +2 / +3 for stars', '+3 per black sheep', 'Lose or quit: no wool'].forEach(function (l, j) {
+        txt(l, c.x + 14, c.y + 62 + j * 29, fitFont(l, c.w - 22, 17), j === 0 || j === 1 ? '#5a3a18' : '#6a4a28', 'left', 'bold', false);
+      });
+      return;
+    }
+    shopCardBig(c.k, c.x, c.y, c.w, c.h, i === SHOPUI.sel && !SHOPUI.confirm);
+    SHOPUI.ctrls.push({ x: c.x, y: c.y, w: c.w, h: c.h, act: function () { SHOPUI.sel = i; shopTry(c.k); } });
+  });
+  shopBtn('Back', px + pw - 190, py + 62, 160, 44, closeShop, false);
+  txt('tap an item to buy it', W / 2, py + ph + 2, 16, '#fff4d8', 'center', 'bold', true);
+  if (SHOPUI.toastT > 0) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.toastT / 0.3, 0, 1); const tw = 620; ctx.fillStyle = 'rgba(30,60,20,0.94)'; rr(ctx, W / 2 - tw / 2, H / 2 - 26, tw, 52, 14); ctx.fill(); txt(SHOPUI.toast, W / 2, H / 2, fitFont(SHOPUI.toast, tw - 30, 22), '#e8ffd8', 'center', 'bold', false); ctx.restore(); }
+  if (SHOPUI.confirm) drawShopConfirm();
+}
+const drawShopV24 = drawShop;
+drawShop = function () { if (phoneScreens()) return drawShopPhone(); return drawShopV24(); };
+const drawBarnPanelV24 = drawBarnPanel;
+drawBarnPanel = function (x, y, w, h) {
+  if (window.__panels) { const m = ctx.getTransform(), s = m.a / dpr; window.__panels.push([(m.a * x + m.e) / dpr, (m.d * y + m.f) / dpr, w * s, h * s, 'barn']); }
+  return drawBarnPanelV24.apply(this, arguments);
+};
+
+if (window.__dbg) window.__dbg.v25 = { goalReached: goalReached, itemState: itemState, unlockLv: shopUnlockLevel, shopTry: shopTry, shopBuy: shopBuy, bossDefeated: function () { bossDefeated(); }, openShop: function () { openShop(); }, setGap: function (g) { THROW_GAP = g; }, dinoEatsSheep: function (d, s) { dinoEatsSheep(d, s); } };
 if (window.__dbg) window.__dbg.v24 = { WIDE_E: WIDE_E, MAPZ: MAPZ, FOOD_CAP: FOOD_CAP, FCAP: FCAP, GAME_VER: GAME_VER, CELEB24: CELEB24, M24: M24, vibe: vibe, setCap: function (n) { FOOD_CAP = n; } };
 if (window.__dbg) window.__dbg.v23 = { BIG23: BIG23, CELEB: CELEB, celebSkip: celebSkip, phoneScreens: phoneScreens };
 if (window.__dbg) window.__dbg.v22 = { vickyGuards: vickyGuards, PHONE: PHONE, PHONE_DIFF: PHONE_DIFF, phoneEasy: phoneEasy, bot: { botTools: botTools, botBonus: botBonus, botBossFood: botBossFood, botPicky: botPicky, bossFeedable: bossFeedable, botAvoidLove: botAvoidLove, canReach: canReach, readyTool: readyTool } };
