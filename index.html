@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 27
+  Feed the Dinos, Save the Sheep 28
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 27</title>
+<title>Feed the Dinos, Save the Sheep 28</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -233,6 +233,8 @@ const GATE_HALF = 36;
 const ZONE = { x1: 120, y1: 142, y2: 486 };
 const LANE_TOP = 512, FARMER_Y = 588, THROW_Y = FARMER_Y - 79;   // v27: people 10% bigger;   // v26: Robner is bigger, food starts at his hand
 const HUM27 = { S: 1.1 };
+const SANTA28 = 4;
+const HB28 = { hip: -25, top: -41, chin: -44 };
 const PEOPLE27 = {
   robner: { h: 1, skin: '#eab07a', skinD: '#c98a52', skinL: '#fbd2a4', hair: '#6a3c18', hairL: '#93592a', eye: '#4a7a3a', shirt: '#c93e30', shirtD: '#8e2418', plaid: 'rgba(80,10,6,0.38)',
     pants: '#3b6db5', pantsD: '#22487f', pantsL: '#6a98dc', boot: '#6e4220', bootD: '#3a200c', hat: 'straw', brows: '#4e2a10', stubble: true, kerchief: '#f2c230' },
@@ -8563,7 +8565,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 27', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 28', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   drawStar(W - 112, 28, 13, true, true);
   txt(totalStars() + ' / ' + (LAST_LEVEL * 3), W - 92, 29, 20, '#ffe27a', 'left', 'bold', true);
   const L = LEVELS[MAP.sel - 1];
@@ -8733,50 +8735,71 @@ function foodRing(fi, x, y, r, a) {
   ctx.restore();
 }
 function drawMeatShape(k) {
-  // a cartoon drumstick: a round red leg of meat with a white bone sticking out
-  ctx.save(); ctx.scale(k, k);
-  bone(-15, -4, 2.0);
+  // v28: a roasted drumstick: meat tapering down to a knobbly bone, browned skin, a fat rim at the shank and a glossy highlight
+  ctx.save(); ctx.scale(k, k); ctx.rotate(-0.12);
+  bone(-17, -3, 1.7);
   const body = function () {
-    ctx.beginPath(); ctx.moveTo(-5, -3.2);
-    ctx.bezierCurveTo(-1, -10.5, 13, -11, 15, -1.5);
-    ctx.bezierCurveTo(16.5, 6.5, 8, 10, 2, 7.5);
-    ctx.bezierCurveTo(-2, 5.8, -4.5, 3.6, -5, 3.2);
+    ctx.beginPath(); ctx.moveTo(-5.5, -2.4);
+    ctx.bezierCurveTo(-1, -4.2, 1, -10.8, 9, -10.2);
+    ctx.bezierCurveTo(15.5, -9.6, 17.2, -2, 15.6, 3);
+    ctx.bezierCurveTo(13.6, 8.6, 6, 9.4, 1.6, 6.2);
+    ctx.bezierCurveTo(-1.2, 4.2, -3, 2.8, -5.5, 2.4);
     ctx.closePath();
   };
-  const g = ctx.createRadialGradient(5, -4, 1, 6, 0, 14);
-  g.addColorStop(0, '#ff8a78'); g.addColorStop(0.45, '#e8342a'); g.addColorStop(0.85, '#b01c16'); g.addColorStop(1, '#7a0e0a');
+  const g = ctx.createRadialGradient(6, -5, 1, 7, -1, 14);
+  g.addColorStop(0, '#f7b866'); g.addColorStop(0.35, '#d97a34'); g.addColorStop(0.75, '#a4481a'); g.addColorStop(1, '#6a2a0c');
   body(); ctx.fillStyle = g; ctx.fill();
   ctx.save(); body(); ctx.clip();
-  ctx.strokeStyle = 'rgba(120,10,8,0.35)'; ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.moveTo(0, 2); ctx.quadraticCurveTo(6, -1, 12, 3); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(2, -5); ctx.quadraticCurveTo(7, -7, 11, -4); ctx.stroke();
+  ctx.fillStyle = 'rgba(90,30,5,0.35)'; ell(ctx, 8, 5.5, 10, 4.5, -0.15); ctx.fill();   // underside shade
+  ctx.fillStyle = 'rgba(70,22,4,0.45)'; [[3, -5, 1.1], [8.5, -2.5, 1.4], [12, 1.5, 1], [5, 1.8, 0.9], [11, -6.5, 0.8], [1, -1.2, 0.7]].forEach(function (p) { ell(ctx, p[0], p[1], p[2] * 1.3, p[2] * 0.8, 0.4); ctx.fill(); });   // crispy roasted spots
+  ctx.strokeStyle = 'rgba(255,225,170,0.45)'; ctx.lineWidth = 0.7;   // marbling / fibres
+  ctx.beginPath(); ctx.moveTo(-1, 0.8); ctx.quadraticCurveTo(6, -1.8, 13.5, 0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(1.5, -4.6); ctx.quadraticCurveTo(7, -6.8, 12.5, -5); ctx.stroke();
   ctx.restore();
-  body(); ctx.strokeStyle = '#5a0606'; ctx.lineWidth = 1.4; ctx.stroke();
-  ctx.fillStyle = 'rgba(255,220,210,0.8)'; ell(ctx, 6, -5.6, 4.2, 1.6, -0.12); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ell(ctx, 4.5, -6, 1.4, 0.7, -0.12); ctx.fill();
+  body(); ctx.strokeStyle = '#4a1a06'; ctx.lineWidth = 1.4; ctx.stroke();
+  // fat rim where the meat meets the bone
+  ctx.fillStyle = '#fbe8c8'; ell(ctx, -5.2, 0, 1.6, 2.9); ctx.fill(); ctx.strokeStyle = '#8a5a30'; ctx.lineWidth = 0.8; ctx.stroke();
+  // glossy highlight
+  ctx.fillStyle = 'rgba(255,240,210,0.75)'; ell(ctx, 8.5, -7.4, 4, 1.4, -0.08); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ell(ctx, 7, -7.8, 1.3, 0.6, -0.08); ctx.fill();
   ctx.restore();
 }
 function drawHam(k) {
-  // a BIG pink glazed ham: a round pink body with honey glaze stripes, a cut face with a white fat ring, and a bone end
-  ctx.save(); ctx.scale(k, k);
-  bone(-28, -12, 3.0);
-  const body = function () { ctx.beginPath(); ctx.moveTo(-13, -6); ctx.bezierCurveTo(-6, -19, 20, -20, 24, -1); ctx.bezierCurveTo(22, 17, -6, 18, -13, 6); ctx.closePath(); };
-  const g = ctx.createRadialGradient(7, -7, 2, 7, 0, 23);
-  g.addColorStop(0, '#ffe0ea'); g.addColorStop(0.35, '#ffa8c4'); g.addColorStop(0.75, '#ee7aa2'); g.addColorStop(1, '#c4507a');
+  // v28: a BIG honey-roasted ham leg: tapered shank on a knobbly bone, scored glazed skin with cloves, cut face with a fat layer
+  ctx.save(); ctx.scale(k, k); ctx.rotate(-0.1);
+  bone(-29, -12, 2.6);
+  const body = function () {
+    ctx.beginPath(); ctx.moveTo(-13.5, -4.2);
+    ctx.bezierCurveTo(-6, -6.5, 0, -18.5, 12, -17.5);
+    ctx.bezierCurveTo(21, -16.5, 24.5, -7, 23.5, 1);
+    ctx.bezierCurveTo(22.5, 11, 14, 17, 5, 15);
+    ctx.bezierCurveTo(-2, 13.4, -7, 6, -13.5, 4.2);
+    ctx.closePath();
+  };
+  const g = ctx.createRadialGradient(8, -8, 2, 8, 0, 22);
+  g.addColorStop(0, '#ffcf80'); g.addColorStop(0.35, '#e8954a'); g.addColorStop(0.75, '#b85a26'); g.addColorStop(1, '#7a3412');
   body(); ctx.fillStyle = g; ctx.fill();
   ctx.save(); body(); ctx.clip();
-  // golden honey glaze criss-cross
-  ctx.strokeStyle = 'rgba(230,150,60,0.55)'; ctx.lineWidth = 1.6;
-  for (let i = -26; i < 36; i += 7.5) { line(ctx, i, -19, i + 16, 19); line(ctx, i + 16, -19, i, 19); }
-  ctx.fillStyle = 'rgba(255,200,90,0.25)'; ctx.fillRect(-14, -20, 40, 14);
+  ctx.strokeStyle = 'rgba(110,40,10,0.45)'; ctx.lineWidth = 1;   // scored diamond pattern in the glaze
+  for (let i = -30; i < 40; i += 6.5) { line(ctx, i, -19, i + 14, 19); line(ctx, i + 14, -19, i, 19); }
+  ctx.fillStyle = '#4a1e08';   // cloves in the diamonds
+  for (let x = -4; x < 22; x += 6.5) for (let y = -12; y < 14; y += 7) { ell(ctx, x + (y % 2 ? 3.2 : 0), y, 0.9, 0.9); ctx.fill(); }
+  ctx.fillStyle = 'rgba(80,25,5,0.3)'; ell(ctx, 8, 10, 18, 7, -0.1); ctx.fill();   // underside shade
   ctx.restore();
-  // the cut face at the narrow end: pink meat with a white fat ring
-  ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.ellipse(-11, 0, 5, 9.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#ff9ab6'; ctx.beginPath(); ctx.ellipse(-11, 0, 3.2, 7, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = '#a0385e'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(-11, 0, 5, 9.5, 0, 0, Math.PI * 2); ctx.stroke();
-  body(); ctx.strokeStyle = '#8a2a50'; ctx.lineWidth = 1.8; ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ell(ctx, 6, -10.5, 8, 2.6, -0.2); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ell(ctx, 3, -11.2, 2.4, 0.9, -0.2); ctx.fill();
+  body(); ctx.strokeStyle = '#4a1a06'; ctx.lineWidth = 1.8; ctx.stroke();
+  // the cut face at the big end: pink meat, white fat layer, marbling
+  ctx.save(); ctx.translate(19.5, 0.5); ctx.rotate(-0.08);
+  ctx.fillStyle = '#fff2e2'; ell(ctx, 0, 0, 4.6, 12.5); ctx.fill(); ctx.strokeStyle = '#8a4a28'; ctx.lineWidth = 1.1; ctx.stroke();
+  const cg = ctx.createRadialGradient(-0.5, -2, 0.5, 0, 0, 10); cg.addColorStop(0, '#ffc0c8'); cg.addColorStop(1, '#e8707e');
+  ctx.fillStyle = cg; ell(ctx, 0.4, 0.3, 3.1, 10.2); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,240,235,0.8)'; ctx.lineWidth = 0.6; ctx.beginPath(); ctx.moveTo(-1.2, -6); ctx.quadraticCurveTo(1.6, -1, -0.6, 5); ctx.stroke();
+  ctx.fillStyle = '#f2e0c8'; ell(ctx, 0.8, 2.4, 1.1, 1.4); ctx.fill();   // bone in the cut
+  ctx.restore();
+  // fat rim at the shank
+  ctx.fillStyle = '#fbe8c8'; ell(ctx, -13.2, 0, 2.2, 4.4); ctx.fill(); ctx.strokeStyle = '#8a5a30'; ctx.lineWidth = 0.9; ctx.stroke();
+  // glossy glaze highlight
+  ctx.fillStyle = 'rgba(255,240,200,0.75)'; ell(ctx, 7, -13.2, 7, 2, -0.15); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ell(ctx, 4.5, -13.8, 2.2, 0.8, -0.15); ctx.fill();
   ctx.restore();
 }
 
@@ -11597,7 +11620,7 @@ drawFarmer = function (f) {
   drawFarmerV9(f);
   if (!SPOT.xmas) return;
   const bob = f.moving ? Math.abs(Math.cos(f.step)) * 1.5 : 0;
-  ctx.save(); ctx.translate(f.x, FARMER_Y); ctx.scale(HUM27.S, HUM27.S); ctx.translate(0, -bob + 4);   // v27: follows the bigger Robner
+  ctx.save(); ctx.translate(f.x, FARMER_Y); ctx.scale(HUM27.S, HUM27.S); ctx.translate(0, -bob + SANTA28);   // v28: sits on the smaller head
   ctx.fillStyle = '#d42a2a'; ctx.beginPath(); ctx.moveTo(-9, -60); ctx.quadraticCurveTo(-2, -78, 12, -76); ctx.quadraticCurveTo(6, -70, 9, -60); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#ffffff'; rr(ctx, -11, -63, 22, 5.5, 2.5); ctx.fill(); ell(ctx, 13, -76, 3.4, 3.4); ctx.fill();
   ctx.restore();
@@ -17915,7 +17938,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v27';
+const GAME_VER = 'v28';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -19050,56 +19073,8 @@ function hHand27(x, y, a, P, r) {
   ctx.fillStyle = P.skin; ctx.beginPath(); ctx.ellipse(r * 0.25, -r * 0.7, r * 0.55, r * 0.34, -0.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   ctx.restore();
 }
-// an arm from the shoulder (sx,sy) through the elbow to the hand, with a sleeve
-function hArm27(sx, sy, ex, ey, hx, hy, P, back) {
-  const sh = back ? P.shirtD : P.shirt, ol = 'rgba(60,15,8,0.55)';
-  const sl = P.tee || P.rolled ? 0.45 : 1;               // short or rolled sleeves show the forearm
-  hLimb27(ex, ey, 2.15, hx, hy, 1.85, back ? P.skinD : P.skin, 'rgba(120,60,25,0.5)');
-  if (sl < 1) {
-    const mx = lerp(sx, ex, P.tee ? 0.62 : 1.18), my = lerp(sy, ey, P.tee ? 0.62 : 1.18);
-    hLimb27(sx, sy, 3.3, P.tee ? mx : lerp(ex, hx, 0.04), P.tee ? my : lerp(ey, hy, 0.04), 2.8, sh, ol);
-    if (!P.tee) { ctx.fillStyle = back ? P.shirtD : shade(P.shirt, 18); ctx.beginPath(); capsule(ctx, lerp(ex, hx, -0.04), lerp(ey, hy, -0.04), 3.0, lerp(ex, hx, 0.12), lerp(ey, hy, 0.12), 2.8); ctx.fill(); }
-  } else {
-    hLimb27(sx, sy, 3.2, ex, ey, 2.8, sh, ol);
-    hLimb27(ex, ey, 2.8, lerp(ex, hx, 0.72), lerp(ey, hy, 0.72), 2.45, sh, ol);
-    ctx.fillStyle = shade(sh, -18); ctx.beginPath(); capsule(ctx, lerp(ex, hx, 0.62), lerp(ey, hy, 0.62), 2.55, lerp(ex, hx, 0.74), lerp(ey, hy, 0.74), 2.5); ctx.fill();   // cuff
-    ctx.strokeStyle = 'rgba(40,5,0,0.35)'; ctx.lineWidth = 0.5;   // elbow folds
-    ctx.beginPath(); ctx.arc(ex, ey, 1.6, 0.4, 1.6); ctx.stroke(); ctx.beginPath(); ctx.arc(ex, ey, 2.4, 0.6, 1.4); ctx.stroke();
-    if (P.plaid) { ctx.strokeStyle = P.plaid; ctx.lineWidth = 0.9; line(ctx, lerp(sx, ex, 0.5) - 2.6, lerp(sy, ey, 0.5), lerp(sx, ex, 0.5) + 2.6, lerp(sy, ey, 0.5)); line(ctx, lerp(ex, hx, 0.35) - 2.3, lerp(ey, hy, 0.35), lerp(ex, hx, 0.35) + 2.3, lerp(ey, hy, 0.35)); }
-  }
-  hHand27(hx, hy, Math.atan2(hy - ey, hx - ex), P, P.kid ? 2.3 : 2.55);
-}
-// a leg from the hip with knee bend, trouser folds and a boot (or sneaker)
-function hLeg27(hx, ang, dark, P, short) {
-  ctx.save(); ctx.translate(hx, -21); ctx.rotate(ang);
-  const c0 = dark ? P.pantsD : P.pants, c1 = dark ? shade(P.pantsD, -14) : P.pantsD;
-  ctx.fillStyle = hGrad27(-4, 0, 4, 0, dark ? c0 : P.pantsL, c0, c1);
-  ctx.beginPath(); ctx.moveTo(-4.2, -1); ctx.lineTo(4.2, -1); ctx.lineTo(3.6, 9); ctx.quadraticCurveTo(3.9, 14, 3.5, 17.4); ctx.lineTo(-3.4, 17.4); ctx.quadraticCurveTo(-3.8, 13, -3.5, 9); ctx.closePath();
-  hOut27(ctx.fillStyle, 'rgba(15,30,60,0.6)', 0.7);
-  if (short) {   // shorts: bare shins below the hem
-    ctx.fillStyle = dark ? P.skinD : P.skin; ctx.beginPath(); ctx.moveTo(-3, 8.6); ctx.lineTo(3, 8.6); ctx.lineTo(2.6, 17.4); ctx.lineTo(-2.5, 17.4); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = c1; rr(ctx, -4, 6.4, 8, 2.8, 1); ctx.fill();
-    ctx.fillStyle = '#ffffff'; rr(ctx, -2.7, 15, 5.4, 2.6, 0.8); ctx.fill();   // sock
-  } else {
-    ctx.strokeStyle = 'rgba(10,20,50,0.35)'; ctx.lineWidth = 0.5;   // knee and ankle folds
-    ctx.beginPath(); ctx.moveTo(-3, 8); ctx.quadraticCurveTo(0, 9.4, 3, 7.6); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-2.6, 13.6); ctx.quadraticCurveTo(0, 14.6, 2.8, 13.2); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,215,120,0.5)'; ctx.setLineDash([1, 1]); line(ctx, 2.5, 0, 2.4, 16.5); ctx.setLineDash([]);   // side seam stitching
-    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ell(ctx, -1.6, 5, 1, 4); ctx.fill();
-  }
-  // boot / sneaker
-  const by = 16.2;
-  ctx.fillStyle = hGrad27(0, by, 0, by + 6, dark ? shade(P.boot, -20) : P.boot, P.bootD);
-  ctx.beginPath(); ctx.moveTo(-3.9, by); ctx.lineTo(3.8, by); ctx.quadraticCurveTo(5, by + 1.8, 7.6, by + 2.6); ctx.quadraticCurveTo(9.6, by + 3.4, 9.2, by + 5.4); ctx.lineTo(-4.4, by + 5.4); ctx.closePath();
-  hOut27(ctx.fillStyle, 'rgba(30,14,4,0.85)', 0.7);
-  ctx.fillStyle = P.sneakers ? '#ffffff' : '#20120a'; ctx.fillRect(-4.6, by + 4.6, 14, 1.6);
-  ctx.strokeStyle = P.sneakers ? 'rgba(255,255,255,0.9)' : 'rgba(230,200,150,0.7)'; ctx.lineWidth = 0.45;   // laces
-  for (let i = 0; i < 3; i++) line(ctx, 0.6 + i * 1.3, by + 0.8 + i * 0.5, 2.6 + i * 1.3, by + 1.6 + i * 0.5);
-  ctx.fillStyle = 'rgba(255,235,200,0.4)'; ell(ctx, 6.4, by + 3, 1.6, 0.7, 0.3); ctx.fill();
-  ctx.restore();
-}
 // head: ears, face shape, eyes, brows, nose, mouth, hair
-function hHead27(P, o) {
+function hHeadIn28(P, o) {
   const cy = -49.5, kid = P.kid, rx = kid ? 7.1 : 6.6, ry = kid ? 7.4 : 7.7;
   // neck with a shadow under the jaw
   ctx.fillStyle = hGrad27(-3, 0, 3, 0, P.skinD, P.skin, P.skinD); ctx.fillRect(-2.7, -43.5, 5.4, 5);
@@ -19224,7 +19199,7 @@ function hHead27(P, o) {
   }
 }
 // torso: shirt (plaid or tee), overall bib with straps, buttons, pocket and folds; Linette wears dungarees
-function hTorso27(P, o) {
+function hTorsoIn28(P, o) {
   const w = 10.6 * (P.wide || 1), top = -40.5, wa = -21;
   ctx.save();
   ctx.beginPath(); ctx.moveTo(-w + 1.5, top); ctx.quadraticCurveTo(-w - 0.6, top + 1, -w, top + 5); ctx.lineTo(-w + 1.6, wa); ctx.lineTo(w - 1.6, wa); ctx.lineTo(w, top + 5); ctx.quadraticCurveTo(w + 0.6, top + 1, w - 1.5, top); ctx.closePath();
@@ -19272,51 +19247,156 @@ function hTorso27(P, o) {
   if (P.kid) { ctx.fillStyle = shade(P.shirt, -14); ctx.fillRect(-w + 1.6, wa - 1.4, (w - 1.6) * 2, 1.6); }
   ctx.restore();
 }
-// hips/seat that join the legs to the torso
+// ---- v28: better proportions and seamless joints. Smaller head on a visible neck, longer legs, sloped shoulders,
+// a tapered waist, and arms/legs drawn as one continuous outline each (no stroked circles at shoulders, elbows or hips).
+function hProp28(P) { const w = (P.kid ? 8.6 : 9.4) * (P.wide || 1); return { w: w, sh: w - 1.7, head: P.kid ? 0.9 : 0.8 }; }
+// sample a bent limb S -> E -> H with radii; returns left and right outline points
+function hLimbPts28(S, E, H, r0, r1, r2, u0, u1) {
+  const L = [], R = [], n = 14;
+  function at(u) { return u <= 1 ? [lerp(S[0], E[0], u), lerp(S[1], E[1], u), lerp(r0, r1, u)] : [lerp(E[0], H[0], u - 1), lerp(E[1], H[1], u - 1), lerp(r1, r2, u - 1)]; }
+  for (let i = 0; i <= n; i++) {
+    const u = lerp(u0, u1, i / n), p = at(u), a = at(Math.max(0, u - 0.06)), b = at(Math.min(2, u + 0.06));
+    let dx = b[0] - a[0], dy = b[1] - a[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    L.push([p[0] - dy * p[2], p[1] + dx * p[2]]); R.push([p[0] + dy * p[2], p[1] - dx * p[2]]);
+  }
+  return { L: L, R: R };
+}
+function hPoly28(pts, move) { pts.forEach(function (p, i) { if (i === 0 && move) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]); }); }
+// fill a limb section; stroke only its two sides (from us on), never a ring around a joint
+function hLimbFill28(S, E, H, r0, r1, r2, u0, u1, fill, stroke, us, endCap) {
+  const q = hLimbPts28(S, E, H, r0, r1, r2, u0, u1);
+  ctx.beginPath(); hPoly28(q.L, true); hPoly28(q.R.slice().reverse(), false); ctx.closePath(); ctx.fillStyle = fill; ctx.fill();
+  if (!stroke) return;
+  const k = hLimbPts28(S, E, H, r0, r1, r2, Math.max(u0, us), u1);
+  ctx.strokeStyle = stroke; ctx.lineWidth = 0.6; ctx.lineJoin = 'round';
+  ctx.beginPath(); hPoly28(k.L, true); ctx.stroke(); ctx.beginPath(); hPoly28(k.R, true); ctx.stroke();
+  if (endCap) { ctx.beginPath(); ctx.moveTo(k.L[k.L.length - 1][0], k.L[k.L.length - 1][1]); ctx.lineTo(k.R[k.R.length - 1][0], k.R[k.R.length - 1][1]); ctx.stroke(); }
+}
+// an arm: one continuous sleeve that grows out of the shoulder, forearm (skin when rolled/short), hand
+function hArm27(sx, sy, ex, ey, hx, hy, P, back) {
+  const sh = back ? P.shirtD : P.shirt, ol = 'rgba(60,15,8,0.5)', S = [sx, sy], E = [ex, ey], H = [hx, hy];
+  const k = P.kid ? 0.88 : (P.wide ? 1.06 : 1), r0 = 2.55 * k, r1 = 1.95 * k, r2 = 1.55 * k;
+  const end = P.tee ? 0.62 : P.rolled ? 1.12 : 1.78;
+  if (end < 1.7) hLimbFill28(S, E, H, r0 * 0.8, r1 * 0.88, r2, Math.max(0.3, end - 0.1), 2, back ? P.skinD : P.skin, 'rgba(120,60,25,0.5)', 0, false);
+  // the sleeve, starting inside the shoulder so it merges with the torso (no outline where it meets the body)
+  ctx.fillStyle = sh; ctx.beginPath(); ctx.arc(sx, sy, r0, 0, Math.PI * 2); ctx.fill();
+  hLimbFill28(S, E, H, r0, r1 + 0.35, r2 + 0.45, 0, end, sh, ol, 0.32, true);
+  if (P.plaid) { ctx.save(); const q = hLimbPts28(S, E, H, r0, r1 + 0.35, r2 + 0.45, 0, end); ctx.beginPath(); hPoly28(q.L, true); hPoly28(q.R.slice().reverse(), false); ctx.closePath(); ctx.clip();
+    ctx.strokeStyle = P.plaid; ctx.lineWidth = 0.9; for (let i = 1; i < 5; i++) { const u = end * i / 5, a = q.L[Math.round(u / end * 14)], b = q.R[Math.round(u / end * 14)]; line(ctx, a[0], a[1], b[0], b[1]); } ctx.restore(); }
+  if (end > 1) {   // cuff band / rolled-up roll at the sleeve end
+    hLimbFill28(S, E, H, r0, r1 + 0.55, r2 + 0.65, end - (P.rolled ? 0.16 : 0.1), end, P.rolled ? shade(P.shirt, back ? -10 : 16) : shade(sh, -18), null);
+  }
+  // a soft crease at the inside of the elbow (a short curve, not a ring)
+  if (end > 1.05) { ctx.strokeStyle = 'rgba(40,5,0,0.28)'; ctx.lineWidth = 0.45; ctx.beginPath(); ctx.moveTo(ex - 0.8, ey - 0.6); ctx.quadraticCurveTo(ex, ey + 0.3, ex + 0.8, ey - 0.4); ctx.stroke(); }
+  hHand27(hx, hy, Math.atan2(hy - ey, hx - ex), P, P.kid ? 2.05 : 2.3);
+}
+// a leg: thigh tapering to knee and ankle in one outline; the top is covered by the seat (no seam)
+function hLeg27(hx, ang, dark, P, short) {
+  const L = -HB28.hip - 5.4;   // hip to boot top
+  ctx.save(); ctx.translate(hx, HB28.hip); ctx.rotate(ang);
+  const c0 = dark ? P.pantsD : P.pants, c1 = dark ? shade(P.pantsD, -14) : P.pantsD, w0 = P.kid ? 3.8 : 4.3, wk = P.kid ? 2.9 : 3.4, wa = P.kid ? 2.6 : 3.1, kn = L * 0.5;
+  const out = function () { ctx.beginPath(); ctx.moveTo(-w0, -2); ctx.lineTo(w0, -2); ctx.quadraticCurveTo(w0 + 0.2, kn * 0.6, wk, kn); ctx.quadraticCurveTo(wk - 0.2, kn + 5, wa, L + 0.4); ctx.lineTo(-wa, L + 0.4); ctx.quadraticCurveTo(-wk + 0.1, kn + 5, -wk, kn); ctx.quadraticCurveTo(-w0 - 0.2, kn * 0.6, -w0, -2); ctx.closePath(); };
+  if (short) {   // bare leg, shorts over the thigh
+    ctx.fillStyle = dark ? P.skinD : P.skin; ctx.beginPath(); ctx.moveTo(-w0 * 0.75, 0); ctx.lineTo(w0 * 0.75, 0); ctx.quadraticCurveTo(wk * 0.85, kn, wa * 0.85, L + 0.4); ctx.lineTo(-wa * 0.85, L + 0.4); ctx.quadraticCurveTo(-wk * 0.85, kn, -w0 * 0.75, 0); ctx.closePath(); hOut27(ctx.fillStyle, 'rgba(120,60,25,0.45)', 0.5);
+    ctx.fillStyle = hGrad27(-4, 0, 4, 0, dark ? c0 : P.pantsL, c0, c1); ctx.beginPath(); ctx.moveTo(-w0, -2); ctx.lineTo(w0, -2); ctx.lineTo(w0 + 0.3, kn - 1.5); ctx.lineTo(-w0 - 0.3, kn - 1.5); ctx.closePath(); hOut27(ctx.fillStyle, 'rgba(15,30,60,0.6)', 0.6);
+    ctx.fillStyle = c1; ctx.fillRect(-w0 - 0.3, kn - 2.6, (w0 + 0.3) * 2, 1.3);
+    ctx.fillStyle = '#ffffff'; rr(ctx, -wa * 0.9, L - 2.6, wa * 1.8, 3, 0.8); ctx.fill();   // sock
+  } else {
+    out(); ctx.fillStyle = hGrad27(-4, 0, 4, 0, dark ? c0 : P.pantsL, c0, c1); hOut27(ctx.fillStyle, 'rgba(15,30,60,0.6)', 0.6);
+    ctx.save(); out(); ctx.clip();
+    ctx.strokeStyle = 'rgba(10,20,50,0.35)'; ctx.lineWidth = 0.5;   // knee and ankle folds
+    ctx.beginPath(); ctx.moveTo(-2.6, kn); ctx.quadraticCurveTo(0, kn + 1.2, 2.6, kn - 0.4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-2.4, L - 3); ctx.quadraticCurveTo(0, L - 2, 2.6, L - 3.4); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,215,120,0.5)'; ctx.setLineDash([1, 1]); line(ctx, w0 - 1.6, 0, wa - 0.7, L); ctx.setLineDash([]);   // side seam stitching
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ell(ctx, -1.6, kn * 0.6, 1, 5); ctx.fill();
+    ctx.restore();
+  }
+  const by = L;   // boot / sneaker
+  ctx.fillStyle = hGrad27(0, by, 0, by + 6, dark ? shade(P.boot, -20) : P.boot, P.bootD);
+  ctx.beginPath(); ctx.moveTo(-3.6, by); ctx.lineTo(3.5, by); ctx.quadraticCurveTo(4.7, by + 1.8, 7.2, by + 2.6); ctx.quadraticCurveTo(9.2, by + 3.4, 8.8, by + 5.4); ctx.lineTo(-4.1, by + 5.4); ctx.closePath();
+  hOut27(ctx.fillStyle, 'rgba(30,14,4,0.85)', 0.7);
+  ctx.fillStyle = P.sneakers ? '#ffffff' : '#20120a'; ctx.fillRect(-4.3, by + 4.6, 13.4, 1.6);
+  ctx.strokeStyle = P.sneakers ? 'rgba(255,255,255,0.9)' : 'rgba(230,200,150,0.7)'; ctx.lineWidth = 0.45;
+  for (let i = 0; i < 3; i++) line(ctx, 0.6 + i * 1.3, by + 0.8 + i * 0.5, 2.6 + i * 1.3, by + 1.6 + i * 0.5);
+  ctx.fillStyle = 'rgba(255,235,200,0.4)'; ell(ctx, 6, by + 3, 1.6, 0.7, 0.3); ctx.fill();
+  ctx.restore();
+}
+// smaller head on a visible neck: the v27 head scaled about its chin
+function hHead27(P, o) {
+  const k = hProp28(P).head;
+  ctx.save(); ctx.translate(0, HB28.chin); ctx.scale(k, k); ctx.translate(0, 42.5);
+  hHeadIn28(P, o); ctx.restore();
+}
+// the torso outline: neck, sloped shoulders, chest, tapered waist, slight flare at the hips
+function hTorsoPath28(P, open) {
+  const q = hProp28(P), w = q.w, t = HB28.top, b = HB28.hip, wa = w * (P.kid ? 0.9 : P.wide ? 0.86 : 0.8);
+  ctx.beginPath();
+  ctx.moveTo(-2.6, t - 1.2); ctx.quadraticCurveTo(-w * 0.55, t - 0.2, -w + 1, t + 1.6);   // sloping trapezius
+  ctx.quadraticCurveTo(-w - 0.6, t + 3, -w + 0.2, t + 6.5);                         // round shoulder
+  ctx.quadraticCurveTo(-wa - 0.2, (t + b) / 2 + 2, -wa, b - 3.5); ctx.quadraticCurveTo(-wa - 0.8, b - 1, -wa - 1.2, b);   // waist to hips
+  if (open) ctx.moveTo(wa + 1.2, b); else ctx.lineTo(wa + 1.2, b); ctx.quadraticCurveTo(wa + 0.8, b - 1, wa, b - 3.5); ctx.quadraticCurveTo(wa + 0.2, (t + b) / 2 + 2, w - 0.2, t + 6.5);
+  ctx.quadraticCurveTo(w + 0.6, t + 3, w - 1, t + 1.6); ctx.quadraticCurveTo(w * 0.55, t - 0.2, 2.6, t - 1.2); if (!open) ctx.closePath();
+}
+function hTorso27(P, o) {
+  ctx.save();
+  hTorsoPath28(P); ctx.fillStyle = hGrad27(-10, 0, 10, 0, shade(P.shirt, 22), P.shirt, P.shirtD); ctx.fill();
+  ctx.save(); hTorsoPath28(P); ctx.clip();
+  // the v27 shirt details, bib, straps, belt, fitted into the new torso height and width
+  const sx = hProp28(P).w / (10.6 * (P.wide || 1)), sy = (HB28.hip - HB28.top) / 19.5;
+  ctx.translate(0, HB28.top); ctx.scale(sx * 1.04, sy); ctx.translate(0, 40.5);
+  hTorsoIn28(P, o);
+  ctx.restore();
+  hTorsoPath28(P, true); ctx.strokeStyle = 'rgba(50,10,4,0.55)'; ctx.lineWidth = 0.7; ctx.stroke();
+  ctx.restore();
+}
+// the seat of the trousers over the tops of the legs: filled, outlined only down its outer sides
 function hHips27(P) {
-  const w = 9.4 * (P.wide || 1);
+  const q = hProp28(P), w = q.w * (P.kid ? 0.92 : P.wide ? 0.9 : 0.86) + 0.6, t = HB28.hip - 2, b = HB28.hip + 4.2;
   ctx.fillStyle = hGrad27(-w, 0, w, 0, P.pantsL, P.pants, P.pantsD);
-  ctx.beginPath(); ctx.moveTo(-w, -22.4); ctx.lineTo(w, -22.4); ctx.lineTo(w - 0.6, -17.6); ctx.quadraticCurveTo(0, -15.4, -w + 0.6, -17.6); ctx.closePath(); hOut27(ctx.fillStyle, 'rgba(15,30,60,0.6)', 0.6);
-  ctx.strokeStyle = 'rgba(255,210,110,0.6)'; ctx.lineWidth = 0.4; ctx.setLineDash([0.8, 0.8]); line(ctx, 0, -22, 0, -16.6); ctx.setLineDash([]);   // fly seam
+  ctx.beginPath(); ctx.moveTo(-w, t); ctx.lineTo(w, t); ctx.quadraticCurveTo(w + 0.3, b - 2, w - 0.6, b); ctx.quadraticCurveTo(0, b + 1.6, -w + 0.6, b); ctx.quadraticCurveTo(-w - 0.3, b - 2, -w, t); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(15,30,60,0.6)'; ctx.lineWidth = 0.6;
+  ctx.beginPath(); ctx.moveTo(-w, t); ctx.quadraticCurveTo(-w - 0.3, b - 2, -w + 0.6, b); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(w, t); ctx.quadraticCurveTo(w + 0.3, b - 2, w - 0.6, b); ctx.stroke();
+  ctx.strokeStyle = 'rgba(15,30,60,0.35)'; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(-1.4, b + 0.6); ctx.quadraticCurveTo(0, b - 0.6, 1.4, b + 0.6); ctx.stroke();   // crotch fold
+  ctx.strokeStyle = 'rgba(255,210,110,0.6)'; ctx.lineWidth = 0.4; ctx.setLineDash([0.8, 0.8]); line(ctx, 0, t + 1, 0, b); ctx.setLineDash([]);   // fly seam
 }
 // the whole person. o: { who, moving, step, tp (throw 0..1 or -1), ready (food to show in hand), pose: 'stand'|'cheer', t }
 function drawPerson27(o) {
-  const P = PEOPLE27[o.who || 'robner'];
+  const P = PEOPLE27[o.who || 'robner'], q = hProp28(P);
   const st = o.moving ? Math.sin(o.step) : 0, tp = o.tp == null ? -1 : o.tp;
   let crouch = 0;
   if (tp >= 0) crouch = tp < 0.3 ? tp / 0.3 * 2.5 : tp < 0.55 ? lerp(2.5, -2, (tp - 0.3) / 0.25) : lerp(-2, 0, (tp - 0.55) / 0.45);
   const cheer = o.pose === 'cheer', hop = cheer ? Math.max(0, Math.sin((o.t || 0) * 7)) * 2.2 : 0;
-  const bob = (o.moving ? Math.abs(Math.cos(o.step)) * 1.5 : 0) + hop;
   ctx.save();
-  // soft shadow on the ground
   ctx.save(); ctx.translate(4, 1); ctx.scale(1, 0.28);
   const sg = ctx.createRadialGradient(0, 0, 0, 0, 0, 22); sg.addColorStop(0, 'rgba(25,15,5,0.45)'); sg.addColorStop(1, 'rgba(25,15,5,0)');
   ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(0, 0, 22 * (1 - hop * 0.08), 0, Math.PI * 2); ctx.fill();
   ctx.restore();
   ctx.scale(P.h, P.h);
   ctx.translate(0, -hop);
-  hLeg27(-3.6, -st * 0.32 + (tp >= 0 ? 0.05 : 0), true, P, P.kid);
-  hLeg27(3.6, st * 0.32, false, P, P.kid);
+  const lx = P.kid ? 3.1 : 3.5 * (P.wide || 1);
+  hLeg27(-lx, -st * 0.3 + (tp >= 0 ? 0.05 : 0), true, P, P.kid);
+  hLeg27(lx, st * 0.3, false, P, P.kid);
   ctx.translate(0, crouch - (o.moving ? Math.abs(Math.cos(o.step)) * 1.5 : 0));
-  const sw = P.wide ? 11.4 : 10.4;
-  // far arm (swinging while walking, raised when cheering)
-  const sa = st * 3;
-  if (cheer) hArm27(-sw + 1, -38.4, -15, -47, -13.5 - Math.sin((o.t || 0) * 9) * 1.5, -57, P, true);
-  else hArm27(-sw + 1, -38.4, -sw - 3.4, -28.8 + sa * 0.3, -sw - 2.4 + sa * 0.6, -18.6, P, true);
+  const sw = q.sh, sy = HB28.top + 3.2, sa = st * 3;
+  // arms hang from sloped shoulders to mid-thigh
+  const rE = [sw + 1.7, -30.4], rH = [sw + 1.6, -18];
   hHips27(P);
-  hTorso27(P, o);
-  hHead27(P, { t: o.t || animT, excited: cheer || o.excited, moving: o.moving, step: o.step, look: o.look });
-  // near arm: throwing arm (wind up, fling straight up, settle back), or cheering with food
   let ex = 15.5, ey = -42, hx = 16, hy = -51;
   if (tp >= 0) {
     if (tp < 0.3) { const k = tp / 0.3; ex = lerp(15.5, 18, k); ey = lerp(-42, -33, k); hx = lerp(16, 14, k); hy = lerp(-51, -38, k); }
     else if (tp < 0.55) { const k = (tp - 0.3) / 0.25; ex = lerp(18, 13, k); ey = lerp(-33, -50, k); hx = lerp(14, 11, k); hy = lerp(-38, -66, k); }
     else { const k = (tp - 0.55) / 0.45; ex = lerp(13, 15.5, k); ey = lerp(-50, -42, k); hx = lerp(11, 16, k); hy = lerp(-66, -51, k); }
   }
-  if (cheer) { ex = 15.4; ey = -47.5; hx = 14 + Math.sin((o.t || 0) * 9 + 1) * 1.5; hy = -58; }
-  if (o.armDown && tp < 0) { ex = sw + 3.4; ey = -28.8 - sa * 0.3; hx = sw + 2.4 - sa * 0.6; hy = -18.6; }
+  if (cheer) { ex = sw + 4.4; ey = -45; hx = sw + 3 + Math.sin((o.t || 0) * 9 + 1) * 1.5; hy = -54; }
+  if (o.armDown && tp < 0) { ex = rE[0]; ey = rE[1] - sa * 0.3; hx = rH[0] - sa * 0.6; hy = rH[1]; }
+  hTorso27(P, o);
+  // far arm drawn over the torso edge too, so the sleeve flows out of the shoulder with no outline across it
+  if (cheer) hArm27(-sw, sy, -sw - 4.4, -45, -sw - 3 - Math.sin((o.t || 0) * 9) * 1.5, -54, P, true);
+  else hArm27(-sw, sy, -rE[0], rE[1] + sa * 0.3, -rH[0] + sa * 0.6, rH[1], P, true);
+  ctx.save(); ctx.translate(0, 0); hHead27(P, { t: o.t || animT, excited: cheer || o.excited, moving: o.moving, step: o.step, look: o.look }); ctx.restore();
   if (o.ready != null && !cheer) { ctx.save(); ctx.translate(hx + 2, hy - 5); ctx.rotate(-1.2); drawFood(o.ready, o.ready === 2 ? 0.45 : 0.6); ctx.restore(); }
-  hArm27(sw - 1, -38.4, ex, ey, hx, hy, P, false);
+  hArm27(sw, sy, ex, ey, hx, hy, P, false);
   if (cheer && o.food != null) { ctx.save(); ctx.translate(hx + 1, hy - 4); ctx.rotate(-0.9 + Math.sin((o.t || 0) * 9) * 0.2); drawFood(o.food, 0.5); ctx.restore(); }
   ctx.restore();
   return { hx: hx * P.h, hy: hy * P.h };
@@ -19326,7 +19406,8 @@ const MUS27_MAP = {"egtr": {"notes": [40, 46, 52, 58, 64, 70, 76, 82], "slot": 1
 // ---- v27: a light electric guitar (FluidR3 GM "Electric Guitar (clean)" #27, and a little "Overdriven Guitar" #29 for the
 // bosses) joins the boss themes and the faster area tunes. Calm areas, the map, jingles and celebrations are unchanged.
 Object.assign(MUS26_MAP, MUS27_MAP);
-SM.k.egtr = 8; SM.k.odgtr = 7.5;   // the GM guitar samples are quieter than the others
+SM.k.egtr = 4; SM.k.odgtr = 3.75;   // v28: -6 dB, behind the melody
+//   // the GM guitar samples are quieter than the others
 const EGTR27 = { boss: { style: 'chug', v: 1 }, boss2: { style: 'chug', v: 1.5 }, area1: { style: 'skank', v: 0.8 }, area5: { style: 'skank', v: 0.9 },
   area6: { style: 'skank', v: 0.85 }, area11: { style: 'skank', v: 1 }, area12: { style: 'skank', v: 1 } };
 Object.keys(EGTR27).forEach(function (k) { if (TRACKS[k]) TRACKS[k].egtr = EGTR27[k]; });
@@ -19494,6 +19575,7 @@ function hum27Scale(x, fn) { ctx.save(); ctx.translate(x, FARMER_Y); ctx.scale(H
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
+if (window.__dbg) window.__dbg.v28 = { HB: HB28, prop: hProp28 };
 if (window.__dbg) window.__dbg.v24 = { WIDE_E: WIDE_E, MAPZ: MAPZ, FOOD_CAP: FOOD_CAP, FCAP: FCAP, GAME_VER: GAME_VER, CELEB24: CELEB24, M24: M24, vibe: vibe, setCap: function (n) { FOOD_CAP = n; } };
 if (window.__dbg) window.__dbg.v23 = { BIG23: BIG23, CELEB: CELEB, celebSkip: celebSkip, phoneScreens: phoneScreens };
 if (window.__dbg) window.__dbg.v22 = { vickyGuards: vickyGuards, PHONE: PHONE, PHONE_DIFF: PHONE_DIFF, phoneEasy: phoneEasy, bot: { botTools: botTools, botBonus: botBonus, botBossFood: botBossFood, botPicky: botPicky, bossFeedable: bossFeedable, botAvoidLove: botAvoidLove, canReach: canReach, readyTool: readyTool } };
