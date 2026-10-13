@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 31
+  Feed the Dinos, Save the Sheep 32
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 31</title>
+<title>Feed the Dinos, Save the Sheep 32</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -235,7 +235,7 @@ const LANE_TOP = 512, FARMER_Y = 588, THROW_Y = FARMER_Y - 79;   // v27: people 
 const AREA1_30 = { pen: 1, haybarn: 1, pond: 1, night: 1, barnyard: 1 };
 const P30 = { cloud: null, sv: -1, grads: true };
 const AI30 = null;   // AI-art variant build: data URL of the painted area-1 background
-const FLAT31 = { on: true };   // v31 flat 2D look for area 1 (filled in by flat31.js)
+const FLAT31 = { on: false };   // v32: flat look switched off (detailed look everywhere)   // v31 flat 2D look for area 1 (filled in by flat31.js)
 const TXT31 = { on: true, frame: -1, boxes: [], perArea: 3 };
 const HUM27 = { S: 1.1 };
 const SANTA28 = 4;
@@ -4382,7 +4382,7 @@ function drawEgg(e) {
     }
   }
   ctx.restore();
-  if (e.special && e.state === 'idle' && showNames && state === 'play') {
+  if (e.special && e.state === 'idle' && showNames && state === 'play' && free32(e.x, e.y - ry * 2 - 14, 'Mystery egg', TXT26.on && BIG23.on ? BIG23.label : 11)) {
     const y = e.y - ry * 2 - 14 + Math.sin(animT * 2.5) * 1.5;
     if (TXT26.on) nameTag('Mystery egg', e.x, y, 'rgba(60,40,10,0.6)', '#fff2a8');
     else {
@@ -6570,10 +6570,10 @@ function drawBossExtras(d) {
     if (!p) return;
     // name ribbon in the twin's bar colour
     ctx.font = 'bold 12px "Segoe UI", Arial, sans-serif';
-    const w = ctx.measureText(p.name).width + 16, y = h.y - h.r - 18;
+    const w = ctx.measureText(p.name).width + 16, y = h.y - h.r - (d.state === 'eat' ? 40 : 18) + (tag31(h.x, h.y - h.r - (d.state === 'eat' ? 40 : 18), p.name, 12) || 0);
     ctx.fillStyle = 'rgba(20,20,30,0.7)'; rr(ctx, h.x - w / 2, y - 9, w, 18, 9); ctx.fill();
     ctx.strokeStyle = TWIN_COLS[d.twin]; ctx.lineWidth = 2; ctx.stroke();
-    txt(p.name, h.x, y + 0.5, 12, TWIN_COLS[d.twin], 'center', 'bold', false);
+    TXT31.mine++; txt(p.name, h.x, y + 0.5, 12, TWIN_COLS[d.twin], 'center', 'bold', false); TXT31.mine--;
     if (b.huddle && b.huddle.on && !p.done && d.twin === 0) {
       const hd = b.huddle, pr = 0.5 + 0.5 * Math.sin(animT * 8);
       ctx.save(); ctx.globalAlpha = 0.6 + 0.3 * pr; ctx.strokeStyle = '#ffb347'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.lineDashOffset = animT * 30;
@@ -6638,7 +6638,8 @@ function drawBossBar() {
       const yy = y0 + 22 + i * 24;
       txt(p.name, x, yy + 6.5, 11, TWIN_COLS[i], 'left', 'bold', true);
       const cols = i ? ['#d8d0ff', '#8a7ae8', '#4a3aa8'] : ['#b8fff8', '#3ac0c0', '#1a7a80'];
-      hungerBar(x + 50, yy, w - 50, clamp(p.hp / p.max, 0, 1), p.flash, cols);
+      const nw32 = Math.max(50, tw31(p.name, Math.max(11, txtMin26() / (BIG23.on && BIG23.boss ? BIG23.boss : 1))) + 8);
+      hungerBar(x + nw32, yy, w - nw32, clamp(p.hp / p.max, 0, 1), p.flash, cols);
       txt(p.done ? 'FULL' : Math.ceil(p.hp / p.max * 100) + '%', x + w - 6, yy + 7, 10, '#ffffff', 'right', 'bold', true);
     });
     const sy = y0 + 76;
@@ -8293,7 +8294,7 @@ drawBossExtras = function (d) {
     const p = 0.5 + 0.5 * Math.sin(animT * 10);
     ctx.save(); ctx.globalAlpha = 0.35 + 0.3 * p; ctx.strokeStyle = '#ff4a3a'; ctx.lineWidth = 3; ell(ctx, h.x, h.y, h.r + 8, h.r + 8); ctx.stroke(); ctx.restore();
     txt('HUNGRIER!', h.x, h.y - h.r - 24, 13, '#ffb0a0', 'center', 'bold', true);
-  } else if (d.state !== 'eat') txt('don\'t feed me - feed my baby!', h.x, h.y - h.r - 24, 12, '#ffe0a0', 'center', 'bold', true);
+  } else if (d.state !== 'eat') { const oy31 = tag31(h.x, h.y - h.r - 24, 'don\'t feed me - feed my baby!', 12); if (oy31 !== null) { TXT31.mine++; txt('don\'t feed me - feed my baby!', h.x, h.y - h.r - 24 + oy31, 12, '#ffe0a0', 'center', 'bold', true); TXT31.mine--; } }
 };
 // ---- the boss bars for the two new bosses
 const drawBossBarV7 = drawBossBar;
@@ -8573,7 +8574,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 31', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 32', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   drawStar(W - 112, 28, 13, true, true);
   txt(totalStars() + ' / ' + (LAST_LEVEL * 3), W - 92, 29, 20, '#ffe27a', 'left', 'bold', true);
   const L = LEVELS[MAP.sel - 1];
@@ -17947,7 +17948,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v31';
+const GAME_VER = 'v32';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20129,11 +20130,142 @@ function tag31(x, y, text, fs) {
 const cardCornerV30 = cardCorner;
 cardCorner = function (x) { const C = cardCornerV30(x); if (TXT31.on && !PHONE.on && G && G.boss && C.x > W / 2) C.x = 8; return C; };
 
+
+// ================================================================ v32: the sheep barn (and the L2 hay barn) is a proper red barn
+// Detailed shaded style to match the v29/v30 look: gambrel roof with shingle rows, red plank walls, white corner and roof
+// trim, big double sliding doors with white X braces on a track, hayloft door with hay and a hoist beam. Baked into the bg.
+function barn32(b, R, x0, x1, top, gnd, opt) {
+  opt = opt || {};
+  const w = x1 - x0, H = gnd - top, mid = (x0 + x1) / 2, eave = top + H * 0.36, knee = top + H * 0.13, kx = w * 0.14;
+  softBlob(b, mid + w * 0.18, gnd + 4, w * 0.85, 12, 'rgba(10,25,5,0.5)', 'rgba(10,25,5,0)');
+  const facade = function () { b.beginPath(); b.moveTo(x0, gnd); b.lineTo(x0, eave); b.lineTo(x0 + kx, knee); b.lineTo(mid, top); b.lineTo(x1 - kx, knee); b.lineTo(x1, eave); b.lineTo(x1, gnd); b.closePath(); };
+  // red plank walls, lit from the upper left
+  const wg = b.createLinearGradient(x0, 0, x1, 0); wg.addColorStop(0, '#c4402c'); wg.addColorStop(0.55, '#a8321f'); wg.addColorStop(1, '#7c2214');
+  facade(); b.fillStyle = wg; b.fill();
+  b.save(); facade(); b.clip();
+  for (let x = x0; x < x1; x += 6) {
+    b.fillStyle = 'rgba(' + (R() < 0.5 ? '255,200,170,0.07' : '60,10,5,0.10') + ')'; b.fillRect(x, top, 6, H);
+    b.strokeStyle = 'rgba(70,15,8,0.5)'; b.lineWidth = 1; line(b, x, top, x, gnd);
+    b.strokeStyle = 'rgba(90,25,15,0.22)'; b.lineWidth = 0.6; const gx = x + 1.5 + R() * 3; b.beginPath(); b.moveTo(gx, top + 4); b.bezierCurveTo(gx + 1, top + H * 0.4, gx - 1, top + H * 0.7, gx + 0.5, gnd); b.stroke();
+  }
+  const sh = b.createLinearGradient(0, top, 0, top + H * 0.5); sh.addColorStop(0, 'rgba(40,5,0,0.35)'); sh.addColorStop(1, 'rgba(40,5,0,0)');
+  b.fillStyle = sh; b.fillRect(x0, top, w, H * 0.5);
+  const gr = b.createLinearGradient(0, gnd - 14, 0, gnd); gr.addColorStop(0, 'rgba(40,20,5,0)'); gr.addColorStop(1, 'rgba(40,20,5,0.35)');
+  b.fillStyle = gr; b.fillRect(x0, gnd - 14, w, 14);
+  b.restore();
+  // roof: dark shingles along the gambrel, with a white fascia
+  const roofPts = [[x0 - 5, eave + 5], [x0 + kx - 3, knee - 3], [mid, top - 7], [x1 - kx + 3, knee - 3], [x1 + 5, eave + 5]];
+  const roofLine = function () { b.beginPath(); roofPts.forEach(function (p, i) { if (i) b.lineTo(p[0], p[1]); else b.moveTo(p[0], p[1]); }); };
+  b.lineJoin = 'round'; b.lineCap = 'round';
+  roofLine(); b.strokeStyle = 'rgba(15,15,20,0.9)'; b.lineWidth = 13; b.stroke();
+  roofLine(); b.strokeStyle = '#4d525c'; b.lineWidth = 10; b.stroke();
+  roofLine(); b.strokeStyle = '#6a707b'; b.lineWidth = 3; b.stroke();
+  b.save(); roofLine(); b.lineWidth = 10; b.strokeStyle = '#000'; b.setLineDash([2, 5]); b.globalAlpha = 0.25; b.stroke(); b.restore();
+  b.beginPath(); b.moveTo(x0, eave); b.lineTo(x0 + kx, knee); b.lineTo(mid, top); b.lineTo(x1 - kx, knee); b.lineTo(x1, eave);
+  b.strokeStyle = 'rgba(0,0,0,0.3)'; b.lineWidth = 4; b.stroke(); b.strokeStyle = '#f4f1e6'; b.lineWidth = 2.4; b.stroke();
+  // white corner trim
+  const trim = function (x, y, ww, hh) { b.fillStyle = 'rgba(0,0,0,0.25)'; b.fillRect(x + 1, y + 1, ww, hh); const tg = b.createLinearGradient(x, 0, x + ww, 0); tg.addColorStop(0, '#ffffff'); tg.addColorStop(1, '#d8d4c4'); b.fillStyle = tg; b.fillRect(x, y, ww, hh); };
+  trim(x0, eave, 4, gnd - eave); trim(x1 - 4, eave, 4, gnd - eave);
+  facade(); b.strokeStyle = 'rgba(40,10,5,0.75)'; b.lineWidth = 1.4; b.stroke();
+  // hayloft door with hay and a hoist beam
+  const lw = w * 0.26, lh = H * 0.21, ly = knee + H * 0.05;
+  b.fillStyle = '#3a1308'; b.fillRect(mid - lw / 2, ly, lw, lh);
+  b.fillStyle = '#e2bf55'; b.beginPath(); b.moveTo(mid - lw / 2 + 1, ly + lh); b.quadraticCurveTo(mid - lw * 0.1, ly + lh * 0.3, mid + lw / 2 - 1, ly + lh); b.fill();
+  b.strokeStyle = 'rgba(160,120,30,0.8)'; b.lineWidth = 0.7; for (let i = 0; i < 8; i++) { const sx = mid - lw / 2 + 2 + R() * (lw - 4), sy = ly + lh * 0.6 + R() * lh * 0.35; line(b, sx, sy, sx + (R() - 0.5) * 5, sy - R() * 3); }
+  b.strokeStyle = '#f4f1e6'; b.lineWidth = 2.2; b.strokeRect(mid - lw / 2, ly, lw, lh);
+  b.lineWidth = 1.6; line(b, mid - lw / 2, ly, mid + lw / 2, ly + lh); line(b, mid + lw / 2, ly, mid - lw / 2, ly + lh);
+  b.fillStyle = '#5a3a1e'; b.fillRect(mid - 3, top + 2, 6, 5); b.fillStyle = '#3a2a1a'; b.fillRect(mid - 0.6, top + 7, 1.2, 7);
+  // big double sliding doors with white X braces, hanging from a track
+  const dw = w * 0.66, dh = H * 0.44, dy = gnd - dh;
+  b.fillStyle = 'rgba(0,0,0,0.3)'; b.fillRect(mid - dw / 2 - 5, dy - 6, dw + 10, 4); b.fillStyle = '#3c3c42'; b.fillRect(mid - dw / 2 - 6, dy - 7, dw + 12, 3);
+  [mid - dw / 2, mid].forEach(function (dx, k) {
+    const dg = b.createLinearGradient(dx, 0, dx + dw / 2, 0); dg.addColorStop(0, k ? '#a12d1c' : '#b93a26'); dg.addColorStop(1, k ? '#7a2013' : '#9a2e1c');
+    b.fillStyle = dg; b.fillRect(dx, dy, dw / 2, dh);
+    b.strokeStyle = 'rgba(70,15,8,0.45)'; b.lineWidth = 0.8; for (let x = dx + 4; x < dx + dw / 2; x += 5) line(b, x, dy + 2, x, gnd - 2);
+    const brace = function (xa, ya, xb, yb) { b.strokeStyle = 'rgba(0,0,0,0.3)'; b.lineWidth = 3.4; line(b, xa + 0.8, ya + 1, xb + 0.8, yb + 1); b.strokeStyle = '#f4f1e6'; b.lineWidth = 2.6; line(b, xa, ya, xb, yb); };
+    const i0 = 2.5, xr = dx + dw / 2 - i0;
+    brace(dx + i0, dy + i0, xr, gnd - i0); brace(xr, dy + i0, dx + i0, gnd - i0);
+    b.strokeStyle = 'rgba(0,0,0,0.3)'; b.lineWidth = 3.2; b.strokeRect(dx + i0 + 0.6, dy + i0 + 0.8, dw / 2 - i0 * 2, dh - i0 * 2);
+    b.strokeStyle = '#f4f1e6'; b.lineWidth = 2.6; b.strokeRect(dx + i0, dy + i0, dw / 2 - i0 * 2, dh - i0 * 2);
+    b.fillStyle = '#2a2a30'; ell(b, dx + dw / 4, dy - 4, 2, 2); b.fill();
+  });
+  b.strokeStyle = 'rgba(30,5,0,0.7)'; b.lineWidth = 1.4; line(b, mid, dy, mid, gnd);
+  if (opt.open) { b.fillStyle = '#2a0e06'; b.fillRect(mid - dw * 0.18, dy + 3, dw * 0.36, dh - 3); b.fillStyle = '#d8b44c'; b.fillRect(mid - dw * 0.16, gnd - dh * 0.45, dw * 0.32, dh * 0.45); }
+  if (opt.sign) txt2(b, opt.sign, mid, ly - 7, 11, '#f8e8c0');
+  // grass at the foot of the walls
+  for (let x = x0 - 4; x < x1 + 4; x += 3 + R() * 4) tuft(b, R, x, gnd + 2, 4 + R() * 4, '#3f7d31', '#6db352');
+}
+drawBarn = function (b, R) { barn32(b, R, 8, 100, 160, 326); };
+SPOTS.haybarn.top = function (b, R) {
+  barn32(b, R, 590, 708, 44, 136, { open: true, sign: 'HAY' });
+  for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) hayBale(b, 716 + k * 22 + (r % 2) * 10, 136 - r * 13, 21, 12);
+  for (let k = 0; k < 2; k++) hayBale(b, 548 + k * 22, 136, 21, 12); hayBale(b, 559, 123, 21, 12);
+};
+
+
+// ================================================================ v32: remaining text overlaps, and contrast over busy ground
+// tip / tool / info cards: remember where the card was drawn so floating texts and name tags keep clear of it next frame
+const cardFrameV31 = cardFrame;
+cardFrame = function (C, a, k, col) {
+  if (TXT31.on && a > 0.3) { let x0 = C.x, x1 = C.x + C.w, y1 = C.y + C.h; if (BIG23.on) { const s = BIG23.card, ax = C.x < W / 2 ? C.x : C.x + C.w; x0 = ax - (ax - C.x) * s; x1 = ax + (C.x + C.w - ax) * s; y1 = C.y + C.h * s; } TXT31.cards.push({ x0: x0, x1: x1, y0: C.y, y1: y1 + 4 }); }
+  return cardFrameV31(C, a, k, col);
+};
+TXT31.cards = []; TXT31.lastCards = [];
+const layout31V32 = layout31;
+layout31 = function () {
+  TXT31.lastCards = TXT31.cards; TXT31.cards = [];
+  const extra = TXT31.lastCards;
+  layout31V32();
+  if (extra.length) { TXT31.boxes.push.apply(TXT31.boxes, extra); relayout32(extra); }
+};
+// anything already placed that sits under a card is moved clear or hidden
+function relayout32(cards) {
+  const hitC = function (bx) { return cards.some(function (c) { return hit31(bx, c); }); };
+  (G.popups || []).forEach(function (p) { if (p.hide31) return; const s = popSize31(p), w = tw31(p.text, s) + 10, bx = box31(p.x, p.y + p.oy31, w, s * 1.15); if (hitC(bx)) { const ny = cards.reduce(function (m, c) { return Math.max(m, c.y1); }, 0) + s; p.oy31 = ny - p.y; } });
+  (G.dinos || []).forEach(function (d) { if (d.hide31 || !d.T) return; const s = d.T.s, fs = BIG23.on ? BIG23.label : 11, x = d.x - d.dir * (14 + 6 * s), y = d.y - s * (d.T.sail ? 112 : 88) - 8 + (d.oy31 || 0); if (hitC(box31(x, y, tw31(d.T.name, Math.max(fs, txtMin26())) + 14, BIG23.on ? 20 : 16))) d.hide31 = true; });
+}
+// tags drawn at their spot only if that spot is free (mystery-egg tags, twin ribbons)
+function free32(x, y, text, fs) { if (!TXT31.on || TXT31.frame !== animT) return true; const s = Math.max(fs, txtMin26()); const bx = box31(x, y, tw31(text, s) + 14, s + 6); return !TXT31.boxes.some(function (q) { return hit31(bx, q); }); }
+// twin bosses: their colour ribbon replaces the plain name tag
+const drawDinoLabelV32 = drawDinoLabel;
+drawDinoLabel = function (d) { if (G && G.boss && G.boss.kind === 'twins' && d.T && d.T.boss === 'twins') return; return drawDinoLabelV32(d); };
+// the grand-finale tag grows with the (phone) text size instead of letting its two texts run into each other
+drawRushTag = function () {
+  const R = G.rush; if (!R || state !== 'play') return;
+  const fs = Math.max(10, txtMin26()), a = 'GRAND FINALE', bt = 'Boss ' + Math.min(R.i + 1, R.list.length) + '/' + R.list.length;
+  const w = Math.max(176, tw31(a, fs) + tw31(bt, fs) + 34, 18 + R.list.length * 32), h = fs + 26, x = 12, y = MENU_BTN.y - h - 6;
+  ctx.save(); ctx.fillStyle = 'rgba(40,10,30,0.66)'; rr(ctx, x, y, w, h, 10); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,154,208,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
+  txt(a, x + 10, y + fs * 0.5 + 5, fs, '#ff9ad0', 'left', 'bold', true);
+  txt(bt, x + w - 8, y + fs * 0.5 + 5, fs, '#ffffff', 'right', 'bold', true);
+  for (let i = 0; i < R.list.length; i++) {
+    const cx = x + 18 + i * 32, cy = y + fs + 16, done = i < R.i || (i === R.i && G.boss && G.boss.done);
+    ctx.fillStyle = done ? '#7ee081' : i === R.i ? '#ffd04a' : 'rgba(255,255,255,0.3)'; ell(ctx, cx, cy, 5, 5); ctx.fill();
+    if (done) txt('\u2714', cx, cy + 0.5, 8, '#1a3a10', 'center', 'bold', false);
+  }
+  ctx.restore();
+};
+// dinos and eggs over busy ground (cornfields): a soft dark rim so they read clearly
+const drawDinoV31 = drawDino;
+drawDino = function (d, s) {
+  if (!SPOT.corn) return drawDinoV31(d, s);
+  ctx.save(); ctx.shadowColor = 'rgba(25,15,0,0.7)'; ctx.shadowBlur = 3 * dpr;
+  try { return drawDinoV31(d, s); } finally { ctx.restore(); }
+};
+const drawEggV31 = drawEgg;
+drawEgg = function (e) {
+  if (!SPOT.corn) return drawEggV31(e);
+  ctx.save(); ctx.shadowColor = 'rgba(25,15,0,0.75)'; ctx.shadowBlur = 3 * dpr;
+  try { return drawEggV31(e); } finally { ctx.restore(); }
+};
+Object.keys(BGCACHE).forEach(function (k) { delete BGCACHE[k]; }); if (bg) buildBG();
+
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
 if (window.__dbg) window.__dbg.v28 = { HB: HB28, prop: hProp28 };
 if (window.__dbg) window.__dbg.v30 = { on: function () { return area1on30(); }, eat: function (x, y) { eatFx30(x, y); }, save: function (x, y) { saveFx30(x, y); }, shell: function (x, y, k) { shellFx30(x, y, EGG_LOOK[k || 'plain'], false); } };
 if (window.__dbg) window.__dbg.v31 = { FLAT31: FLAT31, TXT31: TXT31, layout: layout31 };
+if (window.__dbg) window.__dbg.v32 = { barn32: barn32, free32: free32 };
 if (window.__dbg) window.__dbg.v24 = { WIDE_E: WIDE_E, MAPZ: MAPZ, FOOD_CAP: FOOD_CAP, FCAP: FCAP, GAME_VER: GAME_VER, CELEB24: CELEB24, M24: M24, vibe: vibe, setCap: function (n) { FOOD_CAP = n; } };
 if (window.__dbg) window.__dbg.v23 = { BIG23: BIG23, CELEB: CELEB, celebSkip: celebSkip, phoneScreens: phoneScreens };
 if (window.__dbg) window.__dbg.v22 = { vickyGuards: vickyGuards, PHONE: PHONE, PHONE_DIFF: PHONE_DIFF, phoneEasy: phoneEasy, bot: { botTools: botTools, botBonus: botBonus, botBossFood: botBossFood, botPicky: botPicky, bossFeedable: bossFeedable, botAvoidLove: botAvoidLove, canReach: canReach, readyTool: readyTool } };
