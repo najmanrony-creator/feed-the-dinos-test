@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 33
+  Feed the Dinos, Save the Sheep 34
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 33</title>
+<title>Feed the Dinos, Save the Sheep 34</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4139,7 +4139,7 @@ function drawMoodFX(d) {
   } else if (md === 'love') {
     const warn = d.mood && d.mood.warn, p = 1 + (warn ? 0.3 : 0.18) * Math.sin(animT * (warn ? 18 : 7) + d.x);
     drawHeart(h.x, h.y - h.r - 10, (warn ? 17 : 13) * p, warn && Math.sin(animT * 22) > -0.2 ? '#ff1f2a' : '#ff3d78');
-    if (warn) txt('!', h.x + 14, h.y - h.r - 24, 18, '#ff2a2a');
+    if (warn) alert34(h.x + 14, h.y - h.r - 24, 18, '#ff2a2a');
   } else if (md === 'scared') {
     // sweat drops by the head
     ctx.fillStyle = '#bfe8ff';
@@ -4149,7 +4149,7 @@ function drawMoodFX(d) {
       ctx.beginPath(); ctx.moveTo(sx, sy - 5); ctx.quadraticCurveTo(sx + 3.4, sy + 1, sx, sy + 3); ctx.quadraticCurveTo(sx - 3.4, sy + 1, sx, sy - 5); ctx.fill();
     }
     ctx.globalAlpha = 1;
-    if (d.mood.t < 1.2) txt('!', h.x, h.y - h.r - 12 - d.mood.t * 6, 24, '#ff5a4a');
+    if (d.mood.t < 1.2) alert34(h.x, h.y - h.r - 12 - d.mood.t * 6, 24, '#ff5a4a');
   } else if (md === 'shake') {
     for (let i = 0; i < 3; i++) {
       const a = animT * 6 + i * 2.1, sx = h.x + Math.cos(a) * 16, sy = h.y - h.r - 4 + Math.sin(a) * 5;
@@ -4406,6 +4406,9 @@ function txtLight(c) {
   else if ((m = c.match(/rgba?\(([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/))) { r = +m[1]; g = +m[2]; b = +m[3]; }
   return (TXT_LIGHT[c] = (0.299 * r + 0.587 * g + 0.114 * b) > 120);
 }
+const UI33 = { cream: '#fbf6ec', card: '#ffffff', ink: '#3b2a1a', soft: '#6f604c', red: '#c8442f', redD: '#9c3020', green: '#3f9a4a',
+  gold: '#f2b632', shadow: 'rgba(40,25,10,0.18)', line: 'rgba(80,55,25,0.10)' };
+const SKIN34 = { on: false };   // v34: menu text colours (see skin34)
 function txt(t, x, y, size, color, align, weight, outline) {
   ctx.font = (weight || 'bold') + ' ' + size + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
   ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
@@ -4497,7 +4500,7 @@ function render() {
   G.sheep.forEach(function (s) {
     if (s.chased) {
       const pulse = 1 + 0.15 * Math.sin(animT * 14);
-      txt('!', s.x + 2, s.y - 38, 22 * pulse, '#ff4a3d');
+      alert34(s.x + 2, s.y - 38, 22 * pulse, '#ff4a3d');
     }
   });
   G.sheep.forEach(function (s) { if (s.lamb) drawLambTag(s); if (s.knockT > 0) drawDizzy(s); });
@@ -4682,19 +4685,10 @@ function drawHUD() {
 
 
 function drawPanel(x, y, w, h, noDim) {
-  if (!noDim) { ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.fillRect(0, 0, W, H); }
-  ctx.fillStyle = 'rgba(0,0,0,0.3)'; rr(ctx, x + 5, y + 8, w, h, 20); ctx.fill();
-  // wooden frame
-  const fr = ctx.createLinearGradient(0, y, 0, y + h);
-  fr.addColorStop(0, '#d9a463'); fr.addColorStop(0.5, '#a8743c'); fr.addColorStop(1, '#7a4f24');
-  ctx.fillStyle = fr; rr(ctx, x, y, w, h, 20); ctx.fill();
-  const g = ctx.createLinearGradient(0, y, 0, y + h);
-  g.addColorStop(0, 'rgba(34,56,36,0.97)'); g.addColorStop(1, 'rgba(18,32,20,0.97)');
-  ctx.fillStyle = g; rr(ctx, x + 5, y + 5, w - 10, h - 10, 16); ctx.fill();
-  ctx.strokeStyle = 'rgba(60,35,10,0.8)'; ctx.lineWidth = 1.5; rr(ctx, x + 5, y + 5, w - 10, h - 10, 16); ctx.stroke();
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 2; rr(ctx, x + 12, y + 12, w - 24, h - 24, 12); ctx.stroke();
-  ctx.fillStyle = 'rgba(70,40,10,0.9)';
-  [[x + 11, y + 11], [x + w - 11, y + 11], [x + 11, y + h - 11], [x + w - 11, y + h - 11]].forEach(function (p) { ell(ctx, p[0], p[1], 2.4, 2.4); ctx.fill(); });
+  if (!noDim) { ctx.fillStyle = 'rgba(20,14,6,0.45)'; ctx.fillRect(0, 0, W, H); }
+  softBox33(x, y, w, h, 22, UI33.cream);
+  ctx.save(); rr(ctx, x, y, w, h, 22); ctx.clip(); ctx.fillStyle = UI33.red; ctx.fillRect(x, y, w, 7); ctx.restore();
+  SKIN34.on = true;
 }
 
 // a picture of a dino standing on a little patch of grass, scaled to fit a box
@@ -4824,7 +4818,7 @@ function drawLoveZone() {
   ctx.setLineDash([8, 6]); ctx.lineDashOffset = -animT * 24;
   ell(ctx, f.x, FARMER_Y - 12, LOVE.warnX, 19); ctx.stroke(); ctx.setLineDash([]);
   ctx.restore();
-  if (c.warn) { ctx.globalAlpha = 0.7 + 0.3 * p; txt('!', f.x + 22, FARMER_Y - 96, 26, '#ff3b3b'); ctx.globalAlpha = 1; }
+  if (c.warn) { ctx.globalAlpha = 0.7 + 0.3 * p; alert34(f.x + 22, FARMER_Y - 96, 26, '#ff3b3b'); ctx.globalAlpha = 1; }
 }
 function drawFarmerLabel(f) {
   const x = f.x, y = FARMER_Y - 82 - ROB26.lift;
@@ -5151,9 +5145,9 @@ function drawStar(x, y, R, filled, glow) {
   ctx.save();
   if (glow && filled) { starPath(ctx, x, y, R * 1.18, R * 0.6); ctx.fillStyle = 'rgba(255,210,60,0.35)'; ctx.fill(); }
   starPath(ctx, x, y, R, R * 0.48);
-  ctx.fillStyle = filled ? '#ffd23a' : 'rgba(255,255,255,0.16)'; ctx.fill();
+  ctx.fillStyle = filled ? '#ffd23a' : SKIN34.on ? 'rgba(120,90,50,0.14)' : 'rgba(255,255,255,0.16)'; ctx.fill();
   ctx.shadowBlur = 0;
-  ctx.lineWidth = Math.max(1, R / 8); ctx.strokeStyle = filled ? '#a8640c' : 'rgba(255,255,255,0.35)'; ctx.stroke();
+  ctx.lineWidth = Math.max(1, R / 8); ctx.strokeStyle = filled ? '#a8640c' : SKIN34.on ? 'rgba(120,90,50,0.5)' : 'rgba(255,255,255,0.35)'; ctx.stroke();
   if (filled) { ctx.fillStyle = 'rgba(255,255,255,0.45)'; ell(ctx, x - R * 0.18, y - R * 0.3, R * 0.22, R * 0.12, -0.5); ctx.fill(); }
   ctx.restore();
 }
@@ -5610,13 +5604,13 @@ function updateMap(dt) {
 // ================================================================ v6 SCREENS: level briefing, results, level failed
 const UI_BTNS = [];   // clickable buttons of the current panel: {x, y, w, h, act}
 function uiButton(label, x, y, w, h, act, primary) {
-  ctx.fillStyle = 'rgba(0,0,0,0.3)'; rr(ctx, x + 2, y + 3, w, h, h / 2); ctx.fill();
-  const g = ctx.createLinearGradient(0, y, 0, y + h);
-  if (primary) { g.addColorStop(0, '#ffd65a'); g.addColorStop(1, '#d8901c'); } else { g.addColorStop(0, '#8aa070'); g.addColorStop(1, '#4a6038'); }
-  ctx.fillStyle = g; rr(ctx, x, y, w, h, h / 2); ctx.fill();
-  ctx.strokeStyle = primary ? '#7a4a08' : '#2a3a1a'; ctx.lineWidth = 1.5; ctx.stroke();
+  const was = SKIN34.on, big = BIG23.on, ga = ctx.globalAlpha; SKIN34.on = false;
+  if (ga > 0.69) ctx.globalAlpha = 1;   // no breathing buttons: one calm style
+  softBox33(x, y, w, h, h / 2, primary ? UI33.red : '#ffffff');
   const ls = h >= 48 ? Math.min(24, h * 0.4) : 16;
-  txt(label, x + w / 2, y + h / 2 + 1, fitFont(label, w - 20, ls), primary ? '#3a2208' : '#ffffff', 'center', 'bold', false);
+  BIG23.on = false;   // clean white label on the red button (no dark halo)
+  txt(label, x + w / 2, y + h / 2 + 1, fitFont(label, w - 20, ls), primary ? '#ffffff' : UI33.ink, 'center', 'bold', false);
+  BIG23.on = big; SKIN34.on = was; ctx.globalAlpha = ga;
   const bm = ctx.getTransform(), bs = bm.a / dpr;
   UI_BTNS.push({ x: (bm.a * x + bm.e) / dpr, y: (bm.d * y + bm.f) / dpr, w: w * bs, h: h * bs, act: act });
 }
@@ -6032,9 +6026,9 @@ function cardFrame(C, a, k, col) {
   ctx.globalAlpha = a;
   if (BIG23.on) { const ax = C.x < W / 2 ? C.x : C.x + C.w; ctx.translate(ax, cy); ctx.scale(BIG23.card, BIG23.card); ctx.translate(-ax, -cy); }
   ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy);
-  ctx.fillStyle = 'rgba(0,0,0,0.3)'; rr(ctx, C.x + 3, C.y + 4, C.w, C.h, 14); ctx.fill();
-  ctx.fillStyle = 'rgba(24,40,26,0.95)'; rr(ctx, C.x, C.y, C.w, C.h, 14); ctx.fill();
-  ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.stroke();
+  softBox33(C.x, C.y, C.w, C.h, 16, UI33.cream);
+  ctx.save(); rr(ctx, C.x, C.y, C.w, C.h, 16); ctx.clip(); ctx.fillStyle = col; ctx.fillRect(C.x, C.y, 6, C.h); ctx.restore();
+  SKIN34.on = true;
 }
 function cardPicture(C, sky) {
   const px = C.x + 8, py = C.y + 8, pw = 116, ph = C.h - 16;
@@ -6593,7 +6587,7 @@ function drawBossExtras(d) {
       foodRing(b.want, bx - 2, by + 1, 18, 0.9);
       ell(ctx, h.x + d.dir * 12, h.y - h.r - 16, 5, 4); ctx.fill(); ctx.stroke();
       ctx.save(); ctx.translate(bx - 2, by + 1); ctx.rotate(-0.4); drawFood(b.want, b.want === 2 ? 0.46 : 0.66); ctx.restore();
-      txt(String(b.want + 1), bx + 22, by + 14, 12, shade(FOOD_COL[b.want], -50), 'center', 'bold', false);
+      if (!underBanner34(bx + 22, by + 14)) txt(String(b.want + 1), bx + 22, by + 14, 12, shade(FOOD_COL[b.want], -50), 'center', 'bold', false);
     } else if (b.phase === 2) {
       const p = 0.5 + 0.5 * Math.sin(animT * 10);
       ctx.save(); ctx.globalAlpha = 0.35 + 0.3 * p; ctx.strokeStyle = '#ff4a3a'; ctx.lineWidth = 3;
@@ -7149,7 +7143,7 @@ function drawPickyBubble(d) {
   foodRing(d.picky, bx - 1, by + 1, 11.5, 0.9);
   ell(ctx, h.x + d.dir * 8, h.y - h.r - 12, 3.5, 3); ctx.fill(); ctx.stroke();
   ctx.save(); ctx.translate(bx - 1, by + 1); ctx.rotate(-0.4); VEG_DRAW = !!d.T.herb; drawFood(d.picky, d.picky === 2 ? 0.3 : 0.44); VEG_DRAW = null; ctx.restore();
-  if (!PHONE.on && free32(bx + 15, by + 10, String(d.picky + 1), 10)) txt(String(d.picky + 1), bx + 15, by + 10, 10, '#5a3a1a', 'center', 'bold', false);
+  if (!PHONE.on && free32(bx + 15, by + 10, String(d.picky + 1), 10) && !underBanner34(bx + 15, by + 10)) txt(String(d.picky + 1), bx + 15, by + 10, 10, '#5a3a1a', 'center', 'bold', false);
 }
 // the demo bot picks the food a picky dino wants
 function botPicky(tgt, want) { return tgt.picky !== undefined && hasAmmo(tgt.picky) ? tgt.picky : want; }
@@ -8086,7 +8080,7 @@ function drawPteraFX() {
       const s = p.target, pr = 1 + 0.12 * Math.sin(animT * 14);
       ctx.save(); ctx.strokeStyle = '#ff4a3a'; ctx.lineWidth = 3; ctx.setLineDash([6, 4]); ctx.lineDashOffset = animT * 30;
       ell(ctx, s.x, s.y - 10, 22 * pr, 14 * pr); ctx.stroke(); ctx.restore();
-      txt('!', p.x, p.y - 44, 26, '#ff4a3d');
+      alert34(p.x, p.y - 44, 26, '#ff4a3d');
     }
     if (p.carry) txt('Feed it!', p.x, p.y - 46, 15, '#ffe0a0', 'center', 'bold', true);
   }
@@ -8575,7 +8569,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 33', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 34', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   drawStar(W - 112, 28, 13, true, true);
   txt(totalStars() + ' / ' + (LAST_LEVEL * 3), W - 92, 29, 20, '#ffe27a', 'left', 'bold', true);
   const L = LEVELS[MAP.sel - 1];
@@ -12421,11 +12415,10 @@ function drawMenuBtn() {
   EXITQ.ask = false;   // only ever asked while the pause menu is up
   if (G.announce || G.overPending > 0) return;
   const b = MENU_BTN;
-  ctx.save(); ctx.globalAlpha = 0.86;
-  ctx.fillStyle = 'rgba(20,14,6,0.55)'; rr(ctx, b.x, b.y, b.w, b.h, 13); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,230,160,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
-  ctx.fillStyle = '#ffe9a0'; ctx.fillRect(b.x + 12, b.y + 8, 3.5, 10); ctx.fillRect(b.x + 19, b.y + 8, 3.5, 10);
-  txt('Menu (P)', b.x + 59, b.y + b.h / 2 + 1, 12, '#ffffff', 'center', 'bold', false);
+  ctx.save(); ctx.globalAlpha = 0.94;
+  softBox33(b.x, b.y, b.w, b.h, b.h / 2, '#ffffff');
+  ctx.fillStyle = UI33.red; ctx.fillRect(b.x + 12, b.y + 8, 3.5, 10); ctx.fillRect(b.x + 19, b.y + 8, 3.5, 10);
+  txt('Menu (P)', b.x + 59, b.y + b.h / 2 + 1, 12, UI33.ink, 'center', 'bold', false);
   ctx.restore();
   UI_BTNS.push({ x: b.x, y: b.y, w: b.w, h: b.h, act: function () { paused = true; EXITQ.ask = false; stopToolSounds(); } });
 }
@@ -14718,12 +14711,9 @@ function drawGear(x, y, r, col) {
 }
 function drawGearBtn() {
   const b = GEAR_BTN;
-  ctx.save(); ctx.globalAlpha = 0.9;
-  ctx.fillStyle = 'rgba(20,14,6,0.6)'; rr(ctx, b.x, b.y, b.w, b.h, 13); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,230,160,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
-  drawGear(b.x + 16, b.y + b.h / 2, 6, '#ffe9a0');
-  txt('Settings (O)', b.x + (b.w + 22) / 2, b.y + b.h / 2 + 1, 12, '#ffffff', 'center', 'bold', false);
-  ctx.restore();
+  softBox33(b.x, b.y, b.w, b.h, b.h / 2, '#ffffff');
+  drawGear(b.x + 16, b.y + b.h / 2, 6, UI33.green);
+  txt('Settings (O)', b.x + (b.w + 22) / 2, b.y + b.h / 2 + 1, 12, UI33.ink, 'center', 'bold', false);
 }
 function setToggle(x, y, on, act, label) {
   const w = 54, h = 22;
@@ -15191,13 +15181,10 @@ drawMap = function () {
   SETUI.open = was;
   woolPill(W - 14, 74, WOOL.wool + ' wool', 14, 'right');
   const b = SHOP_BTN, open = shopOpen();
-  ctx.save(); ctx.globalAlpha = 0.93;
-  const g = ctx.createLinearGradient(0, b.y, 0, b.y + b.h);
-  if (open) { g.addColorStop(0, '#c0392b'); g.addColorStop(1, '#8a2418'); } else { g.addColorStop(0, '#6a6a62'); g.addColorStop(1, '#45453f'); }
-  ctx.fillStyle = g; rr(ctx, b.x, b.y, b.w, b.h, 9); ctx.fill();
-  ctx.strokeStyle = open ? '#fff2d8' : 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.save();
+  softBox33(b.x, b.y, b.w, b.h, b.h / 2, open ? UI33.red : '#efe9de');
   drawWoolTuft(b.x + 17, b.y + b.h / 2, 8, open ? 1 : 0.6);
-  txt(open ? 'Wool Shop (S)' : 'Wool Shop', b.x + (b.w + 22) / 2, b.y + b.h / 2 + 1, 12, open ? '#ffffff' : '#d0d0c8', 'center', 'bold', false);
+  txt(open ? 'Wool Shop (S)' : 'Wool Shop', b.x + (b.w + 22) / 2, b.y + b.h / 2 + 1, 12, open ? '#ffffff' : UI33.soft, 'center', 'bold', false);
   if (!open) { drawPadlock(b.x + b.w - 10, b.y + 6, 0.55); txt('unlocks after Level ' + WOOL_RULES.shopAfter, b.x + 4, b.y - 9, 10.5, '#fff0d0', 'left', 'bold', true); }
   ctx.restore();
   if (SHOPUI.msgT > 0 && !SHOPUI.open) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.msgT / 0.3, 0, 1); txt(SHOPUI.msg, b.x + 4, b.y - 24, 12, '#ffe0b0', 'left', 'bold', true); ctx.restore(); }
@@ -17943,7 +17930,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v33';
+const GAME_VER = 'v34';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20348,14 +20335,10 @@ drawBanner = function () {
   b.box33 = { x0: x, x1: x + w, y0: y, y1: y + h };
   if (TXT31.on && a > 0.3) TXT31.cards.push({ x0: x, x1: x + w, y0: y, y1: y + h + 4 });
   ctx.save(); ctx.globalAlpha = a;
-  ctx.fillStyle = 'rgba(0,0,0,0.22)'; rr(ctx, x + 2, y + 3, w, h, 12); ctx.fill();
-  const g = ctx.createLinearGradient(0, y, 0, y + h);
-  g.addColorStop(0, 'rgba(34,56,32,0.92)'); g.addColorStop(1, 'rgba(14,26,14,0.92)');
-  ctx.fillStyle = g; rr(ctx, x, y, w, h, 12); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,220,120,0.65)'; ctx.lineWidth = ph ? 1.8 : 1.6; ctx.stroke();
+  softBox33(x, y, w, h, 14, 'rgba(251,246,236,0.97)');
   let yy = y + 8;
-  Q.L1.forEach(function (l) { txt(l, cx, yy + Q.l1 / 2, Q.T1, '#ffd04a', 'center', 'bold', true); yy += Q.l1; });
-  Q.L2.forEach(function (l) { txt(l, cx, yy + Q.l2 / 2, Q.T2, '#ffffff', 'center', '600', false); yy += Q.l2; });
+  Q.L1.forEach(function (l) { txt(l, cx, yy + Q.l1 / 2, Q.T1, UI33.red, 'center', 'bold', false); yy += Q.l1; });
+  Q.L2.forEach(function (l) { txt(l, cx, yy + Q.l2 / 2, Q.T2, UI33.ink, 'center', '600', false); yy += Q.l2; });
   ctx.restore();
 };
 // ---- buttons grow to their label (a left-side button grows to the left, a right-side one to the right)
@@ -20528,8 +20511,6 @@ if (BIG23.on) {
 }
 
 // ================================================================ v33: modern, calmer shop (cards, chips, soft shadows; farm palette)
-const UI33 = { cream: '#fbf6ec', card: '#ffffff', ink: '#3b2a1a', soft: '#6f604c', red: '#c8442f', redD: '#9c3020', green: '#3f9a4a',
-  gold: '#f2b632', shadow: 'rgba(40,25,10,0.18)', line: 'rgba(80,55,25,0.10)' };
 function softBox33(x, y, w, h, r, fill, sh) {
   ctx.save();
   if (sh !== false) { ctx.shadowColor = UI33.shadow; ctx.shadowBlur = 14 * dpr; ctx.shadowOffsetY = 4 * dpr; }
@@ -20675,6 +20656,69 @@ drawMysteryRow27 = function (x, y, w, h) {
   }
 };
 
+// ================================================================ v34: every menu screen in the v33 shop style
+// (cream cards, soft shadows, one rounded button style, farm red / green accents, no wooden frames or gold outlines)
+function rgb34(c) {
+  if (typeof c !== 'string') return null; let m;
+  if ((m = /^#([0-9a-f]{3})$/i.exec(c))) return m[1].split('').map(function (h) { return parseInt(h + h, 16); });
+  if ((m = /^#([0-9a-f]{6})/i.exec(c))) return [0, 2, 4].map(function (i) { return parseInt(m[1].substr(i, 2), 16); });
+  if ((m = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i.exec(c))) return [+m[1], +m[2], +m[3]];
+  return null;
+}
+// light text that was made for the old dark-green panels becomes dark ink in the same hue on the cream cards
+function ink34(c, size) {
+  const v = rgb34(c); if (!v) return c;
+  const r = v[0] / 255, g = v[1] / 255, b = v[2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  if (l < 0.5) return c;
+  const d = mx - mn, s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  let h = 0; if (d) { h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+  if (size >= 28) return (h > 75 && h < 170 && s > 0.25) ? UI33.green : UI33.red;           // screen titles
+  if (s < 0.22) return l > 0.86 ? UI33.ink : UI33.soft;                                       // white / grey lines
+  return 'hsl(' + Math.round(h) + ',' + Math.round(Math.min(s, 0.7) * 100) + '%,' + (h > 30 && h < 70 ? 30 : 34) + '%)';
+}
+const txtV34 = txt;
+txt = function (t, x, y, size, color, align, weight, outline) {
+  if (SKIN34.on) { color = ink34(color, size); outline = false; }
+  return txtV34(t, x, y, size, color, align, weight, outline);
+};
+// screens: each one starts in the normal colours; drawing its panel / card switches the text over
+function wrap34(f) { return function () { const was = SKIN34.on; SKIN34.on = false; try { return f.apply(this, arguments); } finally { SKIN34.on = was; } }; }
+drawBrief = wrap34(drawBrief); drawBriefPhone = wrap34(drawBriefPhone); drawCampFail = wrap34(drawCampFail); drawContConfirm = wrap34(drawContConfirm);
+drawFailPhone = wrap34(drawFailPhone); drawGameOver = wrap34(drawGameOver); drawIntro = wrap34(drawIntro); drawLivesUI = wrap34(drawLivesUI);
+drawLoveOver = wrap34(drawLoveOver); drawOffer = wrap34(drawOffer); drawPause = wrap34(drawPause); drawSettings = wrap34(drawSettings);
+drawSettingsPhone = wrap34(drawSettingsPhone); drawShopConfirm = wrap34(drawShopConfirm); drawTitle = wrap34(drawTitle); drawTitlePhone26 = wrap34(drawTitlePhone26);
+drawWon = wrap34(drawWon); drawWonPhone = wrap34(drawWonPhone); drawAnnounce = wrap34(drawAnnounce); drawInfoCard = wrap34(drawInfoCard); drawToolCard = wrap34(drawToolCard);
+drawMap = wrap34(drawMap); drawHUD = wrap34(drawHUD);
+const renderV34 = render; render = function () { SKIN34.on = false; return renderV34.apply(this, arguments); };
+// phone map side buttons (DOM): rounded, no outline, soft shadow, shop red / settings green
+(function () {
+  if (!PHONE.on) return;
+  const st = document.createElement('style');
+  st.textContent = '.msb { border: 0 !important; border-radius: 18px !important; box-shadow: 0 4px 12px rgba(40,25,10,.28) !important; background: #3f9a4a !important; color: #ffffff !important; }' +
+    ' .msb.shop { background: #c8442f !important; } .msb.shop.locked { background: #efe9de !important; color: #6f604c !important; }' +
+    ' .mstest { border-radius: 12px !important; box-shadow: 0 3px 8px rgba(40,25,10,.25); }';
+  document.head.appendChild(st);
+})();
+// opening any menu ends the loading splash at once (it could still be fading over the first menu)
+function noSplash34() { const l = document.getElementById('load24'); if (l) l.remove(); }
+const openShopV34 = openShop; openShop = function () { noSplash34(); return openShopV34.apply(this, arguments); };
+const openSettingsV34 = openSettings; openSettings = function () { noSplash34(); return openSettingsV34.apply(this, arguments); };
+// warning '!' marks on a phone sit in their own little red badge (so they never poke out of a chip they fly past)
+function alert34(x, y, size, color) {
+  if (!PHONE.on) return txt('!', x, y, size, color);
+  const s = Math.max(size, txtMin26()), r = Math.max(16, s * 0.72);
+  ctx.save(); ctx.shadowColor = 'rgba(40,10,5,0.35)'; ctx.shadowBlur = 6 * dpr; ctx.fillStyle = '#e0342a'; rr(ctx, x - r, y - r, 2 * r, 2 * r, r); ctx.fill(); ctx.restore();
+  txt('!', x, y + 1, size, '#ffffff', 'center', 'bold', false);
+}
+// toggles keep their white ON / OFF on the coloured pill
+const setToggleV34 = setToggle;
+setToggle = function () { const was = SKIN34.on, big = BIG23.on; SKIN34.on = false; BIG23.on = false; try { return setToggleV34.apply(this, arguments); } finally { SKIN34.on = was; BIG23.on = big; } };
+// a small number (queen / picky food bubble) is not drawn where the tip banner covers it
+function underBanner34(x, y) {
+  const b = G && G.banner, q = b && b.box33; if (!q || G.announce || G.toolCard) return false;
+  return x > q.x0 - 14 && x < q.x1 + 14 && y > q.y0 - 14 && y < q.y1 + 14;
+}
+
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
 if (window.__dbg) window.__dbg.v28 = { HB: HB28, prop: hProp28 };
@@ -20682,6 +20726,7 @@ if (window.__dbg) window.__dbg.v30 = { on: function () { return area1on30(); }, 
 if (window.__dbg) window.__dbg.v31 = { FLAT31: FLAT31, TXT31: TXT31, layout: layout31 };
 if (window.__dbg) window.__dbg.v32 = { barn32: barn32, free32: free32 };
 if (window.__dbg) window.__dbg.v33 = { dekey: dekey33, KEY33: KEY33, tipSeen: tipSeen33, SEEN33: SEEN33, bannerLayout: bannerLayout33 };
+if (window.__dbg) window.__dbg.v34 = { SKIN34: SKIN34, ink34: ink34 };
 if (window.__dbg) window.__dbg.v24 = { WIDE_E: WIDE_E, MAPZ: MAPZ, FOOD_CAP: FOOD_CAP, FCAP: FCAP, GAME_VER: GAME_VER, CELEB24: CELEB24, M24: M24, vibe: vibe, setCap: function (n) { FOOD_CAP = n; } };
 if (window.__dbg) window.__dbg.v23 = { BIG23: BIG23, CELEB: CELEB, celebSkip: celebSkip, phoneScreens: phoneScreens };
 if (window.__dbg) window.__dbg.v22 = { vickyGuards: vickyGuards, PHONE: PHONE, PHONE_DIFF: PHONE_DIFF, phoneEasy: phoneEasy, bot: { botTools: botTools, botBonus: botBonus, botBossFood: botBossFood, botPicky: botPicky, bossFeedable: bossFeedable, botAvoidLove: botAvoidLove, canReach: canReach, readyTool: readyTool } };
