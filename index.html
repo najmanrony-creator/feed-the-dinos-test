@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 32
+  Feed the Dinos, Save the Sheep 33
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 32</title>
+<title>Feed the Dinos, Save the Sheep 33</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1158,7 +1158,7 @@ function eggPop(e) {
   }
   roarSound(d.x, T.s, 'hatch');
   G.stats.hatched = (G.stats.hatched || 0) + 1;
-  if (!e.special && !G.attract) popup(d.x, d.y - 92 * T.s, T.name + ' hatched!', '#ffdd66', 18, 1.6);
+  if (!e.special && !G.attract) hatchPop33(d, T.name + ' hatched!', '#ffdd66', 18, 1.6);
   if (e.special) G.nextSpecialT = 4;
   return d;
 }
@@ -1523,7 +1523,7 @@ function feedDino(d, m) {
     d.state = 'munch'; d.timer = 0.8; d.biteT = 7; d.target = null; d.food = m.f;
     G.score += 10;
     popup(h.x, h.y - 40, 'CHOMP! 1 more!', '#ffb347', 20, 1.2);
-    if (wasChasing && !G.hint.big) { G.hint.big = true; popup(h.x, h.y - 66, 'Big dinos need 2 pieces (or 1 ' + FOODS[2].name + ')', '#ffffff', 16, 2.2); }
+    if (wasChasing && !G.hint.big) { G.hint.big = true; if (!tipSeen33('big')) popup(h.x, h.y - 66, 'Big dinos need 2 pieces (or 1 ' + FOODS[2].name + ')', '#ffffff', 16, 2.2); }
     SFX.bite();
     return;
   }
@@ -1547,7 +1547,7 @@ function feedDino(d, m) {
   G.score += pts;
   popup(h.x, h.y - 40, 'CHOMP!', '#ff9d2e', 30, 1.2);
   popup(h.x, h.y - 12, wasChasing ? 'Saved a sheep! +' + pts : '+' + pts, '#ffffff', 16, 1.1);
-  if (!G.hint.eat) { G.hint.eat = true; popup(h.x, h.y - 70, 'It is busy eating - sheep can pass!', '#b8ff9a', 16, 2.4); }
+  if (!G.hint.eat) { G.hint.eat = true; if (!tipSeen33('eat')) popup(h.x, h.y - 70, 'It is busy eating - sheep can pass!', '#b8ff9a', 16, 2.4); }
   SFX.chomp(h.x, T.s);
 }
 
@@ -1661,7 +1661,7 @@ function updateDinos(dt) {
         if (d.state !== 'chase') {
           const h = headPos(d);
           popup(h.x, h.y - 34, '!', '#ff4a3d', 30, 0.8);
-          if (!G.hint.chase && !G.attract) { G.hint.chase = true; popup(h.x, h.y - 64, 'Hungry! Hit its head with food!', '#ffffff', 17, 2.6); }
+          if (!G.hint.chase && !G.attract) { G.hint.chase = true; if (!tipSeen33('chase')) popup(h.x, h.y - 64, 'Hungry! Hit its head with food!', '#ffffff', 17, 2.6); }
           dinoRoar(d, 'chase');
         }
         d.state = 'chase'; d.target = prey;
@@ -4218,7 +4218,7 @@ function drawToolTray(x0) {
     if (st === 'na') { ctx.globalAlpha = 0.75; drawPadlock(x + sw / 2, y0 + sh / 2 + 1, 0.8); }
     if (st === 'used') { ctx.strokeStyle = '#7cff5a'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x + sw - 15, y0 + sh - 11); ctx.lineTo(x + sw - 10, y0 + sh - 6); ctx.lineTo(x + sw - 3, y0 + sh - 17); ctx.stroke(); }
     if (active) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; rr(ctx, x + 4, y0 + sh - 6, sw - 8, 3.5, 1.75); ctx.fill(); ctx.fillStyle = '#9fe0ff'; rr(ctx, x + 4, y0 + sh - 6, Math.max(3.5, (sw - 8) * toolLeft(k)), 3.5, 1.75); ctx.fill(); }
-    if (ready) { ctx.fillStyle = '#ffd65a'; ell(ctx, x + 7, y0 + 7, 6.5, 6.5); ctx.fill(); txt('F', x + 7, y0 + 7.5, 10, '#1d2a18', 'center', 'bold', false); }
+    if (ready && !PHONE.on) { ctx.fillStyle = '#ffd65a'; ell(ctx, x + 7, y0 + 7, 6.5, 6.5); ctx.fill(); txt('F', x + 7, y0 + 7.5, 10, '#1d2a18', 'center', 'bold', false); }
     ctx.restore();
   }
   // hanging name tag under the tray for the tool that is ready
@@ -4615,8 +4615,8 @@ function drawFoodSlots(x0) {
     foodRing(i, x + (cmp ? 16 : 18), y0 + sh / 2 + 1, 14);
     ctx.save(); ctx.translate(x + (cmp ? 16 : 18), y0 + sh / 2 + 1); ctx.rotate(-0.5); drawFood(i, F.hud * (i === 2 ? 0.86 : 1)); ctx.restore();
     // key number badge
-    ctx.fillStyle = sel ? '#ffd65a' : 'rgba(255,255,255,0.75)'; ell(ctx, x + 7, y0 + 7, 6, 6); ctx.fill();
-    txt(String(i + 1), x + 7, y0 + 7.5, 10, '#1d2a18', 'center', 'bold', false);
+    if (!PHONE.on) { ctx.fillStyle = sel ? '#ffd65a' : 'rgba(255,255,255,0.75)'; ell(ctx, x + 7, y0 + 7, 6, 6); ctx.fill();
+    txt(String(i + 1), x + 7, y0 + 7.5, 10, '#1d2a18', 'center', 'bold', false); }
     txt(F.name, x + nx, y0 + 11, cmp ? 11 : 12, sel ? '#fff4c8' : '#e8e8e0', 'left', 'bold', false);
     if (F.ammo) {
       const n = F.ammo, gap = n > 4 ? 8.3 : 11.5, r = n > 4 ? 2.9 : 3.7;
@@ -5074,11 +5074,11 @@ function campTick(dt) {
           PROG.seen[key] = 1; saveProg();
           G.announce = { T: TYPES[key], dino: null, egg: e, t: 0, dur: 6.3, cardAt: 2.2, level: L.n, bonus: 0, camp: true, top: e.y > PATH_Y };
           G.stats.announced.push(key + '@L' + L.n);
-        } else popup(e.x, e.y - 50, 'Look! A ' + TYPES[key].name + ' is hatching!', '#fff2a8', 17, 2.0);
+        } else hatchPopXY33(e.x, e.y - 50, 'Look! A ' + TYPES[key].name + ' is hatching!', '#fff2a8', 17, 2.0);
       }
     }
   }
-  if (G.tipT > 0) { G.tipT -= dt; if (G.tipT <= 0 && L.tip && !G.banner) { showBanner(L.title, L.tip); G.banner.dur = 4.5; } }
+  if (G.tipT > 0) { G.tipT -= dt; if (G.tipT <= 0 && L.tip && !G.banner && !tipSeen33('lv' + (L.n || L.title))) { showBanner(L.title, L.tip); G.banner.dur = 4.5; } }
   // keep the right number of dinos on the field (it grows a little as the level goes on)
   G.ensureT = (G.ensureT || 0) - dt;
   if (G.ensureT <= 0 && !L.boss) { G.ensureT = 1.0; ensureDinos(false); }
@@ -5128,12 +5128,12 @@ function spawnLamb() {
   sheepBleat(s, 1);
 }
 function drawLambTag(s) {
-  const y = s.y - 34 + Math.sin(animT * 4) * 1.5;
+  const y = s.y - 34 + Math.sin(animT * 4) * 1.5; if (!free32(s.x, y, 'LAMB  ', 11)) return;
   ctx.font = 'bold 11px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
   const w = ctx.measureText('LAMB').width + 24;
-  ctx.fillStyle = 'rgba(120,20,60,0.75)'; rr(ctx, s.x - w / 2, y - 8, w, 16, 8); ctx.fill();
+  const lh33 = Math.max(16, txtMin26() * 1.25); ctx.fillStyle = 'rgba(120,20,60,0.75)'; rr(ctx, s.x - w / 2, y - lh33 / 2, w, lh33, lh33 / 2); ctx.fill();
   drawHeart(s.x - w / 2 + 9, y - 3, 7, '#ff8fb3');
-  txt('LAMB', s.x + 5, y + 0.5, 11, '#ffffff', 'center', 'bold', false);
+  TXT31.mine++; txt('LAMB', s.x + 5, y + 0.5, 11, '#ffffff', 'center', 'bold', false); TXT31.mine--;
 }
 // knocked-off sheep (King T-Rex stomp): dizzy stars over the head (the sheep itself is drawn as always)
 function drawDizzy(s) {
@@ -6113,9 +6113,9 @@ function drawToolCard() {
   txt('NEW TOOL!', tx + 44, C.y + 18.5, 12, '#2a1a08', 'center', 'bold', false);
   txt(Tl.title, tx, C.y + 43, fitFont(Tl.title, tw, 20), '#ffd04a', 'left', 'bold', true);
   txt(Tl.kind, tx, C.y + 62, fitFont(Tl.kind, tw, 12), Tl.color, 'left', 'bold', false);
-  ctx.fillStyle = '#ffd65a'; rr(ctx, tx, C.y + 74, 20, 18, 5); ctx.fill();
-  txt('F', tx + 10, C.y + 83.5, 12, '#1d2a18', 'center', 'bold', false);
-  txt('to use it (once per level)', tx + 26, C.y + 83.5, 12, '#ffe9a0', 'left', 'bold', false);
+  if (!PHONE.on) { ctx.fillStyle = '#ffd65a'; rr(ctx, tx, C.y + 74, 20, 18, 5); ctx.fill();
+  txt('F', tx + 10, C.y + 83.5, 12, '#1d2a18', 'center', 'bold', false); }
+  txt('to use it (once per level)', tx + (PHONE.on ? 0 : 26), C.y + 83.5, 12, '#ffe9a0', 'left', 'bold', false);
   cardHint(C, a);
   ctx.restore();
 }
@@ -6237,7 +6237,7 @@ function bossFeed(d, m) {
     // the food bounces off, but it still startles her: she stops chasing for a moment
     if (d.state === 'chase') { d.state = 'roam'; d.target = null; pickRoam(d); }
     d.calm = Math.max(d.calm || 0, 2.4); d.idle = 0.3;
-    if (!G.hint.protect) { G.hint.protect = true; showBanner('Mama is protective!', 'Feed her BABIES first. Then she calms down and you can feed her.'); }
+    if (!G.hint.protect) { G.hint.protect = true; if (!tipSeen33('protect')) showBanner('Mama is protective!', 'Feed her BABIES first. Then she calms down and you can feed her.'); }
     return true;
   }
   if (b.kind === 'queen' && b.phase === 1 && m.f !== b.want) {
@@ -6245,7 +6245,7 @@ function bossFeed(d, m) {
     popup(h.x, h.y - 50, 'Yuck! She wants ' + FOODS[b.want].name + '!', '#ffb08a', 17, 1.2);
     burst(h.x + d.dir * 14, h.y, 10, FOODS[m.f].f === undefined ? ['#c87a4a', '#f0d0a0'] : ['#c87a4a', '#f0d0a0'], 160, 3.5);
     SFX.empty(); b.flash = 0.3; G.stats.spat = (G.stats.spat || 0) + 1;
-    if (!G.hint.queenPicky) { G.hint.queenPicky = true; showBanner('She is picky!', 'Throw the food shown in her bubble (1 / 2 / 3 to switch)'); }
+    if (!G.hint.queenPicky) { G.hint.queenPicky = true; if (!tipSeen33('queenPicky')) showBanner('She is picky!', 'Throw the food shown in her bubble (1 / 2 / 3 to switch)'); }
     return true;
   }
   let dmg = B.dmg[m.f] * Math.pow(1.15, b.cycle || 0);
@@ -6259,7 +6259,7 @@ function bossFeed(d, m) {
     if (!all && b.hp <= floor) {
       const miss = [0, 1, 2].filter(function (i) { return !b.eaten[i]; }).map(function (i) { return FOODS[i].name; }).join(' and ');
       popup(h.x, h.y - 96, 'He still wants ' + miss + '!', '#ffb08a', 17, 1.6);
-      if (!G.hint.kingMiss) { G.hint.kingMiss = true; showBanner('He still wants ' + miss + '!', 'King T-Rex only gets full after Sausage, Meat AND Big Ham'); }
+      if (!G.hint.kingMiss) { G.hint.kingMiss = true; if (!tipSeen33('kingMiss')) showBanner('He still wants ' + miss + '!', 'King T-Rex only gets full after Sausage, Meat AND Big Ham'); }
     }
   } else b.hp = Math.max(0, b.hp - dmg * RETUNE25.boss);
   dmg = Math.round(wasHp - b.hp);
@@ -6406,7 +6406,7 @@ function twinFeed(d, m) {
       burst(h.x, h.y, 10, ['#b5482f', '#f3ead7'], 140, 3.5);
       SFX.empty(); p.flash = 0.3; b.huddle.t = Math.max(0, b.huddle.t - 0.6);
       G.stats.twinFights = (G.stats.twinFights || 0) + 1;
-      if (!G.hint.twinHam) { G.hint.twinHam = true; showBanner('Big Ham splits them up!', 'Normal food just makes them fight. Press 3 and throw a Big Ham!'); }
+      if (!G.hint.twinHam) { G.hint.twinHam = true; if (!tipSeen33('twinHam')) showBanner('Big Ham splits them up!', 'Normal food just makes them fight. Press 3 and throw a Big Ham!'); }
       return true;
     }
   }
@@ -6456,7 +6456,7 @@ function twinsTick(dt) {
       const h = headPos(alive[0].d);
       popup(h.x, h.y - 60, 'Mine!', '#ffd0a0', 20, 1.0);
       G.stats.huddles = (G.stats.huddles || 0) + 1;
-      if (!G.hint.twinHuddle) { G.hint.twinHuddle = true; showBanner('The twins are squabbling on the path!', 'Sheep that walk into them get gobbled. Only a Big Ham splits them up!'); }
+      if (!G.hint.twinHuddle) { G.hint.twinHuddle = true; if (!tipSeen33('twinHuddle')) showBanner('The twins are squabbling on the path!', 'Sheep that walk into them get gobbled. Only a Big Ham splits them up!'); }
     }
     return;
   }
@@ -6570,7 +6570,8 @@ function drawBossExtras(d) {
     if (!p) return;
     // name ribbon in the twin's bar colour
     ctx.font = 'bold 12px "Segoe UI", Arial, sans-serif';
-    const w = ctx.measureText(p.name).width + 16, y = h.y - h.r - (d.state === 'eat' ? 40 : 18) + (tag31(h.x, h.y - h.r - (d.state === 'eat' ? 40 : 18), p.name, 12) || 0);
+    const oy33 = tagL33(h.x, h.y - h.r - (d.state === 'eat' ? 40 : 18), p.name, 12); if (oy33 === null) return;
+    const w = ctx.measureText(p.name).width + 16, y = h.y - h.r - (d.state === 'eat' ? 40 : 18) + oy33;
     ctx.fillStyle = 'rgba(20,20,30,0.7)'; rr(ctx, h.x - w / 2, y - 9, w, 18, 9); ctx.fill();
     ctx.strokeStyle = TWIN_COLS[d.twin]; ctx.lineWidth = 2; ctx.stroke();
     TXT31.mine++; txt(p.name, h.x, y + 0.5, 12, TWIN_COLS[d.twin], 'center', 'bold', false); TXT31.mine--;
@@ -6578,7 +6579,7 @@ function drawBossExtras(d) {
       const hd = b.huddle, pr = 0.5 + 0.5 * Math.sin(animT * 8);
       ctx.save(); ctx.globalAlpha = 0.6 + 0.3 * pr; ctx.strokeStyle = '#ffb347'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.lineDashOffset = animT * 30;
       ell(ctx, hd.x, hd.y - 30, 92, 54); ctx.stroke(); ctx.restore();
-      txt('Big Ham splits them!', hd.x, hd.y - 140, 14, '#ffe0a0', 'center', 'bold', true);
+      tagTxt33('Big Ham splits them!', hd.x, hd.y - 140, 14, '#ffe0a0');
     }
     return;
   }
@@ -7138,7 +7139,7 @@ function pickyReject(d, m) {
   burst(h.x + d.dir * 12, h.y, 8, ['#c87a4a', '#f0d0a0'], 150, 3);
   SFX.empty();
   G.stats.spat = (G.stats.spat || 0) + 1;
-  if (!G.hint.picky) { G.hint.picky = true; showBanner('Picky eater!', 'Look at the bubble: throw THAT food (1 / 2 / 3 to switch)'); }
+  if (!G.hint.picky) { G.hint.picky = true; if (!tipSeen33('picky')) showBanner('Picky eater!', 'Look at the bubble: throw THAT food (1 / 2 / 3 to switch)'); }
 }
 function drawPickyBubble(d) {
   if (d.picky === undefined || d.state === 'eat' || d.state === 'devour' || d.mood) return;
@@ -7148,7 +7149,7 @@ function drawPickyBubble(d) {
   foodRing(d.picky, bx - 1, by + 1, 11.5, 0.9);
   ell(ctx, h.x + d.dir * 8, h.y - h.r - 12, 3.5, 3); ctx.fill(); ctx.stroke();
   ctx.save(); ctx.translate(bx - 1, by + 1); ctx.rotate(-0.4); VEG_DRAW = !!d.T.herb; drawFood(d.picky, d.picky === 2 ? 0.3 : 0.44); VEG_DRAW = null; ctx.restore();
-  txt(String(d.picky + 1), bx + 15, by + 10, 10, '#5a3a1a', 'center', 'bold', false);
+  if (!PHONE.on && free32(bx + 15, by + 10, String(d.picky + 1), 10)) txt(String(d.picky + 1), bx + 15, by + 10, 10, '#5a3a1a', 'center', 'bold', false);
 }
 // the demo bot picks the food a picky dino wants
 function botPicky(tgt, want) { return tgt.picky !== undefined && hasAmmo(tgt.picky) ? tgt.picky : want; }
@@ -7275,7 +7276,7 @@ function startButt(a, b) {
   front.butt = { t: 0, dur: dur, face: -1, partner: back };
   if (G.notes.length < 6) G.notes.push({ s: front, t: 0, life: 1.0, text: 'You first!' });
   G.stats.butts = (G.stats.butts || 0) + 1;
-  if (!G.hint.butt && CAMP()) { G.hint.butt = true; showBanner('Stubborn rams!', 'They stop to butt heads. Keep the dinos away while they stand still!'); }
+  if (!G.hint.butt && CAMP()) { G.hint.butt = true; if (!tipSeen33('butt')) showBanner('Stubborn rams!', 'They stop to butt heads. Keep the dinos away while they stand still!'); }
 }
 function endButt(s) {
   const p = s.butt && s.butt.partner;
@@ -7303,7 +7304,7 @@ function dropLamb(s) {
   popup(s.x, s.y - 60, 'Oops! The lamb fell off!', '#ffd0e0', 15, 1.2);
   sheepBleat(L, 1.1, true);
   G.stats.lambFalls = (G.stats.lambFalls || 0) + 1;
-  if (!G.hint.lambFall && CAMP()) { G.hint.lambFall = true; showBanner('The lamb fell off!', 'Its mom waits on the path until it runs back to her'); }
+  if (!G.hint.lambFall && CAMP()) { G.hint.lambFall = true; if (!tipSeen33('lambFall')) showBanner('The lamb fell off!', 'Its mom waits on the path until it runs back to her'); }
 }
 // ---- animals that do not follow the path (a lamb that fell off, a newborn lamb)
 function customSheepStep(s, i, dt) {
@@ -8248,7 +8249,7 @@ function bigmamaFed(d, m) {
   popup(h.x, h.y - 44, 'MORE! Even HUNGRIER!', '#ff8a6a', 20, 1.3);
   popup(h.x + 34, h.y - 14, '+' + Math.round(b.hp - was), '#ff6a5a', 20, 1.0);
   SFX.chomp(h.x, d.T.s);
-  if (!G.hint.bigmamaUp) { G.hint.bigmamaUp = true; showBanner('Oops! That makes her HUNGRIER!', 'Feed her BABY instead: that calms Big Mama down'); }
+  if (!G.hint.bigmamaUp) { G.hint.bigmamaUp = true; if (!tipSeen33('bigmamaUp')) showBanner('Oops! That makes her HUNGRIER!', 'Feed her BABY instead: that calms Big Mama down'); }
   if (b.hp >= b.max - 0.01) {
     // too hungry: a rampage, and she calls a Raptor
     b.hp = b.max * 0.92; b.angryT = 7; b.rampage++;
@@ -8574,7 +8575,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 32', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 33', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   drawStar(W - 112, 28, 13, true, true);
   txt(totalStars() + ' / ' + (LAST_LEVEL * 3), W - 92, 29, 20, '#ffe27a', 'left', 'bold', true);
   const L = LEVELS[MAP.sel - 1];
@@ -8963,7 +8964,7 @@ function shornScatter(d, R) {
   }
   if (n) {
     G.stats.scatters = (G.stats.scatters || 0) + 1; G.stats.scattered = (G.stats.scattered || 0) + n;
-    if (!G.hint.scatter && CAMP()) { G.hint.scatter = true; showBanner('Nervous sheep!', 'Freshly sheared sheep scatter when a dino roars, then hurry back'); }
+    if (!G.hint.scatter && CAMP()) { G.hint.scatter = true; if (!tipSeen33('scatter')) showBanner('Nervous sheep!', 'Freshly sheared sheep scatter when a dino roars, then hurry back'); }
   }
 }
 const drawDizzyV8 = drawDizzy;
@@ -8993,7 +8994,7 @@ function startSong(s) {
   s.sang = true; s.song = { t: 0, dur: 2.7, hit: false };
   G.stats.songs = (G.stats.songs || 0) + 1;
   popup(s.x, s.y - 54, '\u266A Baa, baa, BAAA! \u266A', '#e8d8ff', 17, 1.8);
-  if (!G.hint.song) { G.hint.song = true; showBanner('The black sheep sings!', 'Dinos close by cover their ears and get dizzy: they can\'t eat sheep'); }
+  if (!G.hint.song) { G.hint.song = true; if (!tipSeen33('song')) showBanner('The black sheep sings!', 'Dinos close by cover their ears and get dizzy: they can\'t eat sheep'); }
   if (G.attract || state !== 'play') return;
   let t = 0;
   SONG_NOTES.forEach(function (n, i) {
@@ -9162,7 +9163,7 @@ function mamaRoar(d, R, angry) {
     n++;
   }
   G.stats.mamaRoars = (G.stats.mamaRoars || 0) + 1; G.stats.knocked = (G.stats.knocked || 0) + n;
-  if (n && !G.hint.mamaRoar) { G.hint.mamaRoar = true; showBanner('Big Mama guards the gate!', 'Her ROAR knocks the sheep off the path. Keep her babies away from them!'); }
+  if (n && !G.hint.mamaRoar) { G.hint.mamaRoar = true; if (!tipSeen33('mamaRoar')) showBanner('Big Mama guards the gate!', 'Her ROAR knocks the sheep off the path. Keep her babies away from them!'); }
 }
 // ---- Big Mama is not fooled by Mrs. Dino either (her babies and the other dinos still are)
 function isQueen(d) {
@@ -9961,7 +9962,7 @@ function gangTick(dt) {
       const h = headPos(lead);
       popup(h.x, Math.max(HUD_H + 26, h.y - 60), 'CHARGE!', '#ff8a5a', 26, 1.1);
       roarSound(lead.x, 1.0, 'chase'); lead.roarAnim = 0.9;
-      if (!G.hint.gangCharge) { G.hint.gangCharge = true; showBanner('The Carnotaurus Gang charges!', 'Feed the MIDDLE one to break their line!'); }
+      if (!G.hint.gangCharge) { G.hint.gangCharge = true; if (!tipSeen33('gangCharge')) showBanner('The Carnotaurus Gang charges!', 'Feed the MIDDLE one to break their line!'); }
     }
     if (b.pt >= B.tele) { b.phase = 'charge'; b.pt = 0; b.ate = false; G.stats.gangCharges = (G.stats.gangCharges || 0) + 1; }
   } else if (b.phase === 'charge') {
@@ -10003,7 +10004,7 @@ function gangBreak(stumble) {
       for (let i = 0; i < 10; i++) G.particles.push({ x: d.x + rand(-20, 20), y: d.y, vx: rand(-80, 80), vy: rand(-60, -10), life: 0.6, max: 0.6, color: 'rgba(200,170,110,0.8)', size: rand(3, 5), g: 80 });
     }
   });
-  if (stumble) { stompSound(lead ? lead.x : W / 2); if (!G.hint.gangBreak) { G.hint.gangBreak = true; showBanner('The line is broken!', 'They stumble and split up: feed them all before they line up again!'); } }
+  if (stumble) { stompSound(lead ? lead.x : W / 2); if (!G.hint.gangBreak) { G.hint.gangBreak = true; if (!tipSeen33('gangBreak')) showBanner('The line is broken!', 'They stumble and split up: feed them all before they line up again!'); } }
 }
 function gangStep(d, dt) {
   const b = G.boss, p = gangPart(d);
@@ -10043,7 +10044,7 @@ function gangFeed(d, m) {
     popup(h.x, h.y - 44, 'Hmph! Feed the BOSS!', '#ffc08a', 15, 1.0);
     burst(h.x + d.dir * 12, h.y, 8, ['#c87a4a', '#f0d0a0'], 150, 3);
     SFX.empty(); p.flash = 0.3; G.stats.gangShrugs = (G.stats.gangShrugs || 0) + 1;
-    if (!G.hint.gangShrug) { G.hint.gangShrug = true; showBanner('They shrug it off!', 'In the line, only the one in the MIDDLE takes food'); }
+    if (!G.hint.gangShrug) { G.hint.gangShrug = true; if (!tipSeen33('gangShrug')) showBanner('They shrug it off!', 'In the line, only the one in the MIDDLE takes food'); }
     return true;
   }
   let dmg = B.dmg[m.f] * Math.pow(1.15, b.cycle || 0) * (line ? B.lineHit : 1);
@@ -10127,7 +10128,7 @@ function ankySwipe(d) {
     if (G.notes.length < 6) G.notes.push({ s: s, t: 0, life: 1.0, text: 'baa?!' });
   }
   G.stats.ankySwipes = (G.stats.ankySwipes || 0) + 1; G.stats.knocked = (G.stats.knocked || 0) + n;
-  if (n && !G.hint.ankySwipe) { G.hint.ankySwipe = true; showBanner('WHAM! The tail club!', 'Knocked-off sheep wander, dizzy, until they find the path again'); }
+  if (n && !G.hint.ankySwipe) { G.hint.ankySwipe = true; if (!tipSeen33('ankySwipe')) showBanner('WHAM! The tail club!', 'Knocked-off sheep wander, dizzy, until they find the path again'); }
 }
 // Vicky and the Faketeor flip it over instead of scaring it away
 const scareDinoV8 = scareDino;
@@ -10145,7 +10146,7 @@ function ankyFlip(d, src) {
   for (let i = 0; i < 18; i++) G.particles.push({ x: d.x + rand(-40, 40), y: d.y, vx: rand(-100, 100), vy: rand(-90, -20), life: 0.7, max: 0.7, color: 'rgba(200,170,110,0.8)', size: rand(3, 6), g: 90 });
   G.shake = Math.max(G.shake, 0.3); stompSound(d.x); squeakSound(d.x, 1.2);
   G.stats.flips = (G.stats.flips || 0) + 1; G.stats.flipBy = (G.stats.flipBy || []).concat([src]);
-  if (!G.hint.ankyFlip) { G.hint.ankyFlip = true; showBanner('It\'s on its back!', 'Quick: feed its MOUTH before it rolls over!'); }
+  if (!G.hint.ankyFlip) { G.hint.ankyFlip = true; if (!tipSeen33('ankyFlip')) showBanner('It\'s on its back!', 'Quick: feed its MOUTH before it rolls over!'); }
 }
 function ankyFeed(d, m) {
   const b = G.boss, B = BOSS_TUNE.anky, h = headPos(d);
@@ -10155,7 +10156,7 @@ function ankyFeed(d, m) {
     burst(h.x, h.y - 6, 10, ['#c8ccd4', '#8a909c', '#ffffff'], 170, 3);
     SFX.empty(); b.flash = 0.25; G.stats.clanks = (G.stats.clanks || 0) + 1;
     tone(1400, 0.06, 'square', 0.04, 900);
-    if (!G.hint.anky) { G.hint.anky = true; showBanner('The armor is too thick!', 'Use Vicky or the Faketeor to flip it over, then feed it'); }
+    if (!G.hint.anky) { G.hint.anky = true; if (!tipSeen33('anky')) showBanner('The armor is too thick!', 'Use Vicky or the Faketeor to flip it over, then feed it'); }
     return true;
   }
   let dmg = B.dmg[m.f] * Math.pow(1.15, b.cycle || 0);
@@ -10312,7 +10313,7 @@ drawBossExtras = function (d) {
       ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(h.x, h.y - h.r - 16, 8, 0, Math.PI * 2); ctx.stroke();
       ctx.strokeStyle = '#9cff7a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(h.x, h.y - h.r - 16, 8, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2); ctx.stroke();
       txt('FEED ME NOW!', h.x, Math.max(HUD_H + 14, h.y - h.r - 34), 13, '#c8ffb0', 'center', 'bold', true);
-    } else if (d.flipCD <= 0 && !d.swipe) txt('armored!', h.x, Math.max(HUD_H + 14, h.y - h.r - 18), 11, '#d8e0e8', 'center', 'bold', true);
+    } else if (d.flipCD <= 0 && !d.swipe) tagTxt33('armored!', h.x, Math.max(HUD_H + 14, h.y - h.r - 18), 11, '#d8e0e8');
     if (d.gulp > 0) d.gulp -= 1 / 60;
     return;
   }
@@ -10779,7 +10780,7 @@ function waterAfterDinos(dt) {
       d.x = clamp(d.x, 70, maxX(d)); d.y = clamp(d.y, ZONE.y1, ZONE.y2);
       if (blockedAt(sw, d.x, d.y)) { d.x -= WATER.fx[k] * swimCur() * dt; d.y -= WATER.fy[k] * swimCur() * dt; }
       d.swimT = (d.swimT || 0) + dt; G.stats.swimT = (G.stats.swimT || 0) + dt;
-      if (!d.swamOnce) { d.swamOnce = true; if (!G.hint.swim && !G.attract) { G.hint.swim = true; popup(d.x, d.y - 80, 'Splash! Only the Spinosaurus can swim', '#bfe8ff', 15, 2.0); } }
+      if (!d.swamOnce) { d.swamOnce = true; if (!G.hint.swim && !G.attract) { G.hint.swim = true; if (!tipSeen33('swim')) popup(d.x, d.y - 80, 'Splash! Only the Spinosaurus can swim', '#bfe8ff', 15, 2.0); } }
     }
   }
 }
@@ -10910,7 +10911,7 @@ startSong = function (s) {
   s.sang = true; s.song = { t: 0, dur: SONG.dur, hit: false, scan: 0, groans: 0, groanT: 0 };
   G.stats.songs = (G.stats.songs || 0) + 1;
   popup(s.x, s.y - 54, '\u266A Baa, baa, BLACK SHEEP! \u266A', '#e8d8ff', 18, 2.4);
-  if (!G.hint.song) { G.hint.song = true; showBanner('The black sheep sings!', 'Dinos close by cover their ears and get dizzy: they can\'t eat sheep'); }
+  if (!G.hint.song) { G.hint.song = true; if (!tipSeen33('song')) showBanner('The black sheep sings!', 'Dinos close by cover their ears and get dizzy: they can\'t eat sheep'); }
   if (G.attract || state !== 'play') return;
   let t = 0;
   SONG_NOTES10.forEach(function (n, i) {
@@ -11477,7 +11478,7 @@ function iceBreak(d) {
   splashSound(d.x, d.T.s);
   G.shake = Math.max(G.shake, 0.2);
   G.stats.iceBreaks = (G.stats.iceBreaks || 0) + 1;
-  if (!G.hint.thinIce && !G.attract) { G.hint.thinIce = true; showBanner('CRACK! Into the cold water!', 'Heavy dinos break the thin ice. Brrr!'); }
+  if (!G.hint.thinIce && !G.attract) { G.hint.thinIce = true; if (!tipSeen33('thinIce')) showBanner('CRACK! Into the cold water!', 'Heavy dinos break the thin ice. Brrr!'); }
 }
 // the cold dip: it stays in the hole, shivering, then climbs out onto the bank and shakes itself dry
 const moodStepV9 = moodStep;
@@ -11817,7 +11818,7 @@ function winterFeed(d, m) {
     d.fluff = 0.5;
     if (Math.random() < 0.5) popup(h.x - 30, h.y - 66, 'soaked up!', '#e8d8c0', 14, 0.9);
     for (let i = 0; i < 6; i++) G.particles.push({ x: d.x + rand(-50, 50) * d.T.s, y: d.y - rand(20, 70) * d.T.s, vx: rand(-40, 40), vy: rand(-60, -20), life: 0.6, max: 0.6, color: 'rgba(170,130,90,0.8)', size: rand(2, 4), g: 120 });
-    if (!G.hint.woolly) { G.hint.woolly = true; showBanner('The coat soaks it up!', 'The Woolly Dino needs LOTS of food. Keep feeding!'); }
+    if (!G.hint.woolly) { G.hint.woolly = true; if (!tipSeen33('woolly')) showBanner('The coat soaks it up!', 'The Woolly Dino needs LOTS of food. Keep feeding!'); }
   } else {
     b.thaw = Math.min(1, b.thaw + B.feedThaw);
   }
@@ -11867,7 +11868,7 @@ function woollyShake(d) {
     if (G.notes.length < 6) G.notes.push({ s: s, t: 0, life: 1.0, text: 'brrr?!' });
   }
   G.stats.woollyShakes = (G.stats.woollyShakes || 0) + 1; G.stats.knocked = (G.stats.knocked || 0) + n;
-  if (n && !G.hint.woollyShake) { G.hint.woollyShake = true; showBanner('It shakes off the snow!', 'Knocked-off sheep wander, dizzy, until they find the path again'); }
+  if (n && !G.hint.woollyShake) { G.hint.woollyShake = true; if (!tipSeen33('woollyShake')) showBanner('It shakes off the snow!', 'Knocked-off sheep wander, dizzy, until they find the path again'); }
 }
 // ---------------------------------------------------------------- the Thawing Dino
 function thawSetup(cycle) {
@@ -12019,7 +12020,7 @@ drawBossExtras = function (d) {
     if (d.T.boss === 'thaw' && !b.free && d.state !== 'eat') {
       const q = 0.5 + 0.5 * Math.sin(animT * 8);
       ctx.save(); ctx.globalAlpha = 0.5 + 0.4 * q; ctx.strokeStyle = '#bfe8ff'; ctx.lineWidth = 3; ell(ctx, h.x, h.y, h.r + 4, h.r + 4); ctx.stroke(); ctx.restore();
-      txt('frozen: feed me now!', h.x, Math.max(HUD_H + 14, h.y - h.r - 18), 12, '#d8f0ff', 'center', 'bold', true);
+      tagTxt33('frozen: feed me now!', h.x, Math.max(HUD_H + 14, h.y - h.r - 18), 12, '#d8f0ff');
     }
     return;
   }
@@ -12962,7 +12963,7 @@ function sneezyTick(dt) {
   if (bed && Math.random() < dt * 8) G.particles.push({ x: d.x + rand(-50, 50), y: d.y - rand(10, 60), vx: rand(-10, 10), vy: rand(-30, -10), life: 1.0, max: 1.0, color: Math.random() < 0.5 ? 'rgba(255,230,80,0.9)' : 'rgba(255,250,170,0.9)', size: rand(1.4, 2.6), g: -10 });
   if (!d.sneezeS && (b.pollen >= 1.3 || (b.pollen >= 1 && d.state !== 'eat' && d.state !== 'devour'))) {
     d.sneezeS = { t: 0, blown: false }; d.state = 'roam'; d.target = null;
-    if (!G.hint.sneezy) { G.hint.sneezy = true; showBanner('AH... AH...', 'It is going to sneeze! Food in the air gets blown away. Wait...'); G.banner.dur = 2.4; }
+    if (!G.hint.sneezy) { G.hint.sneezy = true; if (!tipSeen33('sneezy')) showBanner('AH... AH...', 'It is going to sneeze! Food in the air gets blown away. Wait...'); G.banner.dur = 2.4; }
   }
   bossHelpWave(B, b, ['raptor'], ['allo']);
 }
@@ -13010,7 +13011,7 @@ function sneezeBlast(d) {
     if (G.notes.length < 6) G.notes.push({ s: s, t: 0, life: 1.0, text: 'whoa!' });
   }
   G.stats.sneezeFood = (G.stats.sneezeFood || 0) + nf; G.stats.sneezeSheep = (G.stats.sneezeSheep || 0) + n;
-  if (!G.hint.sneezed) { G.hint.sneezed = true; showBanner('ACHOO!', 'Now it sniffles for a moment: feed it NOW for extra!'); G.banner.dur = 2.6; }
+  if (!G.hint.sneezed) { G.hint.sneezed = true; if (!tipSeen33('sneezed')) showBanner('ACHOO!', 'Now it sniffles for a moment: feed it NOW for extra!'); G.banner.dur = 2.6; }
 }
 // food that a sneeze blew away tumbles off (it can't feed anyone)
 const BLOWN = [];
@@ -13088,7 +13089,7 @@ function mudStep(d, dt) {
       s.hit = true; b.mud = 0; b.mstate = 'clean'; b.cleanT = B.clean; b.shakes++; G.stats.mudShakes = (G.stats.mudShakes || 0) + 1;
       for (let i = 0; i < 40; i++) { const a = rand(0, Math.PI * 2); G.particles.push({ x: d.x + Math.cos(a) * 40, y: d.y - 50 * d.T.s + Math.sin(a) * 26, vx: Math.cos(a) * rand(90, 220), vy: Math.sin(a) * rand(50, 140) - 60, life: rand(0.5, 1), max: 1, color: i % 3 ? '#a8865a' : '#c8a878', size: rand(2.5, 5), g: 300 }); }
       popup(d.x, d.y - 150 * d.T.s * 0.7, 'CLEAN! Feed it now!', '#b8ff9a', 20, 1.4);
-      if (!G.hint.mudClean) { G.hint.mudClean = true; showBanner('It shook off the dry mud!', 'Clean = hungry: food works fully now. Feed it!'); G.banner.dur = 2.6; }
+      if (!G.hint.mudClean) { G.hint.mudClean = true; if (!tipSeen33('mudClean')) showBanner('It shook off the dry mud!', 'Clean = hungry: food works fully now. Feed it!'); G.banner.dur = 2.6; }
     }
     if (s.t >= 1.3) d.shakeS = null;
     return true;
@@ -13129,7 +13130,7 @@ function mudStomp(d) {
   xs.forEach(function (x) { P.push({ x: x, y: pathY(x) + rand(-6, 6), r: B.pudR * rand(0.9, 1.15), t: 0, life: B.pudLife, seed: rand(0, 100) }); });
   while (P.length > 5) P.shift();
   G.stats.mudStomps = (G.stats.mudStomps || 0) + 1;
-  if (!G.hint.mudStomp) { G.hint.mudStomp = true; showBanner('SPLOSH!', 'Mud puddles on the path slow the sheep down'); G.banner.dur = 2.4; }
+  if (!G.hint.mudStomp) { G.hint.mudStomp = true; if (!tipSeen33('mudStomp')) showBanner('SPLOSH!', 'Mud puddles on the path slow the sheep down'); G.banner.dur = 2.4; }
 }
 function drawMudPuddles() {
   const P = G && G.mudPuds; if (!P || !P.length) return;
@@ -13356,21 +13357,21 @@ drawBossExtras = function (d) {
         const n = sz.t < B.windup * 0.45 ? 'AH...' : 'AH... AH...';
         const q = 0.5 + 0.5 * Math.sin(animT * 14);
         ctx.save(); ctx.globalAlpha = 0.55 + 0.4 * q; ctx.strokeStyle = '#ffe066'; ctx.lineWidth = 3; ell(ctx, h.x, h.y, h.r + 6 + q * 4, h.r + 6 + q * 4); ctx.stroke(); ctx.restore();
-        txt(n, h.x, ty - 4, 18, '#ffe066', 'center', 'bold', true);
+        tagTxt33(n, h.x, ty - 4, 18, '#ffe066');
       } else if (b.sniffT > 0 && !sz) {
         const q = 0.5 + 0.5 * Math.sin(animT * 8);
         ctx.save(); ctx.globalAlpha = 0.5 + 0.4 * q; ctx.strokeStyle = '#b8ff9a'; ctx.lineWidth = 3; ell(ctx, h.x, h.y, h.r + 4, h.r + 4); ctx.stroke(); ctx.restore();
-        txt('sniffle... feed me now!', h.x, ty, 12, '#d8ffb0', 'center', 'bold', true);
+        tagTxt33('sniffle... feed me now!', h.x, ty, 12, '#d8ffb0');
       }
     } else {
       const B = BOSS_TUNE.mudwallow;
-      if (d.stompS && d.stompS.t < B.stompWind) txt('stomp...', d.x + d.dir * 40 * d.T.s, d.y - 70 * d.T.s, 13, '#e8c890', 'center', 'bold', true);
-      else if (d.shakeS && d.shakeS.t < 0.8) txt('shake shake...', h.x, ty, 12, '#e8d8b0', 'center', 'bold', true);
+      if (d.stompS && d.stompS.t < B.stompWind) tagTxt33('stomp...', d.x + d.dir * 40 * d.T.s, d.y - 70 * d.T.s, 13, '#e8c890');
+      else if (d.shakeS && d.shakeS.t < 0.8) tagTxt33('shake shake...', h.x, ty, 12, '#e8d8b0');
       else if (b.mstate === 'clean') {
         const q = 0.5 + 0.5 * Math.sin(animT * 8);
         ctx.save(); ctx.globalAlpha = 0.5 + 0.4 * q; ctx.strokeStyle = '#b8ff9a'; ctx.lineWidth = 3; ell(ctx, h.x, h.y, h.r + 4, h.r + 4); ctx.stroke(); ctx.restore();
-        txt('clean: feed me now!', h.x, ty, 12, '#d8ffb0', 'center', 'bold', true);
-      } else if (b.mstate === 'wet' && b.mud > 0.6) txt('muddy: blech!', h.x, ty, 11, '#d8b890', 'center', 'bold', true);
+        tagTxt33('clean: feed me now!', h.x, ty, 12, '#d8ffb0');
+      } else if (b.mstate === 'wet' && b.mud > 0.6) tagTxt33('muddy: blech!', h.x, ty, 11, '#d8b890');
     }
     return;
   }
@@ -13995,7 +13996,7 @@ function wrongFood(d, m) {
   BLOWN.push({ x: m.x, y: m.y, vx: (m.x < h.x ? -1 : 1) * rand(110, 190), vy: -rand(200, 290), rot: m.rot, vr: rand(-14, 14), f: m.f, veg: !!m.veg, t: 0.6 });
   popup(h.x, h.y - 40, d.T.herb ? 'Yuck! No meat!' : 'Yuck! Veggies?!', '#c8ff9a', 17, 0.9);
   if (!G.attract) { tone(300, 0.08, 'square', 0.05, 180); tone(200, 0.12, 'square', 0.04, 140, 0.07); }
-  if (!G.hint.yuck && !G.attract) { G.hint.yuck = true; popup(h.x, h.y - 66, d.T.herb ? 'Plant-eaters only eat VEGGIES' : 'Meat-eaters only eat MEAT', '#ffffff', 15, 2.0); }
+  if (!G.hint.yuck && !G.attract) { G.hint.yuck = true; if (!tipSeen33('yuck')) popup(h.x, h.y - 66, d.T.herb ? 'Plant-eaters only eat VEGGIES' : 'Meat-eaters only eat MEAT', '#ffffff', 15, 2.0); }
 }
 
 // ---------------------------------------------------------------- tail swat: a plant-eater never eats a sheep, it swats it away
@@ -14131,7 +14132,7 @@ drawInfoCard = function (c) {
   cardDino.swat = null;
   ctx.save(); ctx.translate(gx + 56, P.y + 18 + Math.sin(animT * 4) * 3); ctx.rotate(animT * 2); VEG_DRAW = true; drawFood(0, 0.9); VEG_DRAW = null; ctx.restore();
   const q = sw < 0.5 ? sw / 0.5 : 0;
-  if (q > 0) { ctx.save(); ctx.translate(gx - 40 - q * 50, gy - 10 - Math.sin(q * Math.PI) * 40); ctx.rotate(-q * 6); drawSheep({ x: 0, y: 0, phase: 0 }, 0.8, 1, false); ctx.restore(); txt('baaa!', gx - 60, P.y + 14, 11, '#ffffff', 'center', 'bold', true); }
+  if (q > 0) { ctx.save(); ctx.translate(gx - 40 - q * 50, gy - 10 - Math.sin(q * Math.PI) * 40); ctx.rotate(-q * 6); drawSheep({ x: 0, y: 0, phase: 0 }, 0.8, 1, false); ctx.restore(); txt('baaa!', gx - 30, P.y + 14, 11, '#ffffff', 'center', 'bold', true); }
   ctx.restore();
   const tx = P.x + P.w + 12, tw = C.w - P.w - 26;
   ctx.fillStyle = I.col; rr(ctx, tx, C.y + 8, 64, 20, 10); ctx.fill();
@@ -14721,7 +14722,7 @@ function drawGearBtn() {
   ctx.fillStyle = 'rgba(20,14,6,0.6)'; rr(ctx, b.x, b.y, b.w, b.h, 13); ctx.fill();
   ctx.strokeStyle = 'rgba(255,230,160,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
   drawGear(b.x + 16, b.y + b.h / 2, 6, '#ffe9a0');
-  txt('Settings (O)', b.x + 70, b.y + b.h / 2 + 1, 12, '#ffffff', 'center', 'bold', false);
+  txt('Settings (O)', b.x + (b.w + 22) / 2, b.y + b.h / 2 + 1, 12, '#ffffff', 'center', 'bold', false);
   ctx.restore();
 }
 function setToggle(x, y, on, act, label) {
@@ -15196,7 +15197,7 @@ drawMap = function () {
   ctx.fillStyle = g; rr(ctx, b.x, b.y, b.w, b.h, 9); ctx.fill();
   ctx.strokeStyle = open ? '#fff2d8' : 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
   drawWoolTuft(b.x + 17, b.y + b.h / 2, 8, open ? 1 : 0.6);
-  txt(open ? 'Wool Shop (S)' : 'Wool Shop', b.x + 70, b.y + b.h / 2 + 1, 12, open ? '#ffffff' : '#d0d0c8', 'center', 'bold', false);
+  txt(open ? 'Wool Shop (S)' : 'Wool Shop', b.x + (b.w + 22) / 2, b.y + b.h / 2 + 1, 12, open ? '#ffffff' : '#d0d0c8', 'center', 'bold', false);
   if (!open) { drawPadlock(b.x + b.w - 10, b.y + 6, 0.55); txt('unlocks after Level ' + WOOL_RULES.shopAfter, b.x + 4, b.y - 9, 10.5, '#fff0d0', 'left', 'bold', true); }
   ctx.restore();
   if (SHOPUI.msgT > 0 && !SHOPUI.open) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.msgT / 0.3, 0, 1); txt(SHOPUI.msg, b.x + 4, b.y - 24, 12, '#ffe0b0', 'left', 'bold', true); ctx.restore(); }
@@ -15301,13 +15302,9 @@ function drawShop() {
   lay.forEach(function (c, i) { shopCard(c.k, c.x, c.y, c.w, c.h, i === SHOPUI.sel && !SHOPUI.confirm); SHOPUI.ctrls.push({ x: c.x, y: c.y, w: c.w, h: c.h, act: function () { SHOPUI.sel = i; shopTry(c.k); } }); });
   // how to earn wool (the 8th spot)
   const hx = 82 + (W - 900) / 2 + 3 * 186, hy = 124 + 156;
-  ctx.fillStyle = 'rgba(120,80,30,0.12)'; rr(ctx, hx, hy, 172, 146, 12); ctx.fill();
-  ctx.strokeStyle = 'rgba(120,80,30,0.35)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4; rr(ctx, hx, hy, 172, 146, 12); ctx.stroke(); ctx.setLineDash([]);
-  drawWoolTuft(hx + 20, hy + 20, 10);
-  txt('Earn wool', hx + 36, hy + 21, 15, '#5a3a18', 'left', 'bold', false);
-  ['Clear a level:', '1 per 3 sheep saved', '+1 / +2 / +3 for stars', '+3 per black sheep', 'Endless: 1 per 25 sheep', 'Lose or quit: no wool'].forEach(function (l, i) { txt(l, hx + 12, hy + 46 + i * 17, 11.5, i === 0 ? '#5a3a18' : '#6a4a28', 'left', i === 0 ? 'bold' : '600', false); });
+  earnWool33(hx, hy, 172, 146, false);
   drawMysteryRow27(82 + (W - 900) / 2, 438, 730, 74);   // v27: mystery slots, nothing named yet
-  txt('\u2190 \u2192 \u2191 \u2193 choose     ENTER buy     TAB characters     ESC back to the map', W / 2, py + ph - 10, 12, '#fff4d8', 'center', 'bold', true);
+  txt('\u2190 \u2192 \u2191 \u2193 choose     ENTER buy     TAB characters     ESC back to the map', W / 2, py + ph - 14, 12, UI33.soft, 'center', 'bold', false);
   shopBtn('ESC  Back', px + pw - 150, py + 30, 120, 30, closeShop, false);
   if (SHOPUI.toastT > 0) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.toastT / 0.3, 0, 1); const tw = 420; ctx.fillStyle = 'rgba(30,60,20,0.92)'; rr(ctx, W / 2 - tw / 2, 400, tw, 34, 12); ctx.fill(); txt(SHOPUI.toast, W / 2, 417, 14, '#e8ffd8', 'center', 'bold', false); ctx.restore(); }
   if (SHOPUI.confirm) drawShopConfirm();
@@ -15749,7 +15746,7 @@ function drawOffer() {
       txt(s.n + ' sheep back', bx + 30 + s.n * 22, by + 19, 15, off ? '#e0e0d8' : '#4a2a10', 'left', 'bold', false);
       drawWoolTuft(bx + 38 + s.n * 22, by + 40, 7.5);
       txt(s.price + ' wool', bx + 50 + s.n * 22, by + 41, 15, off ? '#e0e0d8' : '#2a6a18', 'left', 'bold', false);
-      txt(String(i + 1), bx + bw - 14, by + 13, 11, off ? '#ddd' : '#8a6a40', 'center', 'bold', false);
+      if (!PHONE.on) txt(String(i + 1), bx + bw - 14, by + 13, 11, off ? '#ddd' : '#8a6a40', 'center', 'bold', false);
       ctx.restore();
       if (s.full) txt('not that many lost sheep', bx + bw / 2, by + bh + 9, 11.5, '#d8d0c0', 'center', 'bold', false);
       else if (s.poor) txt('not enough wool', bx + bw / 2, by + bh + 9, 11.5, '#ff9a7a', 'center', 'bold', false);
@@ -16446,8 +16443,6 @@ function phoneFoodIcons() {
       ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, x + 4, y + PHONE_CARD.h - 3, PHONE_CARD.w - 8, 3, 1.5); ctx.fill();
       ctx.fillStyle = hasAmmo(i) ? '#ffd0a0' : '#ff8a6a'; rr(ctx, x + 4, y + PHONE_CARD.h - 3, Math.max(3, (PHONE_CARD.w - 8) * G.refT[i] / F.refill), 3, 1.5); ctx.fill();
     }
-    ctx.fillStyle = sel ? '#ffd65a' : 'rgba(255,255,255,0.75)'; ell(ctx, x + 5, y + 5, 5.5, 5.5); ctx.fill();
-    txt(String(i + 1), x + 5, y + 5.5, 9, '#1d2a18', 'center', 'bold', false);
   }
 }
 function phoneTrays() {
@@ -16587,7 +16582,7 @@ function phoneSpecIcons() {
     else drawToolIcon(k, x + w / 2, y + h / 2 + (ribbon ? -2 : 1), ribbon ? 24 : 26, 0);
     ctx.restore();
     if (active) { ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, x + 4, y + h - 6, w - 8, 3.5, 1.75); ctx.fill(); ctx.fillStyle = '#9fe0ff'; rr(ctx, x + 4, y + h - 6, Math.max(3.5, (w - 8) * toolLeft(k)), 3.5, 1.75); ctx.fill(); }
-    if (ready) { ctx.fillStyle = '#ffd65a'; ell(ctx, x + 7, y + 7, 6.5, 6.5); ctx.fill(); txt(G.costume ? '\u2715' : 'F', x + 7, y + 7.5, 10, '#1d2a18', 'center', 'bold', false); }
+    if (ready && G.costume) { ctx.fillStyle = '#ffd65a'; ell(ctx, x + 7, y + 7, 6.5, 6.5); ctx.fill(); txt(G.costume ? '\u2715' : 'F', x + 7, y + 7.5, 10, '#1d2a18', 'center', 'bold', false); }
     if (ribbon) { ctx.fillStyle = brought ? 'rgba(255,214,90,0.95)' : 'rgba(61,220,132,0.92)'; rr(ctx, x + 2, y + h - 10, w - 4, 9, 4); ctx.fill(); txt(brought ? 'READY' : 'TAP', x + w / 2, y + h - 5.2, 7.5, '#14240c', 'center', 'bold', false); }
     if (xl !== 'none') countBadge(x + w - 8, y + 6, WOOL.inv[k] | 0, xl === 'ready');
     ctx.restore();
@@ -17948,7 +17943,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v32';
+const GAME_VER = 'v33';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -18970,17 +18965,14 @@ drawShopPhone = function () {
   for (let i = 0; i < 8; i++) {
     const k = SHOP_ITEMS[i], x = x0 + (i % 4) * (cw + gx), y = y0 + Math.floor(i / 4) * (ch + gy);
     if (!k) {
-      ctx.fillStyle = 'rgba(120,80,30,0.12)'; rr(ctx, x, y, cw, ch, 14); ctx.fill();
-      ctx.strokeStyle = 'rgba(120,80,30,0.35)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.6; rr(ctx, x, y, cw, ch, 14); ctx.stroke(); ctx.setLineDash([]);
-      drawWoolTuft(x + 24, y + 26, 12); txt('Earn wool', x + 44, y + 27, 27, '#5a3a18', 'left', 'bold', false);
-      ['1 per 3 saved', '+1/+2/+3 stars', '+3 black sheep', 'Lose: no wool'].forEach(function (l, j) { txt(l, x + 14, y + 66 + j * 34, 26, '#6a4a28', 'left', 'bold', false); });
+      earnWool33(x, y, cw, ch, true);
       continue;
     }
     shopCard26(k, x, y, cw, ch, i === SHOPUI.sel && !SHOPUI.confirm);
     SHOPUI.ctrls.push({ x: x, y: y, w: cw, h: ch, act: (function (ii, kk) { return function () { SHOPUI.sel = ii; shopTry(kk); }; })(i, k) });
   }
   shopBtn('Back', px + pw - 190, py + 64, 160, 46, closeShop, false);
-  txt('Tap an item to buy it', W / 2, py + ph - 24, 26, '#fff4d8', 'center', 'bold', true);
+  txt('Tap an item to buy it', px + 40, py + ph - 30, 20, UI33.soft, 'left', 'bold', false);
   if (SHOPUI.toastT > 0) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.toastT / 0.3, 0, 1); const tw = 680; ctx.fillStyle = 'rgba(30,60,20,0.94)'; rr(ctx, W / 2 - tw / 2, H / 2 - 30, tw, 60, 14); ctx.fill(); txt(SHOPUI.toast, W / 2, H / 2, 28, '#e8ffd8', 'center', 'bold', false); ctx.restore(); }
   if (SHOPUI.confirm) drawShopConfirm();
 };
@@ -19540,8 +19532,8 @@ drawShopChars26 = function (big) {
     charCard26(c, x, y0, cw, ch, big);
     SHOPUI.ctrls.push({ x: x, y: y0, w: cw, h: ch, act: function () { charsTap26(c); } });
   });
-  if (big) txt('More farm friends are on the way!', W / 2, py + ph - 24, 26, '#fff4d8', 'center', 'bold', true);
-  else txt('TAB  Tools / Characters     ESC back to the map', W / 2, py + ph - 10, 12, '#fff4d8', 'center', 'bold', true);
+  if (big) txt('More farm friends are on the way!', px + 40, py + ph - 26, 20, UI33.soft, 'left', 'bold', false);
+  else txt('TAB  Tools / Characters     ESC back to the map', W / 2, py + ph - 14, 12, UI33.soft, 'center', 'bold', false);
   if (SHOPUI.toastT > 0) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.toastT / 0.3, 0, 1); const tw = big ? 640 : 420; ctx.fillStyle = 'rgba(30,60,20,0.94)'; rr(ctx, W / 2 - tw / 2, H / 2 - (big ? 30 : 18), tw, big ? 60 : 36, 14); ctx.fill(); txt(SHOPUI.toast, W / 2, H / 2, big ? 28 : 16, '#e8ffd8', 'center', 'bold', false); ctx.restore(); }
 };
 // desktop Tools tab: a row of mystery slots where "Coming in the app" used to be
@@ -19578,7 +19570,7 @@ drawShopPhone = function () {
     SHOPUI.ctrls.push({ x: x, y: y0, w: cw, h: ch, act: function () { SHOPUI.toast = 'Coming soon!'; SHOPUI.toastT = 1.4; } });
   }
   shopBtn('\u25c2 Tools', px + pw - 214, py + ph - 48, 184, 42, function () { SHOPUI.page = 0; }, false);
-  txt('More tools are on the way!', W / 2 - 90, py + ph - 26, 26, '#fff4d8', 'center', 'bold', true);
+  txt('More tools are on the way!', px + 40, py + ph - 30, 20, UI33.soft, 'left', 'bold', false);
   if (SHOPUI.toastT > 0) { ctx.save(); ctx.globalAlpha = clamp(SHOPUI.toastT / 0.3, 0, 1); const tw = 680; ctx.fillStyle = 'rgba(30,60,20,0.94)'; rr(ctx, W / 2 - tw / 2, H / 2 - 30, tw, 60, 14); ctx.fill(); txt(SHOPUI.toast, W / 2, H / 2, 28, '#e8ffd8', 'center', 'bold', false); ctx.restore(); }
 };
 const shopTab26V26 = shopTab26;
@@ -20260,12 +20252,436 @@ drawEgg = function (e) {
 };
 Object.keys(BGCACHE).forEach(function (k) { delete BGCACHE[k]; }); if (bg) buildBG();
 
+// ================================================================ v33: touch devices (phone / tablet, no keyboard): no key hints anywhere
+// Every string that reaches the canvas (fillText / strokeText / measureText, and wrapText before it splits lines) goes through
+// dekey33() on a touch device, so measuring and drawing agree. Desktop text is untouched.
+const KEY33 = { on: !!PHONE.on, exact: {
+  'Menu (P)': 'Menu', 'Settings (O)': 'Settings', 'Wool Shop (S)': 'Wool Shop', 'Sound OFF (M)': 'Sound OFF', 'Dino name labels (N)': 'Dino name labels',
+  'M = mute all': 'tap the switch to mute all', 'F = TOOL': 'TOOLS', '\u2190 \u2192': 'DRAG', 'SPACE': 'TAP', '1  2  3': 'FOOD',
+  'Move Robner the farmer left and right (or A / D)': 'Drag to move Robner the farmer left and right',
+  'Toss the food straight up': 'Tap to toss the food straight up',
+  'Pick a food: Sausage, Meat or Big Ham (Q / E switch too)': 'Tap a food button: Sausage, Meat or Big Ham',
+  'Special tools pop up now and then. Each works once per level:': 'Special tools pop up now and then. Tap one to use it, once per level:',
+  'Press F: take the costume off!': 'Tap the tool: take the costume off!',
+  'Take the costume off first (F)': 'Take the costume off first (tap the tool)',
+  'to use it (once per level)': 'Tap the tool to use it (once per level)',
+  'click or press a key to skip': 'tap to skip', 'F': '', 'Tap F: ': 'Tap: ',
+  'Press P (or click Keep playing) to go on': 'Tap Keep playing to go on',
+  'Press P (or click) to keep playing': 'Tap to keep playing',
+  'TAB  Tools / Characters     ESC back to the map': 'tap a tab: Tools / Characters',
+  '\u2190 \u2192 \u2191 \u2193 choose     ENTER buy     TAB characters     ESC back to the map': 'tap an item to choose it, then tap the buy button',
+  '  \u2192  ': '  \u2192  '
+}, rules: [
+  [/^Press F to use it: +/, 'Tap the tool:  '],
+  [/^Press F \(or tap\): /, 'Tap: '],
+  [/^Press F: /, 'Tap the tool: '],
+  [/ F = take it off\./, ' Tap the tool to take it off.'],
+  [/ \(F\) before/, ' before'],
+  [/ you have first \(F\)$/, ' you have first (tap it)'],
+  [/ \(1 \/ 2 \/ 3 to switch\)/, ' (tap a food button to switch)'],
+  [/Press 3 and throw a Big Ham!/, 'Tap Big Ham and throw it!'],
+  [/ \(press 3\)/, ' (tap Big Ham)'],
+  [/Press 1 \/ 2 \(or Q \/ E\) to switch food\./, 'Tap the food buttons to switch food.'],
+  [/When Vicky is ready, press F:/, 'When Vicky is ready, tap her button:'],
+  [/,? ?or press F to/, ', or tap the tool to'],
+  [/ {3,}P = pause {3,}M = sound on\/off {3,}N = name tags/, ''],
+  [/^click \/ 1-\d+ = bring$/, 'tap = bring'],
+  [/ \((?:[A-Z0-9]|ESC|ENTER|SPACE|TAB)\)/g, ''],
+  [/^(?:[A-Z0-9]|ESC|ENTER|SPACE|TAB)  +(?=\S)/, ''],
+  [/\bPress ENTER(?:, SPACE)?(?: or click)? to /, 'Tap to '],
+  [/\bclick\b/g, 'tap'], [/\bClick\b/g, 'Tap']
+] };
+function dekey33(t) {
+  if (!KEY33.on || typeof t !== 'string' || !t) return t;
+  const e = KEY33.exact[t]; if (e !== undefined) return e;
+  let s = t; for (let i = 0; i < KEY33.rules.length; i++) s = s.replace(KEY33.rules[i][0], KEY33.rules[i][1]);
+  return s;
+}
+// what still counts as a key hint (used by the tests, window.__keyLeft33)
+const KEYHINT33 = /\((?:[A-Z0-9]|ESC|ENTER|TAB)\)|\bpress(?:es)?\b|\bENTER\b|\bESC\b|\bSPACE\b|\bTAB\b|[\u2190\u2191\u2193]|\b[A-Z0-9] = |\b[QEFPMNO] \/ [QEFPMNOAD]\b|\b1 \/ 2\b|\bclick\b|\bkeyboard\b|\bkey\b/i;
+window.__keyLeft33 = [];
+if (KEY33.on) {
+  ['fillText', 'strokeText', 'measureText'].forEach(function (m) {
+    const o = ctx[m];
+    ctx[m] = function (t) {
+      const s = dekey33(String(t));
+      if (m === 'fillText' && s && KEYHINT33.test(s) && window.__keyLeft33.length < 50 && window.__keyLeft33.indexOf(s) < 0) window.__keyLeft33.push(s);
+      arguments[0] = s; return o.apply(this, arguments);
+    };
+  });
+  const wrapTextV33 = wrapText;
+  wrapText = function (t, maxW, size, weight) { return wrapTextV33(dekey33(t), maxW, size, weight); };
+  const fitFontV33 = fitFont;
+  fitFont = function (text, maxW, size, weight) { return fitFontV33(dekey33(text), maxW, size, weight); };
+}
+if (KEY33.on) PHONE.dirty = true;   // trays drawn before this point (load-time render) are drawn again without key letters
+
+// ================================================================ v33: tips once, banners / buttons that fit their text, queued hatch popups
+// ---- tips (level tips and the one-off hint banners / hint popups) show only the first time; remembered in the save
+const SEEN33 = {};
+function tipSeen33(k) {
+  const id = 'tip33_' + k;
+  if (DEMO) { if (SEEN33[id]) return true; SEEN33[id] = 1; return false; }
+  if (PROG.seen && PROG.seen[id]) return true;
+  PROG.seen = PROG.seen || {}; PROG.seen[id] = 1; try { saveProg(); } catch (e) { /* ignore */ }
+  return false;
+}
+// ---- the banner (level tips, hints, boss waves) grows to its text: lines wrap, never wider than the screen
+function bannerLayout33(b) {
+  const ph = !!PHONE.on, B = bannerBox(), T1 = ph ? 26 : 17, T2 = ph ? 19 : 13, mn = txtMin26();
+  const e1 = Math.max(T1, mn), e2 = Math.max(T2, mn);
+  const maxW = Math.max(200, Math.min(B.w, W - 16)), inner = maxW - 28;
+  const L1 = wrapText(b.title || '', inner, T1, 'bold'), L2 = b.sub ? wrapText(b.sub, inner, T2, '600') : [];
+  let tw = 0;
+  ctx.font = 'bold ' + T1 + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif'; L1.forEach(function (l) { tw = Math.max(tw, ctx.measureText(l).width); });
+  ctx.font = '600 ' + T2 + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif'; L2.forEach(function (l) { tw = Math.max(tw, ctx.measureText(l).width); });
+  const w = Math.min(maxW, Math.max(ph ? 260 : 240, tw + 40));
+  let x = B.x === 8 ? 8 : B.c !== undefined ? B.c - w / 2 : W / 2 - w / 2; x = clamp(x, 8, W - 8 - w);
+  const l1 = e1 * 1.12, l2 = e2 * 1.22, h = Math.round(8 + L1.length * l1 + L2.length * l2 + 6);
+  return { x: x, y: UI_TOP, w: w, h: h, L1: L1, L2: L2, T1: T1, T2: T2, l1: l1, l2: l2 };
+}
+drawBanner = function () {
+  const b = G.banner;
+  if (!b || G.announce || G.toolCard) return;
+  const a = clamp(Math.min(b.t / 0.25, (b.dur - b.t) / 0.5), 0, 1), ph = !!PHONE.on;
+  const Q = bannerLayout33(b), x = Q.x, y = Q.y, w = Q.w, h = Q.h, cx = x + w / 2;
+  b.box33 = { x0: x, x1: x + w, y0: y, y1: y + h };
+  if (TXT31.on && a > 0.3) TXT31.cards.push({ x0: x, x1: x + w, y0: y, y1: y + h + 4 });
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.fillStyle = 'rgba(0,0,0,0.22)'; rr(ctx, x + 2, y + 3, w, h, 12); ctx.fill();
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  g.addColorStop(0, 'rgba(34,56,32,0.92)'); g.addColorStop(1, 'rgba(14,26,14,0.92)');
+  ctx.fillStyle = g; rr(ctx, x, y, w, h, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,220,120,0.65)'; ctx.lineWidth = ph ? 1.8 : 1.6; ctx.stroke();
+  let yy = y + 8;
+  Q.L1.forEach(function (l) { txt(l, cx, yy + Q.l1 / 2, Q.T1, '#ffd04a', 'center', 'bold', true); yy += Q.l1; });
+  Q.L2.forEach(function (l) { txt(l, cx, yy + Q.l2 / 2, Q.T2, '#ffffff', 'center', '600', false); yy += Q.l2; });
+  ctx.restore();
+};
+// ---- buttons grow to their label (a left-side button grows to the left, a right-side one to the right)
+const uiButtonV33 = uiButton;
+uiButton = function (label, x, y, w, h, act, primary) {
+  if (PHONE.on && typeof label === 'string') {
+    const ls = h >= 48 ? Math.min(24, h * 0.4) : 16, s = dekey33(label);
+    ctx.font = 'bold ' + ls + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+    const need = Math.ceil(ctx.measureText(s).width + 28);
+    if (need > w) {
+      const c = x + w / 2, d = need - w;
+      if (Math.abs(c - W / 2) < 30) x -= d / 2; else if (c < W / 2) x -= d;
+      w = need; x = clamp(x, 4, Math.max(4, W - 4 - w));
+    }
+  }
+  return uiButtonV33(label, x, y, w, h, act, primary);
+};
+// on a phone the leave / pause panel grows with its (bigger) buttons and line of text
+if (PHONE.on) {
+  const drawPanelV33 = drawPanel;
+  let wide33 = 0;
+  drawPanel = function (x, y, w, h, fancy) { if (wide33 && w === 460) { x -= wide33 / 2; w += wide33; } return drawPanelV33(x, y, w, h, fancy); };
+  const drawPauseV33 = drawPause;
+  drawPause = function () {
+    if (G && (G.offer || AD.playing)) return drawPauseV33();
+    ctx.font = 'bold 16px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+    const bw = Math.max(196, ctx.measureText(dekey33('N  No, keep playing')).width + 28, ctx.measureText(dekey33('X  Exit to map')).width + 28);
+    ctx.font = 'bold 15px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+    const sw = Math.max(ctx.measureText(dekey33('This try will not count. Your stars and saves are safe.')).width, ctx.measureText(dekey33('This Endless run ends here (it is not saved as a score).')).width) + 40;
+    wide33 = Math.min(W - 16 - 460, Math.max(0, 2 * (bw - 196), sw - 460));
+    try { return drawPauseV33(); } finally { wide33 = 0; }
+  };
+}
+// ---- 'X hatched!' popups: plain outlined text (no box), one at a time, never on top of each other or of the banner
+function hatchPop33(d, text, color, size, life) {
+  if (!G) return;
+  (G.popQ33 = G.popQ33 || []).push({ d: d, x: d.x, y: d.y - 92 * ((d.T && d.T.s) || 1), text: text, color: color, size: size, life: life || 1.6 });
+}
+function hatchPopXY33(x, y, text, color, size, life) { if (!G) return; (G.popQ33 = G.popQ33 || []).push({ d: null, x: x, y: y, text: text, color: color, size: size, life: life || 1.6 }); }
+function popTick33(dt) {
+  if (!G || !G.popQ33) return;
+  G.popGap33 = (G.popGap33 || 0) - dt;
+  if (!G.popQ33.length || G.popGap33 > 0) return;
+  const q = G.popQ33.shift();
+  let x = q.x, y = q.y;
+  if (q.d && G.dinos && G.dinos.indexOf(q.d) >= 0) { x = q.d.x; y = q.d.y - 92 * ((q.d.T && q.d.T.s) || 1); }
+  const bb = G.banner && G.banner.box33 && G.banner.t < G.banner.dur ? G.banner.box33 : null;
+  if (bb) { const s = Math.max(q.size * (BIG23.on ? BIG23.pop || 1 : 1), txtMin26()), hw = tw31(q.text, s) / 2 + 8;
+    if (x + hw > bb.x0 && x - hw < bb.x1 && y - s < bb.y1 + 4) y = bb.y1 + s * 1.2 + 6; }
+  popup(x, y, q.text, q.color, q.size, q.life);
+  G.popGap33 = q.life + 0.15;
+}
+const updateV33 = update;
+update = function (dt) { updateV33(dt); try { popTick33(dt); } catch (e) { window.__errs.push(String(e && e.stack || e)); } };
+// ---- popups pushed off a card are placed again among the other texts (v32 only moved them, so two could land together)
+relayout32 = function (cards) {
+  const hitC = function (bx) { return cards.some(function (c) { return hit31(bx, c); }); };
+  const top = HUD_H * (BIG23.on && BIG23.hud ? BIG23.hud : 1) + 2;
+  (G.popups || []).forEach(function (p) {
+    if (p.hide31) return;
+    const s = popSize31(p), w = Math.min(W - 16, tw31(p.text, s) + 10), h = s * 1.15;
+    let x = p.x; if (BIG23.on) x = clamp(x, w / 2, W - w / 2);
+    const bx = box31(x, p.y + (p.oy31 || 0), w, h);
+    if (!hitC(bx)) return;
+    const i = TXT31.boxes.findIndex(function (q) { return q.x0 === bx.x0 && q.y0 === bx.y0 && q.x1 === bx.x1 && q.y1 === bx.y1; });
+    if (i >= 0) TXT31.boxes.splice(i, 1);
+    const ny = cards.reduce(function (m, c) { return c.x0 < bx.x1 && c.x1 > bx.x0 ? Math.max(m, c.y1) : m; }, 0) + h / 2 + 2;
+    const tgt = place31(TXT31.boxes, { x: x, y: ny, w: w, h: h }, Math.max(top, ny - h / 2 - 1), H - 4);
+    if (tgt === null) p.hide31 = true; else p.oy31 = ny + tgt - p.y;
+  });
+  (G.dinos || []).forEach(function (d) { if (d.hide31 || !d.T) return; const s = d.T.s, fs = BIG23.on ? BIG23.label : 11, x = d.x - d.dir * (14 + 6 * s), y = d.y - s * (d.T.sail ? 112 : 88) - 8 + (d.oy31 || 0); if (hitC(box31(x, y, tw31(d.T.name, Math.max(fs, txtMin26())) + 14, BIG23.on ? 20 : 16))) d.hide31 = true; });
+  (G.notes || []).forEach(function (n) { if (n.hide31) return; const fs = Math.max(BIG23.on ? BIG23.note : 13, txtMin26()), y = n.s.y - 36 - n.t * 14 + (n.oy31 || 0); if (hitC(box31(n.s.x + 16, y, tw31(n.text, fs, 'italic bold') + 8, fs * 1.1))) n.hide31 = true; });
+};
+// ---- boss head tags ('muddy', 'clean', 'sniffle', 'Big Ham splits them!') take part in the text layout like L30's tag
+// (placed in layout space: a tag drawn under an extra translate, e.g. a swimming dino, is mapped back first)
+function tagL33(x, y, t, size) {
+  const I = TXT31.inv; if (!I) return tag31(x, y, t, size);
+  const T = ctx.getTransform(), X = T.a * x + T.c * y + T.e, Y = T.b * x + T.d * y + T.f;
+  const lx = I.a * X + I.c * Y + I.e, ly = I.b * X + I.d * Y + I.f, k = Math.abs(T.d * I.d) || 1;
+  const oy = tag31(lx, ly, t, size); return oy === null ? null : oy / k;
+}
+function tagTxt33(t, x, y, size, col) {
+  const oy = tagL33(x, y, t, size); if (oy === null) return;
+  TXT31.mine++; try { txt(t, x, y + oy, size, col, 'center', 'bold', true); } finally { TXT31.mine--; }
+}
+// the King's stomp hint (his own code stays as it is): also only the first time
+const showBannerV33 = showBanner;
+showBanner = function (title, sub) { if (title === 'STOMP!' && /^Knocked-off sheep/.test(sub || '') && tipSeen33('stomp')) return; return showBannerV33(title, sub); };
+// ---- phone: boxes that hold several texts (the boss bar, the corner tip / tool / info cards) grow until every text fits.
+// A silent first pass (nothing is painted) measures each text against the panel; the real pass then widens the panel.
+const FIT33 = { quiet: 0, rec: null, grow: null };
+const rrV33 = rr;
+rr = function (c, x, y, w, h, r) {
+  if (FIT33.grow && c === ctx && Math.abs(w - FIT33.grow.w) < 0.6 && Math.abs(h - FIT33.grow.h) < 0.6) { const g = FIT33.grow; x -= g.l; w += g.l + g.r; h += g.b; }
+  if (FIT33.rec && c === ctx) { const T = ctx.getTransform(); FIT33.rec.rects.push({ w: w, h: h, x0: T.a * x + T.e, x1: T.a * (x + w) + T.e, y0: T.d * y + T.f, y1: T.d * (y + h) + T.f, k: T.a }); }
+  return rrV33(c, x, y, w, h, r);
+};
+function fitMeasure33(fn) {
+  const R = FIT33.rec = { rects: [], texts: [] }, saved = {};
+  const NOOP = ['fill', 'stroke', 'fillRect', 'strokeRect', 'drawImage', 'strokeText', 'putImageData'];
+  NOOP.forEach(function (m) { saved[m] = ctx[m]; ctx[m] = function () {}; });
+  saved.fillText = ctx.fillText;
+  ctx.fillText = function (t, x, y, mw) {
+    const s = String(t); if (!s.trim()) return;
+    const T = ctx.getTransform(); let w = ctx.measureText(s).width; if (mw && w > mw) w = mw;
+    const fm = /(\d+(?:\.\d+)?)px/.exec(ctx.font), al = ctx.textAlign, sc = Math.hypot(T.a, T.b) / (dpr || 1), kk = (ctx.canvas.clientWidth || W) / W;
+    const fs = Math.max(fm ? +fm[1] : 12, TXT26.on && sc > 0.05 ? TXT26.min / (sc * kk) : 0);
+    const x0 = al === 'center' ? x - w / 2 : (al === 'right' || al === 'end') ? x - w : x;
+    R.texts.push({ x0: T.a * x0 + T.e, x1: T.a * (x0 + w) + T.e, y0: T.d * (y - fs * 0.38) + T.f, y1: T.d * (y + fs * 0.52) + T.f });
+  };
+  const ss = { popQ: G && G.popups ? G.popups.length : 0, cards: TXT31.cards.length, cur: TXT31.cur ? TXT31.cur.length : 0, keys: window.__keyLeft33.length };
+  FIT33.quiet++;
+  try { ctx.save(); fn(); } catch (e) { /* measuring only */ } finally {
+    ctx.restore(); FIT33.quiet--; FIT33.rec = null;
+    NOOP.concat(['fillText']).forEach(function (m) { ctx[m] = saved[m]; });
+    TXT31.cards.length = ss.cards; if (TXT31.cur) TXT31.cur.length = ss.cur; window.__keyLeft33.length = ss.keys;
+  }
+  if (!R.rects.length) return null;
+  const P = R.rects.reduce(function (a, b) { return (b.x1 - b.x0) * (b.y1 - b.y0) > (a.x1 - a.x0) * (a.y1 - a.y0) ? b : a; });
+  let l = 0, r = 0, bt = 0; const pad = 6 * P.k;
+  R.texts.forEach(function (q) {
+    const cy = (q.y0 + q.y1) / 2, cx = (q.x0 + q.x1) / 2;
+    if (cy < P.y0 || cy > P.y1 + 4 * P.k || cx < P.x0 || cx > P.x1) return;
+    l = Math.max(l, P.x0 + pad - q.x0); r = Math.max(r, q.x1 + pad - P.x1); bt = Math.max(bt, q.y1 + 3 * P.k - P.y1);
+  });
+  return { w: P.w, h: P.h, k: P.k, l: Math.max(0, l) / P.k, r: Math.max(0, r) / P.k, b: Math.max(0, bt) / P.k };
+}
+if (PHONE.on) {
+  // boss bar: anchored at the right edge, so it grows to the left (centred texts stay centred: the bar shifts left by half)
+  const drawBossBarV33 = drawBossBar;
+  drawBossBar = function () {
+    if (FIT33.quiet || !G || !G.boss) return drawBossBarV33();
+    const m = fitMeasure33(drawBossBarV33);
+    if (!m || (m.l < 0.5 && m.r < 0.5 && m.b < 0.5)) return drawBossBarV33();
+    const ex = 2 * Math.max(m.l, m.r), sc = (BIG23.on && BIG23.boss) || 1, exMax = Math.max(0, (W - 16) / sc - m.w), e = Math.min(ex, exMax);
+    FIT33.grow = { w: m.w, h: m.h, l: e / 2, r: e / 2, b: m.b };
+    ctx.save(); ctx.translate(-e / 2 * sc, 0);
+    try { return drawBossBarV33(); } finally { ctx.restore(); FIT33.grow = null; }
+  };
+  // corner cards: the card is made wider / taller (a right-hand card grows to the left)
+  const drawToolCardV33 = drawToolCard;
+  let cardEx33 = null;
+  const cardCornerV33 = cardCorner;
+  cardCorner = function (x) { const C = cardCornerV33(x); if (G && G.boss && C.x > W / 2 - C.w / 2) C.x = 8; if (cardEx33) { if (C.x > W / 2 - C.w / 2) C.x -= cardEx33.w; C.w += cardEx33.w; C.h += cardEx33.h; } return C; };
+  drawToolCard = function () {
+    const c = G && G.toolCard; if (!c || FIT33.quiet) return drawToolCardV33();
+    const p0 = c.ex33 || { w: 0, h: 0 }; c.ex33 = null;
+    const m = fitMeasure33(drawToolCardV33), sc = (BIG23.on && BIG23.card) || 1;
+    c.ex33 = m ? { w: Math.max(p0.w, Math.min(m.l + m.r, Math.max(0, (W - 16) / sc - m.w))), h: Math.max(p0.h, m.b) } : p0;
+    cardEx33 = c.ex33.w > 0.5 || c.ex33.h > 0.5 ? c.ex33 : null;
+    try { return drawToolCardV33(); } finally { cardEx33 = null; }
+  };
+}
+// phone map buttons (Wool Shop / Settings): as wide as their label
+if (PHONE.on) {
+  const drawMapV33 = drawMap;
+  drawMap = function () {
+    ctx.font = 'bold 12px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+    SHOP_BTN.w = Math.max(118, Math.ceil(ctx.measureText('Wool Shop').width + 40));
+    GEAR_BTN.w = Math.max(118, Math.ceil(ctx.measureText('Settings').width + 40));
+    return drawMapV33.apply(this, arguments);
+  };
+}
+// phone: Vicky's name tag takes part in the text layout (it sat on Robner's tag / tool cards)
+if (BIG23.on) {
+  drawVickyLabel = function (v) {
+    const y = v.y - (v.pose === 'sit' ? 46 : 40) - (v.hop || 0) - 2, oy = tagL33(v.x, y, 'Vicky', BIG23.label || 12); if (oy === null) return;
+    TXT31.mine++; try { nameTag('Vicky', v.x, y + oy, 'rgba(120,70,20,0.85)', '#fff3d0'); } finally { TXT31.mine--; }
+  };
+}
+
+// ================================================================ v33: modern, calmer shop (cards, chips, soft shadows; farm palette)
+const UI33 = { cream: '#fbf6ec', card: '#ffffff', ink: '#3b2a1a', soft: '#6f604c', red: '#c8442f', redD: '#9c3020', green: '#3f9a4a',
+  gold: '#f2b632', shadow: 'rgba(40,25,10,0.18)', line: 'rgba(80,55,25,0.10)' };
+function softBox33(x, y, w, h, r, fill, sh) {
+  ctx.save();
+  if (sh !== false) { ctx.shadowColor = UI33.shadow; ctx.shadowBlur = 14 * dpr; ctx.shadowOffsetY = 4 * dpr; }
+  ctx.fillStyle = fill; rr(ctx, x, y, w, h, r); ctx.fill();
+  ctx.restore();
+}
+function fs33(f) { return Math.max(f, txtMin26()); }
+// the panel: a soft cream sheet with a slim red farm header (no planks, no double borders)
+drawBarnPanel = function (x, y, w, h) {
+  if (window.__panels) { const m = ctx.getTransform(), s = m.a / dpr; window.__panels.push([(m.a * x + m.e) / dpr, (m.d * y + m.f) / dpr, w * s, h * s, 'barn']); }
+  const big = phoneScreens();
+  ctx.save(); ctx.fillStyle = 'rgba(20,14,6,0.45)'; ctx.fillRect(0, 0, W, H); ctx.restore();
+  softBox33(x, y, w, h, 22, UI33.cream);
+  const hh = big ? 54 : 44;
+  ctx.save(); rr(ctx, x, y, w, h, 22); ctx.clip();
+  const g = ctx.createLinearGradient(0, y, 0, y + hh); g.addColorStop(0, UI33.red); g.addColorStop(1, UI33.redD);
+  ctx.fillStyle = g; ctx.fillRect(x, y, w, hh);
+  ctx.restore();
+  drawWoolTuft(x + 30, y + hh / 2, big ? 12 : 9);
+  txt('Wool Shop', x + (big ? 52 : 46), y + hh / 2 + 1, big ? 30 : 20, '#fff6ea', 'left', 'bold', false);
+};
+// tabs: one segmented control
+shopTabs26 = function (x, y, w, h, fs) {
+  const n = 2, tw = w * 2 + 10, pad = 4;
+  ctx.save(); ctx.fillStyle = 'rgba(80,55,25,0.10)'; rr(ctx, x, y, tw, h, h / 2); ctx.fill(); ctx.restore();
+  [['tools', 'Tools'], ['chars', 'Characters']].forEach(function (q, i) {
+    const bx = x + pad + i * (tw - 2 * pad) / n, bw = (tw - 2 * pad) / n, on = SHOPUI.tab === q[0];
+    if (on) softBox33(bx, y + pad, bw, h - 2 * pad, (h - 2 * pad) / 2, '#ffffff');
+    txt(q[1], bx + bw / 2, y + h / 2 + 1, fs * 0.92, on ? UI33.ink : UI33.soft, 'center', 'bold', false);
+    SHOPUI.ctrls.push({ x: bx, y: y, w: bw, h: h, act: function () { shopTab26(q[0]); }, top: true, tab: q[0] });
+  });
+};
+// wool balance: a chip
+woolPhone26 = function (x, y) {
+  const f = fs33(24), lab = WOOL.wool + ' wool';
+  ctx.font = 'bold ' + f + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+  const w = ctx.measureText(lab).width + 62;
+  softBox33(x, y, w, 42, 21, '#ffffff');
+  drawWoolTuft(x + 24, y + 21, 11); txt(lab, x + 44, y + 22, 24, UI33.ink, 'left', 'bold', false);
+};
+// buttons: one rounded style (primary = farm red, others = white with ink text)
+shopBtn = function (label, x, y, w, h, act, primary) {
+  if (!phoneScreens() && /Back/.test(label) && h <= 32) y -= 23;   // desktop: Back sits in the header
+  const s = dekey33(label), f = Math.min(24, h * 0.45);
+  ctx.font = 'bold ' + fs33(f) + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+  const need = ctx.measureText(s).width + 32; if (need > w) { x -= (need - w) / 2; w = need; }
+  softBox33(x, y, w, h, h / 2, primary ? UI33.red : '#ffffff');
+  txt(label, x + w / 2, y + h / 2 + 1, f, primary ? '#ffffff' : UI33.ink, 'center', 'bold', false);
+  SHOPUI.ctrls.push({ x: x, y: y, w: w, h: h, act: act, top: true });
+};
+// one item card: picture, name, ONE price chip; a thin bar shows how close you are; locked = dimmed + lock + 'Lv N'
+function shopCard33(k, x, y, w, h, sel, big) {
+  const s = itemState(k), cx = x + w / 2, F = big ? 1 : 0.6;
+  ctx.save();
+  softBox33(x, y, w, h, 18, s.locked ? '#efe9de' : UI33.card, !s.locked);
+  if (sel && !s.locked) { ctx.strokeStyle = UI33.gold; ctx.lineWidth = 3; rr(ctx, x + 1.5, y + 1.5, w - 3, h - 3, 17); ctx.stroke(); }
+  const ih = h * 0.46, iy = y + 10;
+  ctx.globalAlpha = s.locked ? 0.32 : 1;
+  ctx.fillStyle = k === 'blacksheep' ? '#e3f1d6' : '#fdf1d8'; rr(ctx, x + 10, iy, w - 20, ih, 12); ctx.fill();
+  ctx.save(); rr(ctx, x + 10, iy, w - 20, ih, 12); ctx.clip();
+  if (k === 'blacksheep') drawSheepAny({ x: cx + 4, y: iy + ih - 8, phase: animT * 4, black: true }, big ? 1.3 : 1.1, 1, sel);
+  else drawToolIcon(k, cx, iy + ih / 2, Math.min(ih * 0.78, 52), sel ? animT : 0);
+  ctx.restore(); ctx.globalAlpha = 1;
+  const ny = iy + ih + (big ? 26 : 17), nm = big ? itemShort26(k) : itemName(k);
+  txt(nm, cx, ny, fitFont(nm, w - 14, big ? 26 : 15), s.locked ? '#7a6e5c' : UI33.ink, 'center', 'bold', false);
+  const chH = big ? 38 : 24, chY = y + h - chH - (big ? 14 : 10);
+  if (s.locked) {
+    drawPadlock(cx, iy + ih / 2 - 4, big ? 1.8 : 1.2);
+    const lab = 'Lv ' + shopUnlockLevel(k);
+    ctx.font = 'bold ' + fs33(big ? 22 : 13) + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+    const lw = ctx.measureText(lab).width + 28;
+    ctx.fillStyle = 'rgba(80,60,35,0.12)'; rr(ctx, cx - lw / 2, chY, lw, chH, chH / 2); ctx.fill();
+    txt(lab, cx, chY + chH / 2 + 1, big ? 22 : 13, '#6f604c', 'center', 'bold', false);
+  } else {
+    const poor = s.poor && !s.full, lab = s.full ? 'Max' : String(s.price);
+    ctx.font = 'bold ' + fs33(big ? 24 : 14) + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+    const lw = ctx.measureText(lab).width + (big ? 56 : 40);
+    ctx.fillStyle = s.full ? 'rgba(63,154,74,0.14)' : poor ? 'rgba(80,60,35,0.08)' : 'rgba(242,182,50,0.28)';
+    rr(ctx, cx - lw / 2, chY, lw, chH, chH / 2); ctx.fill();
+    if (poor) {   // subtle progress: the chip fills up with gold as you collect wool towards the price
+      ctx.save(); rr(ctx, cx - lw / 2, chY, lw, chH, chH / 2); ctx.clip();
+      ctx.fillStyle = 'rgba(242,182,50,0.30)'; ctx.fillRect(cx - lw / 2, chY, lw * clamp(WOOL.wool / s.price, 0, 1), chH); ctx.restore();
+    }
+    if (!s.full) drawWoolTuft(cx - lw / 2 + (big ? 20 : 14), chY + chH / 2, big ? 9 : 6);
+    txt(lab, cx + (s.full ? 0 : (big ? 10 : 7)), chY + chH / 2 + 1, big ? 24 : 14, s.full ? UI33.green : poor ? '#6f604c' : UI33.ink, 'center', 'bold', false);
+    if (s.owned) {   // owned: a small green badge in the corner
+      const b = k === 'blacksheep' ? '\u2714' : '\u00d7' + s.owned, bf = big ? 20 : 12;
+      ctx.font = 'bold ' + fs33(bf) + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+      const bw2 = Math.max(chH * 0.9, ctx.measureText(b).width + 16), bh = chH * 0.85;
+      ctx.fillStyle = UI33.green; rr(ctx, x + w - bw2 - 8, y + 8, bw2, bh, bh / 2); ctx.fill();
+      txt(b, x + w - bw2 / 2 - 8, y + 8 + bh / 2 + 1, bf, '#ffffff', 'center', 'bold', false);
+    }
+  }
+  ctx.restore();
+}
+shopCard26 = function (k, x, y, w, h, sel) { return shopCard33(k, x, y, w, h, sel, true); };
+shopCard = function (k, x, y, w, h, sel) { return shopCard33(k, x, y, w, h, sel, false); };
+// 'Earn wool': three short lines, no dashed box
+function earnWool33(x, y, w, h, big) {
+  ctx.fillStyle = 'rgba(80,55,25,0.06)'; rr(ctx, x, y, w, h, 18); ctx.fill();
+  const f = big ? 24 : 15, lf = big ? 21 : 12.5, lh = fs33(lf) * 1.45;
+  drawWoolTuft(x + (big ? 26 : 20), y + (big ? 28 : 22), big ? 11 : 8);
+  txt('Earn wool', x + (big ? 46 : 36), y + (big ? 29 : 23), f, UI33.ink, 'left', 'bold', false);
+  ['Save sheep', 'Win stars', 'Black sheep'].forEach(function (l, j) {
+    const yy = y + (big ? 72 : 52) + j * lh;
+    ctx.fillStyle = UI33.gold; ell(ctx, x + (big ? 22 : 16), yy, 3.5, 3.5); ctx.fill();
+    txt(l, x + (big ? 34 : 26), yy + 1, lf, '#6a5640', 'left', 'bold', false);
+  });
+}
+// mystery slots: the same dimmed card with a lock (no dashes, no '?')
+mysteryCard27 = function (x, y, w, h, big) {
+  const cx = x + w / 2;
+  softBox33(x, y, w, h, 18, '#efe9de', false);
+  drawPadlock(cx, y + h * 0.38, big ? 1.8 : 1.2);
+  txt('Coming soon', cx, y + h - (big ? 34 : 22), fitFont('Coming soon', w - 14, big ? 22 : 13), '#7a6e5c', 'center', 'bold', false);
+};
+// character cards: same soft card; 'Playing' / 'Coming later' as one chip
+charCard26 = function (c, x, y, w, h, big) {
+  if (c.state === 'mystery') return mysteryCard27(x, y, w, h, big);
+  const cx = x + w / 2, soon = c.state === 'soon';
+  softBox33(x, y, w, h, 18, soon ? '#efe9de' : '#ffffff', !soon);
+  if (!soon) { ctx.strokeStyle = UI33.green; ctx.lineWidth = 3; rr(ctx, x + 1.5, y + 1.5, w - 3, h - 3, 17); ctx.stroke(); }
+  const ph = h * 0.58;
+  ctx.save(); ctx.fillStyle = soon ? '#e6dfd2' : '#fdf1d8'; rr(ctx, x + 10, y + 10, w - 20, ph, 12); ctx.fill(); rr(ctx, x + 10, y + 10, w - 20, ph, 12); ctx.clip();
+  ctx.globalAlpha = soon ? 0.45 : 1; drawCharPortrait26(c.k, cx, y + 10 + ph - 8, Math.min((ph - 22) / 78, (w - 24) / 46)); ctx.restore();
+  if (soon) drawPadlock(cx, y + 10 + ph / 2, big ? 1.8 : 1.2);
+  txt(c.name, cx, y + 10 + ph + (big ? 30 : 18), big ? 28 : 16, soon ? '#7a6e5c' : UI33.ink, 'center', 'bold', false);
+  const lab = soon ? 'Later' : 'Playing', chH = big ? 38 : 24, chY = y + h - chH - (big ? 14 : 10);
+  ctx.font = 'bold ' + fs33(big ? 22 : 13) + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+  const lw = Math.min(w - 20, ctx.measureText(lab).width + 30);
+  ctx.fillStyle = soon ? 'rgba(80,60,35,0.12)' : 'rgba(63,154,74,0.16)'; rr(ctx, cx - lw / 2, chY, lw, chH, chH / 2); ctx.fill();
+  txt(lab, cx, chY + chH / 2 + 1, big ? 22 : 13, soon ? '#6f604c' : UI33.green, 'center', 'bold', false);
+};
+// desktop mystery row: four soft dimmed slots with a lock
+drawMysteryRow27 = function (x, y, w, h) {
+  const n = 4, g = 12, tw = (w - (n - 1) * g) / n;
+  for (let i = 0; i < n; i++) {
+    const bx = x + i * (tw + g), by = y + 6, bh = h - 12;
+    softBox33(bx, by, tw, bh, 14, '#efe9de', false);
+    drawPadlock(bx + 28, by + bh / 2 - 1, 1.1);
+    txt('Coming soon', bx + 48, by + bh / 2 + 1, 14, '#7a6e5c', 'left', 'bold', false);
+    SHOPUI.ctrls.push({ x: bx, y: by, w: tw, h: bh, act: function () { SHOPUI.toast = 'Coming soon!'; SHOPUI.toastT = 1.4; } });
+  }
+};
+
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
 if (window.__dbg) window.__dbg.v28 = { HB: HB28, prop: hProp28 };
 if (window.__dbg) window.__dbg.v30 = { on: function () { return area1on30(); }, eat: function (x, y) { eatFx30(x, y); }, save: function (x, y) { saveFx30(x, y); }, shell: function (x, y, k) { shellFx30(x, y, EGG_LOOK[k || 'plain'], false); } };
 if (window.__dbg) window.__dbg.v31 = { FLAT31: FLAT31, TXT31: TXT31, layout: layout31 };
 if (window.__dbg) window.__dbg.v32 = { barn32: barn32, free32: free32 };
+if (window.__dbg) window.__dbg.v33 = { dekey: dekey33, KEY33: KEY33, tipSeen: tipSeen33, SEEN33: SEEN33, bannerLayout: bannerLayout33 };
 if (window.__dbg) window.__dbg.v24 = { WIDE_E: WIDE_E, MAPZ: MAPZ, FOOD_CAP: FOOD_CAP, FCAP: FCAP, GAME_VER: GAME_VER, CELEB24: CELEB24, M24: M24, vibe: vibe, setCap: function (n) { FOOD_CAP = n; } };
 if (window.__dbg) window.__dbg.v23 = { BIG23: BIG23, CELEB: CELEB, celebSkip: celebSkip, phoneScreens: phoneScreens };
 if (window.__dbg) window.__dbg.v22 = { vickyGuards: vickyGuards, PHONE: PHONE, PHONE_DIFF: PHONE_DIFF, phoneEasy: phoneEasy, bot: { botTools: botTools, botBonus: botBonus, botBossFood: botBossFood, botPicky: botPicky, bossFeedable: bossFeedable, botAvoidLove: botAvoidLove, canReach: canReach, readyTool: readyTool } };
