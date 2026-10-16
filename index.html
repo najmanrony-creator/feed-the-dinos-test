@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 37
+  Feed the Dinos, Save the Sheep 38
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 37</title>
+<title>Feed the Dinos, Save the Sheep 38</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4223,7 +4223,7 @@ function drawToolTray(x0) {
   }
   // hanging name tag under the tray for the tool that is ready
   const rk = G.costume ? 'mrsdino' : readyTool();
-  if (rk && !(G.toolCard) && !(G.costume && state !== 'play')) {
+  if (rk && state !== 'play' && !(G.toolCard) && !G.costume) {   // v38: never during play
     const i = Math.max(0, TT.indexOf(rk)), cx = x0 + i * (sw + gp) + sw / 2;
     const label = G.costume ? 'Press F: take the costume off!' : 'Press F: ' + TOOLS[rk].title + '!';
     ctx.font = 'bold 13px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
@@ -8550,7 +8550,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 37', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 38', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   { const sR = PHONE.on && vis35() ? vis35().r - 14 : W - 14, sT = totalStars() + ' / ' + (LAST_LEVEL * 3); ctx.font = 'bold 20px "Segoe UI", "Trebuchet MS", Arial, sans-serif'; const sw = ctx.measureText(sT).width;
   drawStar(sR - sw - 20, 28, 13, true, true);
   txt(sT, sR, 29, 20, '#ffe27a', 'right', 'bold', true); }
@@ -17914,7 +17914,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v37';
+const GAME_VER = 'v38';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -21021,7 +21021,7 @@ function tutHand36(x, y, dir, t) {
   // Drawn pointing UP with the fingertip at (0, 0), then turned so the tip points at the target.
   const ang = dir === 'up' ? 0 : dir === 'left' ? -Math.PI / 2 : dir === 'right' ? Math.PI / 2 : Math.PI;
   ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.translate(0, push + 5);
-  const s = (PHONE.on ? 1.3 : 1.05) * (1 + pulse * 0.06); ctx.scale(s, s);
+  const s = (PHONE.on ? 1.95 : 1.05) * (1 + pulse * 0.06); ctx.scale(s, s); TUT36.handScale = PHONE.on ? 1.95 : 1.05;
   const OL = '#6b3a0e', g = ctx.createLinearGradient(-10, 0, 24, 0); g.addColorStop(0, '#ffe07a'); g.addColorStop(1, '#f6b53a');
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
   const part = function (px, py, w, h, r, sh) { rr(ctx, px, py, w, h, r); ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = OL; ctx.lineWidth = 2.4; ctx.stroke();
@@ -21042,11 +21042,11 @@ function tutBubble36(lines, ax, ay, dir) {
   const maxW = Math.min(PHONE.on ? 560 : 480, v.r - v.l - 40);
   let ls = [];
   lines.forEach(function (l) { if (!l) return; ls = ls.concat(wrapText(l, maxW - padX * 2, fl, 'bold')); });
-  ls = ls.slice(0, 3);
+  ls = ls.slice(0, 4);
   let w = 0; ctx.font = 'bold ' + fl + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
   ls.forEach(function (l) { w = Math.max(w, ctx.measureText(tr35(l)).width); });
   w = Math.ceil(w + padX * 2); const h = Math.ceil(ls.length * lh + padY * 2);
-  const gap = PHONE.on ? 62 : 52;
+  const gap = PHONE.on ? 104 : 52;   // v38: clears the 1.5x phone hand
   let x = ax - w / 2, y;
   if (dir === 'up') y = ay + gap; else if (dir === 'right') { x = ax - gap - w; y = ay - h / 2; } else if (dir === 'left') { x = ax + gap; y = ay - h / 2; } else y = ay - gap - h;
   const top = HUD_H + (PHONE.on ? 8 : 6), bot = (PHONE.on ? H - 70 : H - 40);
@@ -21073,10 +21073,12 @@ function drawTut36() {
   const c = s.cap(), lines = Array.isArray(c) ? c : [c];
   const blink = 0.8 + 0.2 * Math.sin(s.t * 9);
   ctx.globalAlpha = fade * blink;
-  tutHand36(s.p[0], s.p[1], s.dir, s.t);
+  // v38: the bigger phone hand must not reach into the top bar: a 'down' pointer near the top points up from below instead
+  const dir = s.dir === 'down' && s.p[1] - 56 * (TUT36.handScale || 1.3) < HUD_H + 6 ? 'up' : s.dir;
+  tutHand36(s.p[0], s.p[1], dir, s.t);
   ctx.globalAlpha = fade;
-  TUT36.drawing = true; try { TUT36.box = tutBubble36(lines, s.p[0], s.p[1], s.dir); } finally { TUT36.drawing = false; } TUT36.box.id = s.id;
-  TUT36.hand = { x: s.p[0], y: s.p[1], dir: s.dir };
+  TUT36.drawing = true; try { TUT36.box = tutBubble36(lines, s.p[0], s.p[1], dir); } finally { TUT36.drawing = false; } TUT36.box.id = s.id;
+  TUT36.hand = { x: s.p[0], y: s.p[1], dir: dir };
   ctx.restore();
 }
 // drawn after the banner and the boss bar (they come after the HUD), so nothing covers the bubble; a popup that would sit under it waits
@@ -21128,6 +21130,70 @@ drawSettingsPhone = function () {
 };
 function tutToClient36(x, y) { const rc = canvas.getBoundingClientRect(); return [rc.left + canvas.clientLeft + x / W * (canvas.clientWidth || W), rc.top + canvas.clientTop + y / H * (canvas.clientHeight || H)]; }
 if (window.__dbg) window.__dbg.v36 = { TUT36: TUT36, tutReset36: tutReset36, tutTick36: tutTick36, toClient: tutToClient36, toolBox: tutToolBox36, person: function (o) { return drawPerson27(o); } };
+
+// ================================================================ v38: a clean play screen
+// During play the only floating texts left are short impact words in capitals ('GULP!', 'CHOMP!', 'BOOM!'), '!' alerts and
+// +/- numbers. Hints, status lines ('Sheep lost (1/5)', 'X hatched!'), name tags, sheep/dino/dog chatter, tip banners and
+// tool hint cards are gone: teaching is done by the tutorial pointers (once each, game paused).
+var CLEAN38 = { dropped: [] };
+function keep38(t) { t = String(t); return /^[+-]?\d+$/.test(t) || /^[!?]+$/.test(t) || (/[A-Z]/.test(t) && t === t.toUpperCase()); }
+const popupV37c = popup;
+popup = function (x, y, text) {
+  if (state === 'play' && G && !G.attract && !keep38(text)) { if (CLEAN38.dropped.length < 200) CLEAN38.dropped.push(String(text)); return; }
+  return popupV37c.apply(this, arguments);
+};
+const nameTagV37c = nameTag;
+nameTag = function () { if (state === 'play' && !(G && G.attract) && !TUT36.drawing) return; return nameTagV37c.apply(this, arguments); };
+const drawFarmerLabelV37c = drawFarmerLabel;
+drawFarmerLabel = function () { if (state === 'play' && !(G && G.attract)) return; return drawFarmerLabelV37c.apply(this, arguments); };
+const updateV37c = update;
+update = function (dt) {
+  const r = updateV37c.apply(this, arguments);
+  if (state === 'play' && G && !G.attract) { if (G.notes) G.notes.length = 0; G.toolCard = null; G.tipT = 0; if (typeof FLYERS !== 'undefined') FLYERS.forEach(function (f) { f.baa = false; }); }
+  return r;
+};
+// whatever is left stays inside the visible, safe part of the screen (canvas crop, notch / home-indicator insets, side rail)
+const popupTextV37c = popupText;
+popupText = function (p, size) {
+  const v = vis35() || { l: 0, r: W };
+  let sz = BIG23.on ? Math.round(size * BIG23.pop) : size;
+  ctx.font = 'bold ' + sz + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+  const avail = v.r - v.l - 16; let w = ctx.measureText(tr35(String(p.text))).width;
+  if (w > avail) { size = size * avail / w; w = avail; }
+  const hw = w / 2 + 8, x0 = p.x; p.x = clamp(p.x, v.l + hw, Math.max(v.l + hw, v.r - hw));
+  try { return popupTextV37c(p, size); } finally { p.x = x0; }
+};
+if (window.__dbg) window.__dbg.v38 = { CLEAN38: CLEAN38, keep38: keep38 };
+// ---- mid-level announcement banners (new tool / character / rule) become tutorial pointers: hand + bubble, full pause, tap, once.
+// Kept as banners: the level start ('LEVEL n: place'), boss-wave starts and 'BOSS BEATEN!' / endless 'LEVEL n! +bonus' (start / end moments).
+function banKeep38(title) { return /^(LEVEL |BOSS WAVE |BOSS BEATEN)/.test(String(title)); }
+function banId38(title) { return 'ban-' + String(title).toLowerCase().replace(/[0-9]+/g, '#').replace(/[^a-z#]+/g, '-').replace(/^-|-$/g, ''); }
+function banAt38(title) {
+  const t = String(title);
+  const tool = Object.keys(TOOLS).find(function (k) { return TOOLS[k].title && t.indexOf(TOOLS[k].title) === 0; });
+  if (tool) { const b = tutToolBox36(tool); if (b) return { p: [b.x + b.w / 2, b.y + b.h], dir: 'up' }; }
+  if (/lamb/i.test(t)) { const s = (G.sheep || []).find(function (q) { return q.lamb || q.newborn; }); if (s) return { p: [s.x, s.y - 14], dir: 'down' }; }
+  if (/sheep|rams|sings/i.test(t)) { const s = (G.sheep || []).find(function (q) { return !q.saved && q.x > 40 && q.x < W - 40; }); if (s) return { p: [s.x, s.y - 14], dir: 'down' }; }
+  if (G.boss && G.boss.parts === undefined && G.boss.x !== undefined) return { p: [G.boss.x, Math.max(HUD_H + 60, (G.boss.y || PATH_Y) - 60)], dir: 'down' };
+  const h = tutNearDino36(); if (h) return { p: [h.x, h.y], dir: 'down' };
+  return { p: [W / 2, PATH_Y], dir: 'down' };
+}
+CLEAN38.banners = [];
+const showBannerV37c = showBanner;
+showBanner = function (title, sub) {
+  if (state !== 'play' || !G || G.attract || banKeep38(title)) return showBannerV37c.apply(this, arguments);
+  G.banner = { title: title, sub: sub, t: 99, dur: 0, gone38: true };   // callers may set G.banner.dur next: it stays expired, nothing is drawn
+  if (CLEAN38.banners.length < 100) CLEAN38.banners.push(String(title));
+  if (!tutOn36()) return;
+  const id = banId38(title), tool = Object.keys(TOOLS).some(function (k) { return TOOLS[k].title && String(title).indexOf(TOOLS[k].title) === 0; });
+  if (tool) return;   // tools already have their own pointer at the button ('tool-k')
+  const first = banAt38(title);
+  tutAdd36({ id: id, dur: 3, dir: first.dir, cap: function () { return [String(title), sub ? String(sub) : '']; },
+    at: function () { const a = banAt38(title); this.dir = a.dir; return a.p; } });
+};
+// the 'Nice try!' speech bubble (Mama ignoring the costume) is chatter: gone during play
+const drawNiceTryV37c = drawNiceTry;
+drawNiceTry = function () { if (state === 'play' && !(G && G.attract)) return; return drawNiceTryV37c.apply(this, arguments); };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
