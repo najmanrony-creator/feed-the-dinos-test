@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Feed the Dinos, Save the Sheep 36
+  Feed the Dinos, Save the Sheep 37
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Feed the Dinos, Save the Sheep 36</title>
+<title>Feed the Dinos, Save the Sheep 37</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -8550,7 +8550,7 @@ function drawMap() {
   ctx.fillStyle = hg; ctx.fillRect(0, 0, W, 56);
   ctx.fillStyle = 'rgba(200,150,80,0.6)'; ctx.fillRect(0, 54, W, 2);
   txt('ROBNER\'S FARM', 14, 20, 20, '#ffb347', 'left', 'bold', true);
-  txt('Feed the Dinos 36', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
+  txt('Feed the Dinos 37', 14, 41, 12, '#c8c8c0', 'left', 'bold', false);
   { const sR = PHONE.on && vis35() ? vis35().r - 14 : W - 14, sT = totalStars() + ' / ' + (LAST_LEVEL * 3); ctx.font = 'bold 20px "Segoe UI", "Trebuchet MS", Arial, sans-serif'; const sw = ctx.measureText(sT).width;
   drawStar(sR - sw - 20, 28, 13, true, true);
   txt(sT, sR, 29, 20, '#ffe27a', 'right', 'bold', true); }
@@ -17914,7 +17914,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v36';
+const GAME_VER = 'v37';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -19342,11 +19342,9 @@ function drawPerson27(o) {
   ctx.scale(P.h, P.h);
   ctx.translate(0, -hop);
   const lx = P.kid ? 3.1 : 3.5 * (P.wide || 1);
-  const r36s = typeof R36 !== 'undefined' && R36.on && P === PEOPLE27.robner ? 0.36 : 0.3;
-  hLeg27(-lx, -st * r36s + (tp >= 0 ? 0.05 : 0), true, P, P.kid);
-  hLeg27(lx, st * r36s, false, P, P.kid);
-  const r36w = typeof R36 !== 'undefined' && R36.on && (o.who || 'robner') === 'robner';
-  ctx.translate(0, crouch - (o.moving ? (r36w ? 1.5 * Math.cos(o.step) * Math.cos(o.step) : Math.abs(Math.cos(o.step)) * 1.5) : 0));
+  hLeg27(-lx, -st * 0.3 + (tp >= 0 ? 0.05 : 0), true, P, P.kid);
+  hLeg27(lx, st * 0.3, false, P, P.kid);
+  ctx.translate(0, crouch - (o.moving ? Math.abs(Math.cos(o.step)) * 1.5 : 0));
   const sw = q.sh, sy = HB28.top + 3.4, sa = st * 3;
   // arms hang from sloped shoulders to mid-thigh
   const rE = [sw + 2.9, -30.6], rH = [sw + 2.2, -19.6];
@@ -20869,78 +20867,6 @@ drawHUD = fitWrap35(drawHUD, 0);
 drawWoolGain = wrap34(drawWoolGain);
 
 Object.assign(I18N35.pt, {"Tap here to move Robner": "Toque aqui para mover o Robner", "Press ← → (or A / D) to move Robner": "Aperte ← → (ou A / D) para mover o Robner", "Tap here to throw food": "Toque aqui para jogar comida", "Press SPACE to throw food": "Aperte ESPAÇO para jogar comida", "Hit a dino on the head so it stops to eat": "Acerte a cabeça do dino para ele parar e comer", "Tap Vicky to call her!": "Toque na Vicky para chamá-la!", "Click Vicky (or press F) to call her!": "Clique na Vicky (ou aperte F) para chamá-la!", "Vicky chases the dinos away from the path": "A Vicky espanta os dinos do caminho", "Tap the costume to put it on!": "Toque na fantasia para vestir!", "Click the costume (or press F)!": "Clique na fantasia (ou aperte F)!", "The dinos fall in love. Don't let one kiss Robner!": "Os dinos se apaixonam. Não deixe nenhum beijar o Robner!", "Tap to throw the Faketeor!": "Toque para jogar o Meteoro Falso!", "Click (or press F) to throw the Faketeor!": "Clique (ou aperte F) para jogar o Meteoro Falso!", "Stand under the dinos: the BOOM scares them away": "Fique embaixo dos dinos: o BUM espanta todos!", "Tap the music box!": "Toque na caixinha de música!", "Click the music box (or press F)!": "Clique na caixinha de música (ou aperte F)!", "Every dino naps for a moment": "Todos os dinos tiram um cochilo", "Tap to put up the Scare-Dino!": "Toque para colocar o Espanta-Dino!", "Click (or press F) for the Scare-Dino!": "Clique (ou aperte F) no Espanta-Dino!", "Dinos keep away from the Scare-Dino": "Os dinos ficam longe do Espanta-Dino", "Tap to blow the whistle!": "Toque para soprar o apito!", "Click (or press F) to blow the whistle!": "Clique (ou aperte F) para soprar o apito!", "All the sheep sprint to the pen": "Todas as ovelhas correm para o cercado", "Big dino: it needs 2 pieces (or 1 Big Ham)": "Dino grandão: precisa de 2 pedaços (ou 1 Pernil)", "Feed it on the head!": "Jogue comida na cabeça dele!", "Eggs hatch new dinos!": "Dos ovos nascem dinos novos!", "Red ring: this dino is hungry. Feed it!": "Anel vermelho: este dino está com fome. Dê comida!", "Sheep are safe in the pen": "No cercado as ovelhas ficam seguras", "Boss! Feed it until this bar is empty": "Chefão! Alimente até esta barra esvaziar", "Replay tutorial": "Rever tutorial", "Tutorial reset!": "Tutorial reiniciado!", "Robner needs your help to save the sheep!": "O Robner precisa da sua ajuda para salvar as ovelhas!"});
-// ================================================================ v36: a more grown-up, more detailed Robner (same clothes, hat and colours)
-// Longer legs and torso, a smaller head on a real neck, broader shoulders tapering to the waist; a defined jaw, stronger brows,
-// cheek and jaw shading; side shading on the shirt; and a smooth walk (soft bob, longer stride, the body leaning into it).
-// Only Robner changes: Linette and Davey keep the v27 rig.
-var R36 = { on: true, hb: { hip: -28.4, top: -45.4, chin: -49.6 }, head: 0.69, w: 10.4, sh: 7.4, depth: 0 };
-function r36Is(P) { return R36.on && P === PEOPLE27.robner && R36.depth > 0; }
-const hProp28V35 = hProp28;
-hProp28 = function (P) { if (r36Is(P)) return { w: R36.w, sh: R36.sh, head: R36.head }; return hProp28V35(P); };
-const drawPerson27V35 = drawPerson27;
-drawPerson27 = function (o) {
-  if (!R36.on || (o.who || 'robner') !== 'robner') return drawPerson27V35.apply(this, arguments);
-  const save = { hip: HB28.hip, top: HB28.top, chin: HB28.chin };
-  Object.assign(HB28, R36.hb); R36.depth++;
-  ctx.save();
-  // lean a touch into the walk
-  if (o.moving) { ctx.rotate(0.035 * Math.sin(o.step) * 0.5 + 0.025); }
-  try { return drawPerson27V35.apply(this, arguments); }
-  finally { ctx.restore(); R36.depth--; Object.assign(HB28, save); }
-};
-// face: jawline, cheekbones, a stronger brow, a chin dimple
-const hHeadIn28V35 = hHeadIn28;
-hHeadIn28 = function (P, o) {
-  if (!r36Is(P)) return hHeadIn28V35.apply(this, arguments);
-  const cy = -49.5, rx = 6.6, ry = 7.7;
-  // a slightly longer, leaner face: stretch about the eyes
-  ctx.save(); ctx.translate(0, cy); ctx.scale(0.96, 1.06); ctx.translate(0, -cy);
-  const r = hHeadIn28V35.apply(this, arguments);
-  const ey = cy - 0.4, ex = 2.6;
-  ctx.save();
-  // jaw shadow along the jawline, a lit cheekbone, a chin dimple and the soft line from nose to mouth
-  ctx.strokeStyle = 'rgba(105,45,15,0.55)'; ctx.lineWidth = 0.65; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(-rx + 0.25, cy + 1.6); ctx.quadraticCurveTo(-rx * 0.62, cy + ry * 0.86, -1.4, cy + ry * 0.93); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(rx - 0.25, cy + 1.6); ctx.quadraticCurveTo(rx * 0.62, cy + ry * 0.86, 1.4, cy + ry * 0.93); ctx.stroke();
-  ctx.save(); ctx.beginPath(); ctx.moveTo(-rx, cy - 1); ctx.bezierCurveTo(-rx, cy - ry * 1.32, rx, cy - ry * 1.32, rx, cy - 1); ctx.bezierCurveTo(rx, cy + ry * 0.62, rx * 0.5, cy + ry * 0.92, 0, cy + ry * 0.92); ctx.bezierCurveTo(-rx * 0.5, cy + ry * 0.92, -rx, cy + ry * 0.62, -rx, cy - 1); ctx.clip();
-  ctx.fillStyle = 'rgba(120,52,20,0.12)'; ctx.beginPath(); ctx.ellipse(-rx * 0.66, cy + 3.6, 1.3, 2.6, 0.3, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.ellipse(rx * 0.66, cy + 3.6, 1.3, 2.6, -0.3, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-  ctx.strokeStyle = 'rgba(110,50,18,0.32)'; ctx.lineWidth = 0.4;
-  ctx.beginPath(); ctx.moveTo(-0.5, cy + ry * 0.86); ctx.quadraticCurveTo(0, cy + ry * 0.8, 0.5, cy + ry * 0.86); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-1.9, ey + 2.6); ctx.quadraticCurveTo(-2.7, ey + 3.8, -2.4, ey + 4.9); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(1.9, ey + 2.6); ctx.quadraticCurveTo(2.7, ey + 3.8, 2.4, ey + 4.9); ctx.stroke();
-  // stronger, slightly angled brows over the v27 ones (lifted when excited)
-  const lift = o && o.excited ? 0.9 : 0;
-  ctx.fillStyle = P.brows;
-  [-1, 1].forEach(function (sd) {
-    ctx.beginPath();
-    ctx.moveTo(sd * (ex + 1.9), ey - 2.0 - lift); ctx.quadraticCurveTo(sd * ex, ey - 3.6 - lift * 1.3, sd * (ex - 1.8), ey - 2.9 - lift);
-    ctx.lineTo(sd * (ex - 1.7), ey - 2.3 - lift); ctx.quadraticCurveTo(sd * ex, ey - 2.8 - lift * 1.3, sd * (ex + 1.9), ey - 2.0 - lift);
-    ctx.closePath(); ctx.fill();
-  });
-  // brow-ridge shade over the eyes
-  ctx.fillStyle = 'rgba(110,50,18,0.12)'; ell(ctx, 0, ey - 1.7, 5.2, 0.9); ctx.fill();
-  ctx.restore();
-  ctx.restore();
-  return r;
-};
-// shirt: light from the left, shade down the right side and under the chest; a little more shape in the shoulders
-const hTorso27V35 = hTorso27;
-hTorso27 = function (P, o) {
-  const r = hTorso27V35.apply(this, arguments);
-  if (!r36Is(P)) return r;
-  ctx.save(); hTorsoPath28(P); ctx.clip();
-  const t = HB28.top, b = HB28.hip, w = R36.w;
-  const g = ctx.createLinearGradient(-w, 0, w, 0); g.addColorStop(0, 'rgba(255,240,220,0.16)'); g.addColorStop(0.45, 'rgba(255,240,220,0)'); g.addColorStop(0.7, 'rgba(40,5,0,0)'); g.addColorStop(1, 'rgba(40,5,0,0.3)');
-  ctx.fillStyle = g; ctx.fillRect(-w - 2, t - 3, w * 2 + 4, b - t + 6);
-  ctx.fillStyle = 'rgba(40,5,0,0.16)'; ell(ctx, 0, t + (b - t) * 0.5, w * 0.9, 1.6); ctx.fill();          // under the chest
-  ctx.fillStyle = 'rgba(40,5,0,0.12)'; ctx.fillRect(-w - 2, b - 3.2, w * 2 + 4, 3.2);                       // above the belt
-  ctx.strokeStyle = 'rgba(40,5,0,0.22)'; ctx.lineWidth = 0.45;                                            // shoulder creases
-  ctx.beginPath(); ctx.moveTo(-w + 2, t + 3.6); ctx.quadraticCurveTo(-w * 0.55, t + 5.4, -w * 0.3, t + 4.4); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(w - 2, t + 3.6); ctx.quadraticCurveTo(w * 0.55, t + 5.4, w * 0.3, t + 4.4); ctx.stroke();
-  ctx.restore();
-  return r;
-};
-
 // ================================================================ v36: interactive tutorial (a pulsing pointing hand + a short caption)
 // Level 1: the hand points at the lane ("Tap here to move Robner") and the game waits until he walks; then at the field
 // ("Tap here to throw food") and waits for a throw. Later, the first time each tool shows up: its button, then where it works on
@@ -20958,8 +20884,19 @@ function tutAdd36(s) {
   if (TUT36.seen[s.id] || (TUT36.cur && TUT36.cur.id === s.id) || TUT36.q.some(function (q) { return q.id === s.id; })) return;
   TUT36.q.push(s);
 }
+// v37: taps and keys while a pointer is up (logical coordinates); the step machine reads them on the next frame
+TUT36.ev = null;
+function tutLog36(cx, cy) { const rc = canvas.getBoundingClientRect(); return [(cx - rc.left - canvas.clientLeft) / (canvas.clientWidth || W) * W, (cy - rc.top - canvas.clientTop) / (canvas.clientHeight || H) * H]; }
+function tutCap36(e) {
+  if (!TUT36.cur || !TUT36.cur.live || state !== 'play') return;
+  if (e.type === 'keydown') { const k = e.key || ''; TUT36.ev = { key: k, move: /^(ArrowLeft|ArrowRight|a|A|d|D)$/.test(k), fire: k === ' ' || k === 'Spacebar' || e.code === 'Space', tool: /^(f|F)$/.test(k) }; return; }
+  const t = e.changedTouches ? e.changedTouches[0] : e; if (!t) return;
+  const q = tutLog36(t.clientX, t.clientY), tgt = e.target, onBtn = !!(tgt && tgt.closest && tgt.closest('.pb'));
+  TUT36.ev = { tap: true, x: q[0], y: q[1], btn: onBtn, lane: !onBtn && q[1] >= LANE_TOP - 8, field: !onBtn && q[1] > HUD_H + 2 && q[1] < LANE_TOP - 8 };
+}
+['touchstart', 'mousedown', 'keydown'].forEach(function (ty) { window.addEventListener(ty, tutCap36, true); });
 function tutBanner36() { return !!(G.banner && G.banner.t < G.banner.dur); }
-function tutHolding36() { const c = TUT36.cur; return !!(c && c.block && (c.live || c.id === 'move' || c.id === 'throw')); }
+function tutHolding36() { return !!TUT36.cur; }   // v37: any pointer = the whole game waits
 // game units of a DOM element's centre / box
 function tutEl36(el) {
   if (!el || !el.getBoundingClientRect) return null;
@@ -20995,11 +20932,11 @@ function tutScan36() {
   if (G.level === 1 && !G.boss) {
     tutAdd36({ id: 'move', block: true, dir: 'down', cap: () => tutWord36('Tap here to move Robner', 'Press \u2190 \u2192 (or A / D) to move Robner'),
       start: function () { this.x0 = f.x; this.tx = f.x < W / 2 ? Math.min(W - 120, f.x + 230) : Math.max(120, f.x - 230); },
-      at: function () { return [this.tx, FARMER_Y - 34]; }, done: function () { return Math.abs(f.x - this.x0) > 60; } });
+      at: function () { return [this.tx, FARMER_Y - 34]; }, done: function (e) { return !!(e && (e.move || (e.tap && e.lane))); } });
     tutAdd36({ id: 'throw', block: true, dir: 'down', cap: () => tutWord36('Tap here to throw food', 'Press SPACE to throw food'),
       start: function () { this.n0 = G.stats.throws; const h = tutNearDino36(); this.p = h ? [h.x, h.y] : [clamp(f.x, 160, W - 220), PATH_Y - 40]; },
-      at: function () { const h = tutNearDino36(this.p[0]); if (h && Math.abs(h.x - this.p[0]) < 80) this.p = [h.x, h.y]; return PHONE.on ? this.p : [f.x, FARMER_Y - 100]; },
-      done: function () { return G.stats.throws > this.n0; } });
+      at: function () { const h = tutNearDino36(this.p[0]); if (h && Math.abs(h.x - this.p[0]) < 80) this.p = [h.x, h.y]; return PHONE.on ? this.p : [f.x, FARMER_Y - 112]; /* desktop: just above Robner's hat (v35 size) */ },
+      done: function (e) { return !!(e && (e.fire || (e.tap && e.field))); } });
     tutAdd36({ id: 'aim', dur: 3.2, dir: 'down', cap: () => 'Hit a dino on the head so it stops to eat', at: function () { const h = tutNearDino36(); return h ? [h.x, h.y] : null; } });
   }
   // tools: the first time each one is ready
@@ -21055,19 +20992,17 @@ function tutTick36(dt) {
   if (G.announce || G.toolCard || tutBanner36()) return;   // waits (and hides) while a card or banner is up
   s.t += dt;
   const p = s.at && s.at();
-  if (!p) { s.gone += dt; if (s.gone > (s.block ? 6 : 0.6)) { if (!s.block && s.t > 1.2) TUT36.seen[s.id] = 1; tutSave36(); TUT36.cur = null; } return; }   // the target left: done if it was shown long enough, else it comes back later
+  if (!p) { s.gone += dt; if (s.gone > (s.block ? 6 : 0.6)) { TUT36.cur = null; } return; }   // the target left: done if it was shown long enough, else it comes back later
+  if (!s.live) TUT36.ev = null;   // only taps made while the hand shows count
   s.gone = 0; s.live = true; s.p = p;
-  if (s.block ? s.done() && s.t > 0.35 : s.t >= (s.dur || 3)) { TUT36.seen[s.id] = 1; tutSave36(); TUT36.log.push(s.id); TUT36.cur = null; }
+  const ev = TUT36.ev; TUT36.ev = null;
+  if (s.block ? s.done(ev) : !!ev) { TUT36.seen[s.id] = 1; tutSave36(); TUT36.log.push(s.id); TUT36.cur = null; TUT36.box = null; TUT36.hand = null; }
 }
 // while a blocking step waits, the world holds still: Robner can walk and throw, nothing else moves
 function tutHoldUpdate36(dt) {
-  animT += dt;
-  G.msgT = Math.max(0, G.msgT - dt);
-  updateFarmer(dt); updateMeats(dt);
-  G.dinos.forEach(function (d) { d.anim += dt; d.appear = Math.max(0, (d.appear || 0) - dt); });
-  updateParticles(dt); updatePopups(dt);
-  if (G.banner) { G.banner.t += dt; if (G.banner.t > G.banner.dur) G.banner = null; }
-  if (typeof tickV18 === 'function') tickV18(dt);   // phone body classes (the tool row shows), lives
+  // v37: fully paused while a pointer shows: no world time, no animation clock, no timers
+  if (G.banner) { G.banner.t += dt; if (G.banner.t > G.banner.dur) G.banner = null; }   // a banner already up still finishes (the pointer waits for it)
+  if (typeof tickV18 === 'function') tickV18(0);   // phone body classes (the tool row stays visible); dt 0 = no timers run
 }
 const updateV35t = update;
 update = function (dt) {
@@ -21079,23 +21014,25 @@ update = function (dt) {
 // ---- drawing: a cartoon pointing hand (white glove), pulsing, with ripples where it points, and a cream caption bubble
 function tutHand36(x, y, dir, t) {
   const pulse = 0.5 + 0.5 * Math.sin(t * 7), push = Math.max(0, Math.sin(t * 7)) * 7;
-  // ripples at the tip
+  // ripples at the fingertip
   for (let i = 0; i < 2; i++) { const u = ((t * 1.3 + i * 0.5) % 1); ctx.strokeStyle = 'rgba(255,255,255,' + (0.85 * (1 - u)).toFixed(3) + ')'; ctx.lineWidth = 3.5 * (1 - u) + 1;
     ctx.beginPath(); ctx.arc(x, y, 8 + u * 30, 0, Math.PI * 2); ctx.stroke(); }
-  const ang = dir === 'up' ? Math.PI : dir === 'left' ? Math.PI / 2 : dir === 'right' ? -Math.PI / 2 : 0;   // the finger points along +y by default (down)
-  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.translate(0, -push - 6);
-  const s = (PHONE.on ? 1.25 : 1) * (1 + pulse * 0.06); ctx.scale(s, s);
-  ctx.shadowColor = 'rgba(30,20,10,0.45)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
-  ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#3a2a1a'; ctx.lineWidth = 2.6; ctx.lineJoin = 'round';
-  ctx.beginPath();
-  // index finger (pointing at 0,0), then the fist
-  ctx.moveTo(-5, -4); ctx.quadraticCurveTo(-5.5, 0, 0, 0); ctx.quadraticCurveTo(5.5, 0, 5, -4); ctx.lineTo(5, -24);
-  ctx.quadraticCurveTo(14, -27, 18, -22); ctx.quadraticCurveTo(22, -19, 21, -12); ctx.quadraticCurveTo(25, -10, 24, -3);
-  ctx.quadraticCurveTo(28, 2, 23, 10); ctx.quadraticCurveTo(20, 22, 6, 24); ctx.lineTo(-10, 24); ctx.quadraticCurveTo(-18, 18, -16, 6);
-  ctx.quadraticCurveTo(-18, -4, -13, -10); ctx.quadraticCurveTo(-9, -14, -5, -13); ctx.closePath();
-  ctx.fill(); ctx.shadowColor = 'transparent'; ctx.stroke();
-  ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(5, -15); ctx.quadraticCurveTo(12, -16, 18, -13); ctx.moveTo(6, -6); ctx.quadraticCurveTo(14, -6, 22, -4); ctx.moveTo(-5, -13); ctx.lineTo(-5, -4); ctx.stroke();
-  ctx.fillStyle = '#f0c9a0'; rr(ctx, -12, 24, 20, 7, 3); ctx.fill(); ctx.stroke();   // the cuff
+  // v37: a classic pointing hand (like the emoji): closed fist, index finger out, thumb across the front, bold outline, warm yellow.
+  // Drawn pointing UP with the fingertip at (0, 0), then turned so the tip points at the target.
+  const ang = dir === 'up' ? 0 : dir === 'left' ? -Math.PI / 2 : dir === 'right' ? Math.PI / 2 : Math.PI;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.translate(0, push + 5);
+  const s = (PHONE.on ? 1.3 : 1.05) * (1 + pulse * 0.06); ctx.scale(s, s);
+  const OL = '#6b3a0e', g = ctx.createLinearGradient(-10, 0, 24, 0); g.addColorStop(0, '#ffe07a'); g.addColorStop(1, '#f6b53a');
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  const part = function (px, py, w, h, r, sh) { rr(ctx, px, py, w, h, r); ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = OL; ctx.lineWidth = 2.4; ctx.stroke();
+    if (sh) { ctx.fillStyle = 'rgba(160,80,10,0.18)'; rr(ctx, px + w * 0.58, py + 3, w * 0.34, h - 6, Math.min(r * 0.7, w * 0.17)); ctx.fill(); } };
+  ctx.save(); ctx.translate(2.5, 3); ctx.fillStyle = 'rgba(30,20,8,0.28)'; rr(ctx, -6, 0, 12, 34, 6); ctx.fill(); rr(ctx, -10, 21, 33, 29, 10); ctx.fill(); ctx.restore();   // drop shadow
+  part(-10, 21, 33, 28, 10, true);                                                            // the fist
+  part(4.5, 18.5, 7, 12, 3.5); part(10.8, 19.5, 7, 12, 3.5); part(16.8, 21.5, 6.4, 11, 3.2);   // three curled fingers
+  part(-6, 0, 12, 36, 6, true);                                                               // the index finger
+  ctx.fillStyle = 'rgba(255,250,235,0.85)'; rr(ctx, -3.2, 2.2, 6.4, 6.5, 3); ctx.fill();      // fingernail
+  ctx.strokeStyle = 'rgba(107,58,14,0.55)'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(-3.5, 17); ctx.quadraticCurveTo(0, 18.5, 3.5, 17); ctx.stroke();   // knuckle crease
+  ctx.save(); ctx.translate(-2, 37); ctx.rotate(-0.28); part(-10, -5, 21, 10, 5); ctx.restore();   // the thumb across the front
   ctx.restore();
 }
 // caption bubble: wraps to 2 lines max, never under the HUD, the phone buttons or off screen; returns its box
@@ -21130,11 +21067,11 @@ function tutBubble36(lines, ax, ay, dir) {
 function drawTut36() {
   const s = TUT36.cur; TUT36.hand = null;
   if (!s || !s.live || !s.p || state !== 'play' || paused || G.announce || G.toolCard || tutBanner36()) { TUT36.box = null; return; }
-  const fade = clamp(s.t / 0.25, 0, 1) * (s.block ? 1 : clamp(((s.dur || 3) - s.t) / 0.3, 0, 1));
+  const fade = clamp(s.t / 0.25, 0, 1);
   ctx.save(); ctx.globalAlpha = fade;
-  if (s.block) { ctx.fillStyle = 'rgba(10,8,4,0.18)'; ctx.fillRect(0, HUD_H, W, H - HUD_H); }
+  ctx.fillStyle = 'rgba(10,8,4,0.18)'; ctx.fillRect(0, HUD_H, W, H - HUD_H);
   const c = s.cap(), lines = Array.isArray(c) ? c : [c];
-  const blink = s.block ? 1 : 0.75 + 0.25 * Math.sin(s.t * 9);
+  const blink = 0.8 + 0.2 * Math.sin(s.t * 9);
   ctx.globalAlpha = fade * blink;
   tutHand36(s.p[0], s.p[1], s.dir, s.t);
   ctx.globalAlpha = fade;
@@ -21190,7 +21127,7 @@ drawSettingsPhone = function () {
   return r;
 };
 function tutToClient36(x, y) { const rc = canvas.getBoundingClientRect(); return [rc.left + canvas.clientLeft + x / W * (canvas.clientWidth || W), rc.top + canvas.clientTop + y / H * (canvas.clientHeight || H)]; }
-if (window.__dbg) window.__dbg.v36 = { TUT36: TUT36, tutReset36: tutReset36, tutTick36: tutTick36, toClient: tutToClient36, toolBox: tutToolBox36, R36: R36, person: function (o) { return drawPerson27(o); } };
+if (window.__dbg) window.__dbg.v36 = { TUT36: TUT36, tutReset36: tutReset36, tutTick36: tutTick36, toClient: tutToClient36, toolBox: tutToolBox36, person: function (o) { return drawPerson27(o); } };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
