@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 47
+  Sheep vs. Dinos 48
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 47</title>
+<title>Sheep vs. Dinos 48</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -8484,17 +8484,7 @@ function buildMapBG() {
   segs.slice(10, 14).forEach(function (pts) { pts.forEach(function (p) { if (Math.abs(p[1] - MAP_SHIFT - riverY(p[0])) < 15) { b.fillStyle = '#8a5a30'; b.fillRect(p[0] - 3, p[1] - 10, 5, 20); b.fillStyle = '#b07a44'; b.fillRect(p[0] - 2, p[1] - 9, 3, 18); } }); });
   // a log over the stream in area 6
   segs.slice(26, 29).forEach(function (pts) { pts.forEach(function (p) { if (Math.abs(p[0] - (560 + (p[1] - 920) * 0.25)) < 9 && p[1] > 970) { b.fillStyle = '#6a4424'; b.fillRect(p[0] - 4, p[1] - 6, 8, 12); } }); });
-  // area name signs
-  AREAS.forEach(function (A, i) {
-    const y = MAP_BANDS[i][0] + 8, label = (i + 1) + '. ' + A.name;
-    const big = phoneBig(), fs = big ? 18 : 13, lh = big ? 27 : 20;
-    b.font = 'bold ' + fs + 'px "Segoe UI", Arial, sans-serif';
-    const w = b.measureText(label).width + 20;
-    b.fillStyle = 'rgba(40,25,10,0.35)'; rr(b, 10, y + 2, w, lh, 6); b.fill();
-    b.fillStyle = '#8a5a30'; rr(b, 8, y, w, lh, 6); b.fill();
-    b.strokeStyle = '#4a2c10'; b.lineWidth = 1.2; b.stroke();
-    b.fillStyle = A.col; b.textAlign = 'left'; b.textBaseline = 'middle'; b.fillText(label, 18, y + lh / 2 + 0.5);
-  });
+  // v48: no area name signs anywhere on the map
   MAP.bg = c; MAP.bgDpr = dpr;
 }
 function mapPos(i) { return MAP_PTS[i - 1]; }
@@ -17909,7 +17899,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v47';
+const GAME_VER = 'v48';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20780,7 +20770,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 47'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 48'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -22930,6 +22920,28 @@ drawVicky = function (v, s) {
   return drawVickyV47.apply(this, arguments);
 };
 if (window.__dbg) window.__dbg.v47 = { COL47: COL47 };
+
+// ================================================================ v48: map back to 3 areas per screen (the v43 zoom),
+// and area name signs deleted completely (the baked-in background ones are removed by patch48, the
+// pinned ones are switched off here). Vertical-only scrolling and the left controls column stay.
+// ---------- no area signs, ever
+signs46 = function () { /* v48: no area name signs on the map */ };
+mapStickySigns = function () { /* v48: none */ };
+// ---------- zoom out to 3 areas per screen, and re-fit the path for the new zoom
+MAPZ.z = 1.45;
+(function () {
+  // v47 left each point at a47 + (orig - 100) * f47 (orig = the map's original x); undo that, then
+  // squeeze for the new zoom, keeping the path between the left column and the right edge.
+  const zOld = 2.05, z = MAPZ.z;
+  const a47 = 205 / zOld, f47 = ((W - 24) / zOld - a47) / 700;
+  const a = 205 / z, f = ((W - 24) / z - a) / 700;
+  MAP_PTS.forEach(function (p) {
+    const orig = 100 + (p[0] - a47) / f47;
+    p[0] = a + (orig - 100) * f;
+  });
+  MAP.segs = null; try { buildMapBG(); } catch (e) { MAP.bg = null; }
+})();
+if (window.__dbg) window.__dbg.v48 = { signsOff: true };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
