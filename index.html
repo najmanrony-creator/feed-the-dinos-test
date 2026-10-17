@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 40
+  Sheep vs. Dinos 41
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 40</title>
+<title>Sheep vs. Dinos 41</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -16990,9 +16990,9 @@ function wideBuildStrip(side, x0, x1, scale, SP) {
   const green = mid[1] > mid[0] + 12 && mid[1] > mid[2] + 8;
   if (green) wideShrubs(g, R, x0, x1, side);
   if (side < 0) { g.save(); drawBarn(g, mulberry(7)); g.restore(); }
-  wideFence(g, R, x0, x1, side);
   if (green) { g.save(); wideSeamDeco(g, side, SP); g.restore(); }
   wideApplyRatio(cv, scale, ratio);
+  wideFence(g, R, x0, x1, side);   // v41: after the colour transfer, so it keeps its own wood colour
   // the top band: the field's own top edge, mirrored tile by tile away from the seam (seamless by construction), fading
   // into the grass below. On the right only a narrow tile is used so the pen sign never gets copied.
   const T = side < 0 ? 90 : 34, bh = WIDE_TOP;
@@ -17907,7 +17907,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v40';
+const GAME_VER = 'v41';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20778,7 +20778,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 40'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 41'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -21296,6 +21296,49 @@ drawFlockSheep = function (s) {
   try { return drawFlockSheepV38b.apply(this, arguments); } finally { ctx.restore(); }
 };
 if (window.__dbg) window.__dbg.v39b = { BARN39: BARN39, door: barnDoor39, info: function () { return { ai: typeof aiOn30 === 'function' ? aiOn30() : 'na', spot: SPOT && SPOT.key, area1: !!(AREA1_30 && AREA1_30[SPOT.key]), py34: pathY(34) }; } };
+
+// ---- v41 clean screen: no lowercase floating boss labels ('protective', 'feed me!', 'frozen: feed me now!', ...),
+// and the boss bars show only the name + the hunger bar(s) (no hint / status line under them)
+const tag31V41 = tag31;
+tag31 = function (x, y, text, fs) { if (/[a-z]/.test(String(text))) return null; return tag31V41.apply(this, arguments); };
+const BAR41 = { on: false, bot: 0, h: 0, px: 0 };
+const txtV41 = txt;
+txt = function (t, x, y, size, color, align) {
+  if (BAR41.on) {
+    const s = String(t);
+    if (s === 'Wants:') return;
+    if ((align === 'center' || align === undefined) && y > UI_TOP + 15 && /[a-z]/.test(s)) return;   // a hint / status line
+  } else if (state === 'play' && (t === 'Feed it!' || t === 'shake...')) return;   // old floating labels (carried food, Woolly shaking)
+  return txtV41.apply(this, arguments);
+};
+const hungerBarV41 = hungerBar;
+hungerBar = function (x, y, w, f) { if (BAR41.on) BAR41.bot = Math.max(BAR41.bot, y + 13); return hungerBarV41.apply(this, arguments); };
+const rrV41 = rr;
+rr = function (c, x, y, w, h, r) {
+  if (BAR41.on && c === ctx) {
+    if (y === UI_TOP && w === 316 && h > 30) { BAR41.px = x; if (BAR41.h) h = BAR41.h; }
+    else if (h <= 13 && y > UI_TOP + 15) BAR41.bot = Math.max(BAR41.bot, y + h);
+  }
+  return rrV41.call(this, c, x, y, w, h, r);
+};
+const drawBossBarV41 = drawBossBar;
+drawBossBar = function () {
+  const b = G && G.boss;
+  if (!b) return drawBossBarV41.apply(this, arguments);
+  BAR41.on = true; BAR41.bot = 0;
+  ctx.save();
+  if (BAR41.h) { ctx.beginPath(); ctx.rect(0, 0, W, UI_TOP + BAR41.h + 1); ctx.clip(); }
+  try { return drawBossBarV41.apply(this, arguments); }
+  finally {
+    ctx.restore(); BAR41.on = false;
+    BAR41.h = BAR41.bot > UI_TOP ? Math.ceil(BAR41.bot - UI_TOP + 8) : 0;
+  }
+};
+const bossBarHV41 = bossBarH;
+bossBarH = function () { return BAR41.h || bossBarHV41(); };
+// the floating dino name tags (desktop) are gone in play too, like on the phone
+const drawDinoLabelV41 = drawDinoLabel;
+drawDinoLabel = function (d) { if ((state === 'play' || state === 'over' || state === 'won') && !(G && G.attract)) return; return drawDinoLabelV41.apply(this, arguments); };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
