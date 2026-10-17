@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 44
+  Sheep vs. Dinos 45
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 44</title>
+<title>Sheep vs. Dinos 45</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17909,7 +17909,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v44';
+const GAME_VER = 'v45';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20780,7 +20780,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 44'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 45'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -22372,6 +22372,261 @@ drawGearBtn = function () { const r = drawGearBtnV44.apply(this, arguments); if 
 Object.assign(I18N35.pt, { 'Your tools:': 'Suas ferramentas:', 'pick up to # \u2022 1-#': 'escolha at\u00e9 # \u2022 1-#', 'Free tool! Pick one:': 'Ferramenta gr\u00e1tis! Escolha uma:', 'pick up to #': 'escolha at\u00e9 #', 'Spring Meadow': 'Prado da Primavera' });
 window.__picker44 = true;
 if (window.__dbg) window.__dbg.v44 = { REW44: REW44, slots44: slots44, AREAS44: AREAS44, saveRew44: saveRew44, grantIntro44: grantIntro44, winLevel: winLevel, beginLevel: beginLevel, toggleBring: toggleBring, useExtra: useExtra, extraBlocked: extraBlocked };
+
+// ================================================================ v45: the briefing, Level Complete and lose screens redrawn in the
+// v43/v44 wooden look (wood-framed cream panels, plank / ribbon signs, glossy buttons, Lilita One + Nunito).
+// Same words, same buttons, same picker bar - only the drawing changed. Drawn in mockup px like the shop (frame43).
+function panel45(x, y, w, h) {
+  if (window.__panels) { const m = ctx.getTransform(), s = m.a / dpr; window.__panels.push([(m.a * x + m.e) / dpr, (m.d * y + m.f) / dpr, w * s, h * s, 'panel45']); }
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.35)'; rr(ctx, x, y + 4, w, h, 16); ctx.fill();
+  ctx.fillStyle = grad43(y, y + h, '#9a6530', '#6b3d18'); rr(ctx, x, y, w, h, 16); ctx.fill();
+  ctx.save(); rr(ctx, x, y, w, h, 16); ctx.clip();
+  ctx.strokeStyle = 'rgba(60,30,8,0.35)'; ctx.lineWidth = 2;
+  for (let px = x + 44; px < x + w; px += 46) { ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px, y + h); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(255,230,190,0.20)'; ctx.fillRect(x, y, w, 5);
+  ctx.restore();
+  ctx.strokeStyle = '#3a200a'; ctx.lineWidth = 3; rr(ctx, x, y, w, h, 16); ctx.stroke();
+  ctx.fillStyle = grad43(y + 9, y + h - 9, '#fffaf0', '#f3e0b8'); rr(ctx, x + 9, y + 9, w - 18, h - 18, 11); ctx.fill();
+  ctx.strokeStyle = 'rgba(122,74,30,0.55)'; ctx.lineWidth = 1.5; rr(ctx, x + 9, y + 9, w - 18, h - 18, 11); ctx.stroke();
+  [[x + 16, y + 16], [x + w - 16, y + 16], [x + 16, y + h - 16], [x + w - 16, y + h - 16]].forEach(function (p) {
+    ctx.fillStyle = '#c9ccd0'; ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#4a4e54'; ctx.lineWidth = 1.2; ctx.stroke();
+  });
+  ctx.restore();
+}
+function plank45(cx, y, w, text, fs) {
+  const x = cx - w / 2, h = 44;
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.35)'; rr(ctx, x, y + 3, w, h, 8); ctx.fill();
+  ctx.fillStyle = grad43(y, y + h, '#d79a5a', '#9a5f2c'); rr(ctx, x, y, w, h, 8); ctx.fill();
+  ctx.save(); rr(ctx, x, y, w, h, 8); ctx.clip(); ctx.fillStyle = 'rgba(255,230,190,0.35)'; ctx.fillRect(x, y, w, 4); ctx.restore();
+  ctx.strokeStyle = '#5e3415'; ctx.lineWidth = 3; rr(ctx, x, y, w, h, 8); ctx.stroke();
+  [x + 10, x + w - 24].forEach(function (bx) { const g = ctx.createLinearGradient(bx, 0, bx + 14, 0); g.addColorStop(0, '#c9ccd0'); g.addColorStop(1, '#8a8f96'); ctx.fillStyle = g; rr(ctx, bx, y + 8, 14, 28, 4); ctx.fill(); ctx.strokeStyle = '#4a4e54'; ctx.lineWidth = 1.5; rr(ctx, bx, y + 8, 14, 28, 4); ctx.stroke(); });
+  ctx.restore();
+  t43(text, cx, y + h / 2 + 2, fit43(text, w - 64, fs, true, 18), '#6a3a12', 'center', true, 'rgba(255,230,190,0.7)');
+}
+function ribbon45(cx, y, w, text, fs) {
+  const x = cx - w / 2, h = 42;
+  ctx.save();
+  [[-1, x - 20], [1, x + w - 10]].forEach(function (q) {
+    const d = q[0], bx = q[1];
+    ctx.fillStyle = '#9a2a18'; ctx.beginPath();
+    if (d < 0) { ctx.moveTo(bx, y + 10); ctx.lineTo(bx + 30, y + 10); ctx.lineTo(bx + 30, y + h + 4); ctx.lineTo(bx, y + h + 4); ctx.lineTo(bx + 9, y + h / 2 + 2); }
+    else { ctx.moveTo(bx, y + 10); ctx.lineTo(bx + 30, y + 10); ctx.lineTo(bx + 21, y + h / 2 + 2); ctx.lineTo(bx + 30, y + h + 4); ctx.lineTo(bx, y + h + 4); }
+    ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#6a1a0e'; ctx.lineWidth = 2.5; ctx.stroke();
+  });
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; rr(ctx, x, y + 3, w, h, 8); ctx.fill();
+  ctx.fillStyle = grad43(y, y + h, '#e2533b', '#a8281a'); rr(ctx, x, y, w, h, 8); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.25)'; rr(ctx, x + 6, y + 4, w - 12, 10, 5); ctx.fill();
+  ctx.strokeStyle = '#6a1a0e'; ctx.lineWidth = 3; rr(ctx, x, y, w, h, 8); ctx.stroke();
+  ctx.restore();
+  t43(text, cx, y + h / 2 + 2, fit43(text, w - 36, fs, true, 18), '#ffffff', 'center', true, 'rgba(0,0,0,0.45)');
+}
+function btn45(label, x, y, w, h, act, primary) {
+  const c = primary ? GL43.green : GL43.light;
+  gloss43(x, y, w, h, Math.min(14, h * 0.32), c[0], c[1], primary ? 'rgba(20,60,10,0.6)' : '#7a4a1e');
+  t43(label, x + w / 2, y + h / 2 + 1, fit43(label, w - 18, Math.min(21, h * 0.48), true, 16.5), primary ? '#ffffff' : '#5a2e0e', 'center', true, primary ? 'rgba(0,0,0,0.4)' : null);
+  const m = ctx.getTransform(), bs = m.a / dpr;
+  UI_BTNS.push({ x: (m.a * x + m.e) / dpr, y: (m.d * y + m.f) / dpr, w: w * bs, h: h * bs, act: act, label: label });
+}
+function dekey45(s) { return String(s).replace(/^(ESC|ENTER|R)\s+/, ''); }
+function wrap45(text, maxW, fs, head) {
+  const words = String(tr35(text)).split(/\s+/), lines = []; let cur = '';
+  words.forEach(function (wd) { const t = cur ? cur + ' ' + wd : wd; if (tw43(t, fs, head) > maxW && cur) { lines.push(cur); cur = wd; } else cur = t; });
+  if (cur) lines.push(cur);
+  return lines;
+}
+function dim45() { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = 'rgba(20,14,6,0.48)'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore(); }
+function starsRow45(cx, y, n, have, R) {
+  for (let i = 0; i < n; i++) {
+    const x = cx + (i - (n - 1) / 2) * (R * 2 + 3);
+    if (have) star43(x, y, R, '#ffd04a');
+    else { ctx.save(); ctx.globalAlpha = 0.35; star43(x, y, R, '#cbb98f'); ctx.restore(); }
+  }
+}
+// ---------------------------------------------------------------- the briefing
+function drawBrief45() {
+  const L = G.cfg, t = G.briefT, f = frame43(), K = f.K;
+  const wasSkin = SKIN34.on; SKIN34.on = false;
+  dim45();
+  const pw = Math.min(f.Wm - 20, 660), ph = Math.min(f.Hm - 44, 400), px = (f.Wm - pw) / 2, py = Math.max(6, (f.Hm - 44 - ph) / 2);
+  const kk = easeOutBack(clamp(t / 0.35, 0, 1));
+  ctx.save(); ctx.scale(K, K); ctx.translate(f.Wm / 2, py + ph / 2); ctx.scale(kk, kk); ctx.translate(-f.Wm / 2, -(py + ph / 2));
+  try {
+    panel45(px, py, pw, ph);
+    plank45(f.Wm / 2, py - 12, Math.min(320, pw - 140), 'LEVEL ' + L.n, 28);
+    // area pill
+    const area = 'Area ' + (L.area + 1) + ': ' + AREAS[L.area].name, aw = tw43(area, 16.5) + 38;
+    ctx.save(); ctx.fillStyle = AREAS[L.area].col; rr(ctx, f.Wm / 2 - aw / 2, py + 36, aw, 25, 12.5); ctx.fill();
+    ctx.strokeStyle = 'rgba(60,40,10,0.5)'; ctx.lineWidth = 1.5; rr(ctx, f.Wm / 2 - aw / 2, py + 36, aw, 25, 12.5); ctx.stroke(); ctx.restore();
+    t43(area, f.Wm / 2, py + 49.5, fit43(area, aw - 16, 16.5, false, 16.5), '#1d2a18', 'center', false);
+    t43(L.place, f.Wm / 2 - 90, py + 74, fit43(L.place, pw - 330, 23, true, 18), '#5a2e0e', 'center', true);
+    t43('"' + L.title + '"', f.Wm / 2 + (pw / 2 - 150), py + 74, fit43('"' + L.title + '"', 240, 16.5, false, 16.5), '#8a6a42', 'right', false);
+    // columns: picture + tip (left), goal / news / stars (right)
+    const lx = px + 22, lw = pw * 0.56, rx = px + pw * 0.60, rw = pw - (rx - px) - 22, y0 = py + 88;
+    ctx.save();
+    const picH = 72;
+    const sky = ctx.createLinearGradient(0, y0, 0, y0 + picH);
+    sky.addColorStop(0, L.spot === 'night' ? '#2a3a6a' : '#bfe6ff'); sky.addColorStop(0.62, L.spot === 'night' ? '#4a5a8a' : '#e3f4ff');
+    sky.addColorStop(0.63, L.area === 1 ? '#c8a848' : '#79b85a'); sky.addColorStop(1, L.area === 1 ? '#a8882a' : '#5a9a42');
+    if (L.spot === 'storm') { sky.addColorStop(0, '#2a3050'); sky.addColorStop(0.62, '#4a5070'); }
+    ctx.fillStyle = sky; rr(ctx, lx, y0, lw, picH, 10); ctx.fill();
+    ctx.save(); rr(ctx, lx, y0, lw, picH, 10); ctx.clip();
+    if (L.boss) drawBossPicture(L, y0 - 54, picH + 54);
+    else {
+      const list = L.dinos.map(function (k) { return L.herb && HERB_MAP[k] ? HERB_MAP[k] : k; }).filter(function (k, i, a) { return a.indexOf(k) === i; });
+      const n = list.length, cw = (lw - 14) / n;
+      list.forEach(function (key, i) { drawDinoPicture(TYPES[key], lx + 7 + cw * (i + 0.5), y0 + picH - 10, cw - 10, picH - 20, animT + i * 1.3); });
+      if (L.goal.type === 'lamb') drawSheep({ x: lx + lw - 40, y: y0 + picH - 10, phase: animT * 10 }, 0.6, -1, true);
+    }
+    ctx.restore();
+    ctx.strokeStyle = '#6a3a12'; ctx.lineWidth = 2.5; rr(ctx, lx, y0, lw, picH, 10); ctx.stroke();
+    ctx.restore();
+    if (L.newDino) { ctx.save(); ctx.fillStyle = '#e8473a'; rr(ctx, lx + 8, y0 + 8, 104, 25, 12.5); ctx.fill(); ctx.restore(); t43('NEW DINO!', lx + 60, y0 + 21, 16.5, '#ffffff', 'center', true, 'rgba(0,0,0,0.35)'); }
+    drawVegBadge(L, lx + lw / 2, y0 + picH - 16);
+    wrap45(L.tip, lw - 6, 16.5).slice(0, 3).forEach(function (l, i) { t43(l, lx + lw / 2, y0 + picH + 18 + i * 19, fit43(l, lw - 6, 16.5, false, 16.5), '#6a4a28', 'center', false); });
+    // right column
+    ctx.save(); ctx.strokeStyle = 'rgba(122,74,30,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(rx - 12, y0 + 4); ctx.lineTo(rx - 12, py + ph - 72); ctx.stroke(); ctx.restore();
+    t43('GOAL', rx + rw / 2, y0 + 8, 17, '#a86a10', 'center', true);
+    wrap45(goalText(L), rw, 19, true).slice(0, 2).forEach(function (l, i) { t43(l, rx + rw / 2, y0 + 30 + i * 22, fit43(l, rw, 19, true, 16.5), '#7a4a08', 'center', true); });
+    let yy = y0 + 74;
+    wrap45(L.news, rw, 16.5).slice(0, 2).forEach(function (l, i) { t43(l, rx + rw / 2, yy + i * 19, fit43(l, rw, 16.5, false, 16.5), '#2a6a9a', 'center', false); yy += 0; });
+    yy = y0 + 116;
+    const rules = starRules(L), have = PROG.stars[L.n] | 0;
+    rules.forEach(function (r, i) {
+      const ry = yy + i * 29;
+      starsRow45(rx + 26, ry, i + 1, have > i, 8);
+      wrap45(r, rw - 62, 16.5).slice(0, 2).forEach(function (l, j) { t43(l, rx + 58, ry - 5 + j * 17, fit43(l, rw - 62, 16.5, false, 16.5), have > i ? '#8a5f10' : '#6a5a42', 'left', false); });
+    });
+    UI_BTNS.length = 0;
+    if (t > 0.3) {
+      btn45('ESC  Map', px + 22, py + ph - 64, 128, 40, function () { openMap(); }, false);
+      ctx.save(); ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
+      btn45('ENTER  Play!', px + pw - 190, py + ph - 64, 168, 40, function () { beginLevel(); }, true);
+      ctx.restore();
+    }
+  } finally { ctx.restore(); SKIN34.on = wasSkin; }
+}
+// ---------------------------------------------------------------- Level Complete
+function headWon45(L, r) { return r.finale ? 'A WHOLE YEAR SAVED!' : L.n === 50 ? 'SPRING IS ON ITS WAY!' : L.boss ? 'BOSS BEATEN!' : 'LEVEL COMPLETE!'; }
+function nextLine45(r) {
+  return r.finale ? 'You saved the farm for a whole year! ENDLESS mode is now open'
+    : r.thawDone ? 'The big thaw! Next: Spring Returns (Levels 51-61)' : r.ankyDone ? 'The Tank is full! Next: First Snow (Levels 41-50)'
+    : r.mamaDone ? 'Big Mama is calm! Next: Summer Shearing (Levels 31-40)' : r.queenDone ? 'The Dino Queen is full! Next: the Spring Meadow (Levels 21-30)' : '';
+}
+function drawWon45() {
+  const L = G.cfg, r = G.result, t = G.overT, f = frame43(), K = f.K;
+  const wasSkin = SKIN34.on; SKIN34.on = false;
+  dim45();
+  const pw = Math.min(f.Wm - 20, 620), ph = Math.min(f.Hm - 24, 356), px = (f.Wm - pw) / 2, py = Math.max(8, (f.Hm - ph) / 2 - 8);
+  ctx.save(); ctx.globalAlpha = clamp(t / 0.4, 0, 1); ctx.scale(K, K);
+  let woolY = 0;
+  try {
+    panel45(px, py, pw, ph);
+    const head = headWon45(L, r);
+    ribbon45(f.Wm / 2, py - 10, Math.min(430, tw43(head, 27, true) + 70), head, 27);
+    t43('Level ' + L.n + ': ' + L.place, f.Wm / 2, py + 56, fit43('Level ' + L.n + ': ' + L.place, pw - 60, 19, false, 16.5), '#6a4a28', 'center', false);
+    for (let i = 0; i < 3; i++) {
+      const st = t - 0.5 - i * 0.35, got = i < r.stars, cx = f.Wm / 2 - 62 + i * 62, cy = py + 100 - (i === 1 ? 8 : 0);
+      if (got && st <= 0) { ctx.save(); ctx.globalAlpha *= 0.3; star43(cx, cy, 24, '#cbb98f'); ctx.restore(); continue; }
+      const k = got ? easeOutBack(clamp(st / 0.35, 0, 1)) : 1;
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(k, k); ctx.translate(-cx, -cy);
+      if (got) star43(cx, cy, 24, '#ffd04a'); else { ctx.globalAlpha *= 0.3; star43(cx, cy, 24, '#cbb98f'); }
+      ctx.restore();
+    }
+    const rules = starRules(L), rw2 = Math.min(pw - 150, 400), rx2 = f.Wm / 2 - rw2 / 2;
+    rules.forEach(function (rule, i) {
+      const ry = py + 140 + i * 27, okk = i < r.stars;
+      t43(okk ? '\u2714' : '\u2716', rx2 + 8, ry, 17, okk ? '#3a8f22' : '#d84a35', 'center', true);
+      starsRow45(rx2 + 44, ry, i + 1, okk, 7);
+      t43(rule, rx2 + 72, ry, fit43(rule, rw2 - 72, 16.5, false, 16.5), okk ? '#5a4020' : '#8a7a5f', 'left', false);
+    });
+    const stat = (L.goal.type === 'boss' ? '' : 'Saved: ' + r.saved + '    ') + 'Lost: ' + r.lost + '    Time: ' + fmtTime(r.time);
+    t43(stat, f.Wm / 2, py + 232, fit43(stat, pw - 60, 17, false, 16.5), '#3a7a24', 'center', false);
+    t43('Score: ' + G.score, f.Wm / 2, py + 260, 23, '#a86a10', 'center', true);
+    let ey = py + 284;
+    if (r.newBest && r.prev) { t43('New best for this level!', f.Wm / 2, ey, 16.5, '#2a6a9a', 'center', false); ey += 22; }
+    else if (r.prev > r.stars) { t43('Your best here is still ' + r.prev + ' stars', f.Wm / 2, ey, 16.5, '#8a7a5f', 'center', false); ey += 22; }
+    const nx = nextLine45(r);
+    if (nx) t43(nx, f.Wm / 2, ey, fit43(nx, pw - 50, 16.5, false, 16.5), '#a86a10', 'center', false);
+    UI_BTNS.length = 0;
+    if (t > 0.9) {
+      btn45('R  Play again', px + 22, py + ph - 54, 150, 40, function () { retryLevel(); }, false);
+      ctx.save(); ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
+      btn45(L.n < BUILT_MAX ? 'ENTER  Next spot' : 'ENTER  To Endless', px + pw - 212, py + ph - 54, 190, 40, function () { openMap(); }, true);
+      ctx.restore();
+    }
+    woolY = (py + ph + 24) * K;
+  } finally { ctx.restore(); SKIN34.on = wasSkin; }
+  if (r && r.wool && t > 1.2) { ctx.save(); ctx.globalAlpha = clamp((t - 1.2) / 0.4, 0, 1); drawWoolGain(r.wool, Math.min(H - 24, woolY), WOOL.wool); ctx.restore(); }
+}
+// ---------------------------------------------------------------- lose (campaign fail + endless game over, same look)
+function drawFail45() {
+  const L = G.cfg, t = G.overT, f = frame43(), K = f.K;
+  const wasSkin = SKIN34.on; SKIN34.on = false;
+  dim45();
+  const pw = Math.min(f.Wm - 20, 620), ph = Math.min(f.Hm - 24, 356), px = (f.Wm - pw) / 2, py = Math.max(8, (f.Hm - ph) / 2 - 8);
+  ctx.save(); ctx.globalAlpha = clamp(t / 0.4, 0, 1); ctx.scale(K, K);
+  try {
+    panel45(px, py, pw, ph);
+    ribbon45(f.Wm / 2, py - 10, 330, 'LEVEL FAILED', 27);
+    t43('Level ' + L.n + ': ' + L.place, f.Wm / 2, py + 56, fit43('Level ' + L.n + ': ' + L.place, pw - 60, 19, false, 16.5), '#6a4a28', 'center', false);
+    const why = G.overReason === 'lamb' ? 'Oh no, the baby lamb was eaten!' : 'The dinos ate ' + MAX_LOST + ' of Ronald\'s sheep!';
+    t43(why, f.Wm / 2, py + 88, fit43(why, pw - 60, 19, false, 16.5), '#a83a28', 'center', false);
+    for (let i = 0; i < 5; i++) {
+      const cx = f.Wm / 2 - 128 + i * 64, cy = py + 128, st = t - 0.3 - i * 0.12, k = easeOutBack(clamp(st / 0.3, 0, 1));
+      if (k <= 0) continue;
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(k, k); ctx.globalAlpha *= 0.55; drawSheep({ x: 0, y: 12, phase: 0 }, 1.1, 1, false); ctx.restore();
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(k, k); ctx.strokeStyle = '#e84a38'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(-13, -13); ctx.lineTo(13, 13); ctx.moveTo(13, -13); ctx.lineTo(-13, 13); ctx.stroke(); ctx.restore();
+    }
+    const g = L.goal;
+    const prog = g.type === 'survive' ? 'You lasted ' + fmtTime(G.levelTime) + ' of ' + fmtTime(g.t)
+      : g.type === 'boss' ? 'Boss hunger left: ' + Math.ceil(G.boss ? G.boss.hp : 0) + '%' : 'Saved ' + G.levelSaved + ' of ' + (g.n || 0);
+    const q = g.type === 'survive' ? G.levelTime / Math.max(1, g.t) : g.type === 'boss' ? 1 - (G.boss ? G.boss.hp : 100) / 100 : G.levelSaved / Math.max(1, g.n || 1);
+    t43(prog, f.Wm / 2, py + 168, fit43(prog, pw - 60, 18, false, 16.5), '#7a4a08', 'center', false);
+    const bw = Math.min(340, pw - 120);
+    ctx.save(); ctx.fillStyle = '#e6d2aa'; rr(ctx, f.Wm / 2 - bw / 2, py + 182, bw, 14, 7); ctx.fill();
+    ctx.fillStyle = grad43(py + 182, py + 196, '#ffd96a', '#e6a020'); rr(ctx, f.Wm / 2 - bw / 2, py + 182, Math.max(14, bw * clamp(q, 0, 1)), 14, 7); ctx.fill();
+    ctx.strokeStyle = '#7a4a0e'; ctx.lineWidth = 1.5; rr(ctx, f.Wm / 2 - bw / 2, py + 182, bw, 14, 7); ctx.stroke(); ctx.restore();
+    t43('Don\'t give up!', f.Wm / 2, py + 224, 20, '#3a8f22', 'center', true);
+    if (L.tip) wrap45(L.tip, pw - 90, 16.5).slice(0, 2).forEach(function (l, i) { t43(l, f.Wm / 2, py + 248 + i * 21, fit43(l, pw - 90, 16.5, false, 16.5), '#6a5a42', 'center', false); });
+    UI_BTNS.length = 0;
+    if (t > 0.8) {
+      btn45('ESC  Map', px + 22, py + ph - 64, 128, 40, function () { openMap(); }, false);
+      ctx.save(); ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
+      btn45('ENTER  Try again', px + pw - 212, py + ph - 54, 190, 40, function () { retryLevel(); }, true);
+      ctx.restore();
+    }
+  } finally { ctx.restore(); SKIN34.on = wasSkin; }
+}
+function drawGameOver45() {
+  if (G.overReason === 'love') { drawLoveOver(); return; }
+  if (CAMP()) { drawFail45(); return; }
+  const t = G.overT, f = frame43(), K = f.K;
+  const wasSkin = SKIN34.on; SKIN34.on = false;
+  dim45();
+  const pw = Math.min(f.Wm - 20, 560), ph = Math.min(f.Hm - 24, 330), px = (f.Wm - pw) / 2, py = Math.max(8, (f.Hm - ph) / 2);
+  ctx.save(); ctx.globalAlpha = clamp(t / 0.4, 0, 1); ctx.scale(K, K);
+  try {
+    panel45(px, py, pw, ph);
+    ribbon45(f.Wm / 2, py - 10, 320, 'GAME OVER', 28);
+    t43('The dinos ate ' + MAX_LOST + ' of Ronald\'s sheep!', f.Wm / 2, py + 66, fit43('The dinos ate ' + MAX_LOST + ' of Ronald\'s sheep!', pw - 60, 18, false, 16.5), '#6a4a28', 'center', false);
+    t43('Score: ' + G.score, f.Wm / 2, py + 116, 30, '#a86a10', 'center', true);
+    t43('Sheep saved: ' + G.saved + '      Level reached: ' + G.level, f.Wm / 2, py + 156, 17, '#3a7a24', 'center', false);
+    if (typeof newBest !== 'undefined' && newBest) t43('NEW BEST SCORE!', f.Wm / 2, py + 192, 19, '#2a6a9a', 'center', true);
+    else t43('Best: ' + best, f.Wm / 2, py + 192, 17, '#8a7a5f', 'center', false);
+    if (t > 0.8) { ctx.save(); ctx.globalAlpha *= 0.75 + 0.25 * Math.sin(animT * 4); t43('Press ENTER or click to play again', f.Wm / 2, py + ph - 44, fit43('Press ENTER or click to play again', pw - 60, 20, true, 16.5), '#a83a28', 'center', true); ctx.restore(); }
+  } finally { ctx.restore(); SKIN34.on = wasSkin; }
+}
+drawBrief = function () { drawBrief45(); try { pickerBar44(); } catch (e) { /* the picker is decoration */ } };
+drawBriefPhone = drawBrief;
+drawWon = drawWon45; drawWonPhone = drawWon45;
+drawCampFail = drawFail45; drawFailPhone = drawFail45;
+drawGameOver = drawGameOver45;
+Object.assign(I18N35.pt, { 'Free tool! Pick one:': 'Ferramenta gr\u00e1tis! Escolha uma:' });
+if (window.__dbg) window.__dbg.v45 = { panel45: panel45 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
