@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 46
+  Sheep vs. Dinos 47
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 46</title>
+<title>Sheep vs. Dinos 47</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17909,7 +17909,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v46';
+const GAME_VER = 'v47';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20780,7 +20780,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 46'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 47'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -22822,6 +22822,114 @@ Object.assign(I18N35.pt, {
 });
 try { LANG35.memo.clear(); } catch (e) { /* the loading screen cached a few strings before these entries loaded */ }
 if (window.__dbg) window.__dbg.v46 = { PICK46: PICK46, drawSlots46: drawSlots46, signs46: signs46, TITLE46: TITLE46 };
+
+// ================================================================ v47: map counters/buttons back in a left-hand column
+// (Lives, Wool, Shop, Settings, top to bottom, glossy like the shop), area signs and level spots kept clear of
+// that column, and Vicky a little smaller on the start screen only.
+// ---------- the left column positions (world coords, under the map header)
+SHOP_BTN.x = 10; SHOP_BTN.y = 146; SHOP_BTN.w = 168; SHOP_BTN.h = 32;
+GEAR_BTN.x = 10; GEAR_BTN.y = 186; GEAR_BTN.w = 168; GEAR_BTN.h = 32;
+const COL47 = { x: 10, w: 168, livesY: 78, woolY: 110 };
+// wool counter: the map's top-right pill moves to the column (other wool pills, e.g. in the shop, stay put)
+const woolPillV47 = woolPill;
+woolPill = function (x, y, n, size, align) {
+  if (state === 'map' && !SHOPUI.open && !SETUI.open && !LIVESUI.open && align === 'right' && x > W / 2) return woolPillV47(COL47.x, COL47.woolY, n, size, 'left');
+  return woolPillV47.apply(this, arguments);
+};
+// lives pill: same move; the pill record it returns keeps the hit-test in livesPointer/tapTargets honest
+const livesPillV47 = livesPill;
+livesPill = function (xr, y, size) {
+  if (state === 'map' && xr > W / 2) {
+    size = size || 1;
+    const n = livesSync(), tm = n >= LIVES_CFG.max ? 'full' : 'next life in ' + fmtMS(livesLeftMs());
+    ctx.font = 'bold ' + Math.round(12 * size) + 'px "Segoe UI", "Trebuchet MS", Arial, sans-serif';
+    const w = 14 * size + LIVES_CFG.max * 19 * size + ctx.measureText(tm).width + 12 * size;
+    return livesPillV47(COL47.x + w, COL47.livesY, size);
+  }
+  return livesPillV47.apply(this, arguments);
+};
+const livesPointerV47 = livesPointer;
+livesPointer = function (mx, my) {
+  if (state === 'map' && !LIVESUI.open && !SHOPUI.open && !SETUI.open && !(AD.playing && AD.playing.map)) {
+    const p = LIVESUI.pill;
+    if (p && mx >= p.x && mx <= p.x + p.w && my >= COL47.livesY - p.h / 2 && my <= COL47.livesY + p.h / 2) { openLivesUI(); return true; }
+  }
+  return livesPointerV47.apply(this, arguments);
+};
+const tapTargetsV47 = tapTargets;
+tapTargets = function () {
+  const T = tapTargetsV47.apply(this, arguments);
+  if (state === 'map' && LIVESUI.pill) for (const c of T) if (Math.abs(c.y - (102 - LIVESUI.pill.h / 2)) < 3 && Math.abs(c.x - LIVESUI.pill.x) < 3) c.y = COL47.livesY - LIVESUI.pill.h / 2;
+  return T;
+};
+// ---------- keep the path and the signs clear of the column: squeeze the path a touch more, from the right
+(function () {
+  const z = MAPZ.z, visW = W / z, sx46 = (visW - 96) / 700;
+  const a = 205 / z;
+  MAP_PTS.forEach(function (p) {
+    const orig = 100 + (p[0] - 48) / sx46;
+    p[0] = a + (orig - 100) * ((W - 24) / z - a) / 700;
+  });
+  MAP.segs = null; try { buildMapBG(); } catch (e) { MAP.bg = null; }
+})();
+// area signs: still at the left, but never on top of the column
+const signs47 = signs46;
+signs46 = function () {
+  const z = MAPZ.z;
+  AREAS44.forEach(function (A, i) {
+    if (!A.band) return;
+    let y = (A.band[0] + 8 - MAP.cam) * z - 4;
+    if (y < 62 || y > H - 42) return;
+    y = Math.min(y, H - 122);
+    const label = A.icon + ' ' + (i + 1) + '. ' + A.name;
+    let fs = PHONE.on ? 26 : 20;
+    ctx.font = '400 ' + fs + 'px ' + FONTS43.lil;
+    let w = ctx.measureText(label).width + 28;
+    ctx.font = 'bold ' + (PHONE.on ? 18 : 13) + 'px "Segoe UI", Arial, sans-serif';
+    w = Math.max(w, (ctx.measureText(label).width + 22) * z + 6);
+    const x = (y < COL47.livesY + 150) ? COL47.x + COL47.w + 14 : 10;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; rr(ctx, x, y + 3, w, 62, 8); ctx.fill();
+    ctx.fillStyle = grad43(y, y + 62, '#a06a38', '#7a4a20'); rr(ctx, x, y, w, 62, 8); ctx.fill();
+    ctx.save(); rr(ctx, x, y, w, 62, 8); ctx.clip(); ctx.fillStyle = 'rgba(255,230,190,0.22)'; ctx.fillRect(x, y, w, 5); ctx.restore();
+    ctx.strokeStyle = '#4a2c10'; ctx.lineWidth = 2; rr(ctx, x, y, w, 62, 8); ctx.stroke();
+    ctx.restore();
+    t43(label, x + 14, y + 29, fs, '#fff4dc', 'left', true, 'rgba(0,0,0,0.4)');
+  });
+};
+// glossy Shop / Settings buttons over the column (drawn last on the map, gift panel permitting)
+const drawMapV47 = drawMap;
+drawMap = function () {
+  const r = drawMapV47.apply(this, arguments);
+  if (state === 'map' && !SHOPUI.open && !SETUI.open && !LIVESUI.open) {
+    try {
+      const b = SHOP_BTN, open = shopOpen();
+      gloss43(b.x, b.y, b.w, b.h, 13, open ? GL43.green[0] : GL43.cream[0], open ? GL43.green[1] : GL43.cream[1], '#7a4a1e');
+      ctx.save(); ctx.globalAlpha = open ? 1 : 0.6; drawWoolTuft(b.x + 18, b.y + b.h / 2, 9); ctx.restore();
+      t43('Wool Shop', b.x + b.w / 2 + 8, b.y + b.h / 2 + 1, PHONE.on ? 22 : 17, open ? '#ffffff' : '#5a2e0e', 'center', true, open ? 'rgba(0,0,0,0.4)' : null);
+      if (!open) drawPadlock(b.x + b.w - 12, b.y + b.h / 2, 0.6);
+      const g = GEAR_BTN;
+      gloss43(g.x, g.y, g.w, g.h, 13, GL43.cream[0], GL43.cream[1], '#7a4a1e');
+      t43('Settings (O)', g.x + g.w / 2, g.y + g.h / 2 + 1, PHONE.on ? 22 : 17, '#5a2e0e', 'center', true);
+    } catch (e) { /* buttons are decoration */ }
+  }
+  return r;
+};
+// ---------- start screen: Vicky about 17% smaller (in-game Vicky unchanged)
+const drawTitleV47 = drawTitle46;
+drawTitle46 = function () {
+  const keepX = iconVicky.x, keepY = iconVicky.y;
+  const r = drawTitleV47.apply(this, arguments);
+  iconVicky.x = keepX; iconVicky.y = keepY;
+  return r;
+};
+// drawTitle46 draws Vicky through this wrapper only on the title screen
+const drawVickyV47 = drawVicky;
+drawVicky = function (v, s) {
+  if (state === 'title' && v === iconVicky) return drawVickyV47(v, (s || 1) * 0.83);
+  return drawVickyV47.apply(this, arguments);
+};
+if (window.__dbg) window.__dbg.v47 = { COL47: COL47 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
