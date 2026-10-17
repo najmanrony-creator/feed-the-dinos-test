@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 43
+  Sheep vs. Dinos 44
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 43</title>
+<title>Sheep vs. Dinos 44</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -15082,7 +15082,7 @@ if (params.get('audiotest') === '1') window.__aud = { q: function () { return { 
 const WOOL_KEY = 'feedTheDinos.wool';
 const WOOL_RULES = { perSheep: 3, starBonus: [0, 1, 2, 3], blackBonus: 3, endlessPer: 25, shopAfter: 5, invMax: 9 };
 // prices: by tool strength (local scare < zone/flock < aimed area < lure-everything < everyone sleeps)
-const SHOP_PRICES = { vicky: 40, scarecrow: 45, whistle: 45, faketeor: 50, mrsdino: 55, lullaby: 60, blacksheep: 80 };
+const SHOP_PRICES = { vicky: 15, scarecrow: 18, whistle: 15, faketeor: 20, mrsdino: 22, lullaby: 18, blacksheep: 30 };
 const SHOP_ITEMS = ['vicky', 'faketeor', 'mrsdino', 'lullaby', 'scarecrow', 'whistle', 'blacksheep'];
 const WOOL = { wool: 0, inv: {}, bonus: 0, earned: 0, spent: 0 };
 function loadWool() {
@@ -15444,6 +15444,7 @@ drawBrief = function () {
   drawBriefV14();
   BRIEFX.chips.length = 0;
   if (G.briefT < 0.3) return;
+  if (window.__picker44) return;   // v44: the briefing picker bar (tools44.js) replaces this strip
   const ex = levelExtras(), bonus = WOOL.bonus > 0;
   const none = shopOpen() ? TOOL_ORDER.filter(function (k) { return G.tools[k] && G.tools[k] !== 'na' && ex.indexOf(k) < 0; }) : [];
   if (!ex.length && !bonus) return;   // v39: no wool reminder on the briefing
@@ -15451,8 +15452,8 @@ drawBrief = function () {
   ctx.fillStyle = 'rgba(20,14,6,0.86)'; rr(ctx, x0 - 8, y - 5, tw + 16, 42, 12); ctx.fill();
   ctx.strokeStyle = 'rgba(255,220,150,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
   drawWoolTuft(x0 + 12, y + 16, 8);
-  txt('Your extras:', x0 + 26, y + 10, 12, '#ffe9a0', 'left', 'bold', false);
-  txt(ex.length ? 'click / 1-' + ex.length + ' = bring' : '', x0 + 26, y + 25, 10, '#d8c8a8', 'left', '600', false);
+  txt('Your tools:', x0 + 26, y + 10, 12, '#ffe9a0', 'left', 'bold', false);
+  txt(ex.length ? 'pick up to ' + slots44(G.level) + ' • 1-' + ex.length : '', x0 + 26, y + 25, 10, '#d8c8a8', 'left', '600', false);
   ex.forEach(function (k, i) {
     const x = x0 + lead + i * (cw + gap), on = !!(G.bring && G.bring[k]);
     ctx.fillStyle = on ? 'rgba(255,214,90,0.95)' : 'rgba(40,90,55,0.85)'; rr(ctx, x, y, cw, 32, 10); ctx.fill();
@@ -17908,7 +17909,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v43';
+const GAME_VER = 'v44';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20779,7 +20780,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 43'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 44'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -22084,6 +22085,293 @@ if (window.__dbg) window.__dbg.v43 = { UI43: UI43, SET43: SET43, VG43: VG43, FON
 Object.assign(I18N35.pt, {"Earn wool by saving sheep": "Ganhe lã salvando ovelhas", "Unlocks at": "Libera na", "Bag full": "Bolsa cheia", "Ready!": "Pronta!", "For next level": "Próxima fase", "Owned #": "Você tem #", "Extra use": "Uso extra", "Max": "Máx.", "New farm friend": "Novo amigo", "Farmer": "Fazendeiro", "General": "Geral", "Accessibility": "Acessibilidade", "Sound effects": "Efeitos sonoros", "Haptics": "Vibração", "(phone vibration)": "(no celular)", "More audio": "Mais áudio", "sheep, dinos, Vicky": "ovelhas, dinos, Vicky", "Good girl, Vicky!": "Muito bem, Vicky!", "Ronald is your farmer": "Ronald é o seu fazendeiro", "Lilly is coming later!": "Lilly chega em breve!", "Dave is coming later!": "Dave chega em breve!", "# / #": "# / #", "×#": "×#", "#": "#"});
 // v43: the buy / info dialog lines in Portuguese too
 Object.assign(I18N35.pt, {"Not enough wool": "Lã insuficiente", "OK": "OK", "Not found yet": "Ainda não encontrado", "Your bag is full": "Sua bolsa está cheia", "Use some first!": "Use alguns primeiro!", "You need # more: clear levels to earn wool!": "Faltam #: vença fases para ganhar lã!", "Unlocks at Level #: then you can buy extra uses here.": "Na Fase # você poderá comprar usos extras.", "You can keep up to # of each tool.": "Você pode guardar até # de cada ferramenta.", "Bonus black sheep unlock at Level #.": "A ovelha negra bônus libera na Fase #.", "Beat it, then come back!": "Vença essa fase e volte!", "A bonus black sheep is already waiting for your next level.": "Uma ovelha negra bônus já espera pela sua próxima fase.", "You meet the The Scare-Dino at Level #.": "Você conhece o Espanta-Dino na Fase #.", "You meet the Shepherd's Whistle at Level #.": "Você conhece o Apito do Pastor na Fase #.", "Extra Vicky costs # wool. You have #.": "Vicky extra custa # de lã. Você tem #.", "Extra Faketeor costs # wool. You have #.": "Meteoro Falso extra custa # de lã. Você tem #.", "Extra Mrs. Dino costs # wool. You have #.": "Dona Dino extra custa # de lã. Você tem #.", "Extra Lullaby costs # wool. You have #.": "Ninar extra custa # de lã. Você tem #.", "Extra Scare-Dino costs # wool. You have #.": "Espanta-Dino extra custa # de lã. Você tem #.", "Extra Whistle costs # wool. You have #.": "Apito extra custa # de lã. Você tem #.", "Bonus black sheep costs # wool. You have #.": "Ovelha negra bônus custa # de lã. Você tem #."});
+
+// ================================================================ v44: tools you own (no random mid-level drops), rewards, safety net,
+// difficulty ramp after L25, the LEVEL banner off, and the briefing / win / lose + map restyle (see PLAN.md).
+// Inventory is the existing WOOL.inv (max 9 each); picked tools are the existing G.bring set, used through useExtra (1 from the bag per use).
+var REW44 = { intro: {}, starNext: 0, streak: 0, losses: {}, lastDay: '', dayStreak: 0, dayWin: '', pend: 0, phantom: null, btns: null };
+try { const r44 = JSON.parse(localStorage.getItem('feedTheDinos.rew44') || 'null'); if (r44) REW44 = Object.assign(REW44, r44); } catch (e) { /* fresh */ }
+function saveRew44() { try { localStorage.setItem('feedTheDinos.rew44', JSON.stringify(REW44)); } catch (e) { /* ignore */ } }
+function dayStr44(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function slots44(level) { return level >= 31 ? 3 : level >= 12 ? 2 : level >= 3 ? 1 : 0; }
+function known44(k) { return toolKnown(k); }
+function choiceMult44(level) { return level <= 25 ? 2 : 1; }   // rewards doubled before L26
+// tools whose first-appearance level is already behind the player were seen long ago: no retro gifts
+TOOL_ORDER.forEach(function (k) { if (toolFirstLevel(k) < (PROG.unlocked | 0)) REW44.intro[k] = 1; });
+if (!REW44.starNext) REW44.starNext = (Math.floor(totalStars() / 10) + 1) * 10;
+function grantIntro44(n) {
+  TOOL_ORDER.forEach(function (k) {
+    if (toolFirstLevel(k) !== n || REW44.intro[k]) return;
+    REW44.intro[k] = 1;
+    WOOL.inv[k] = clamp((WOOL.inv[k] | 0) + (k === 'vicky' ? 3 : 2), 0, WOOL_RULES.invMax);   // new players start with Vicky x3 at L3
+    saveWool();
+  });
+  saveRew44();
+}
+function takePhantom44(n) {
+  const p = REW44.phantom; if (!p || p.level !== n) return;
+  WOOL.inv[p.k] = Math.max(0, (WOOL.inv[p.k] | 0) - 1); REW44.phantom = null; saveWool(); saveRew44();
+}
+// ---- picking tools: slots limit on the existing briefing picker
+const toggleBringV44 = toggleBring;
+toggleBring = function (k) {
+  if (G && G.bring && !G.bring[k]) {
+    const n = Object.keys(G.bring).filter(function (q) { return G.bring[q]; }).length;
+    if (n >= slots44(G.level) && k !== G.free44) { SFX.pop(); return; }   // no free slot yet
+  }
+  return toggleBringV44.apply(this, arguments);
+};
+// ---- a level starts: intro gifts, safety net, default picks, the test helper ?bag44=N (demo / test build only)
+const prepareLevelV44 = prepareLevel;
+prepareLevel = function (n) {
+  takePhantom44(n);
+  prepareLevelV44.apply(this, arguments);
+  if ((UNLOCK_ALL || DEMO) && parseInt(params.get('bag44'), 10) > 0) { const b44 = parseInt(params.get('bag44'), 10); TOOL_ORDER.forEach(function (k) { WOOL.inv[k] = Math.max(WOOL.inv[k] | 0, b44); }); }
+  grantIntro44(n);
+  const losses = REW44.losses[n] | 0;
+  G.free44 = null; G.slow44 = losses >= 5;
+  if (losses >= 3) { const own = TOOL_ORDER.filter(function (k) { return G.tools[k] && G.tools[k] !== 'na'; }); if (own.length) G.free44 = own[0]; }
+  if (!Object.keys(G.bring || {}).some(function (k) { return G.bring[k]; })) {
+    const cand = TOOL_ORDER.filter(function (k) { return G.tools[k] && G.tools[k] !== 'na' && (WOOL.inv[k] | 0) > 0; });
+    cand.sort(function (a, b) { return (G.cfg.newTool === b) - (G.cfg.newTool === a); });
+    cand.slice(0, slots44(n)).forEach(function (k) { G.bring[k] = true; });
+  }
+  if (G.free44) G.bring[G.free44] = true;
+};
+const beginLevelV44 = beginLevel;
+beginLevel = function () {
+  beginLevelV44.apply(this, arguments);
+  G.bag44 = Object.assign({}, G.bring || {});
+  if (G.free44) {   // the safety-net free use: a phantom +1 in the bag, taken back unused at the next attempt / the win
+    WOOL.inv[G.free44] = clamp((WOOL.inv[G.free44] | 0) + 1, 0, WOOL_RULES.invMax + 1); REW44.phantom = { k: G.free44, level: G.level }; saveWool(); saveRew44();
+  }
+};
+// ---- no random drops in the campaign: only a level's NEW tool is offered (free, with its tutorial card)
+campToolTick = function (dt) {
+  if (G.overPending > 0 || toolBusy() || G.tutOffer44) return;
+  const k = G.cfg && G.cfg.newTool;
+  if (!k || G.tools[k] !== 'locked' || G.time < 1.5) return;
+  G.tutOffer44 = 1; offerTool(k);
+};
+// ---- repeat uses from the bag: the old "only 1 extra per level" limit is gone; each use spends 1 (in useExtra)
+extraBlocked = function (k) {
+  if (!G || !G.tools) return 'wait';
+  const st = G.tools[k];
+  if (!st || st === 'na') return 'This tool is not in this level';
+  if ((WOOL.inv[k] | 0) <= 0 && k !== G.free44) return 'No ' + TOOLS[k].name + ' in your bag';
+  if (state !== 'play' || paused || G.announce || G.toolCard || G.overPending > 0) return 'wait';
+  if (st === 'ready') return 'Use the ' + TOOLS[k].name + ' you have first (F)';
+  if (st === 'active') return TOOLS[k].name + ' is already at work';
+  if (G.costume) return 'Take the costume off first (F)';
+  return null;
+};
+const endToolV44 = endTool;
+endTool = function (k) {
+  const r = endToolV44.apply(this, arguments);
+  if (G && G.extraUsed) G.extraUsed[k] = false;   // the bag can be used again
+  if (G && G.bag44 && G.bag44[k] && (WOOL.inv[k] | 0) > 0 && G.bring) G.bring[k] = true;
+  return r;
+};
+// ---- the LEVEL N: name banner at level start is gone (the briefing and the top bar already say it)
+const showBannerV44 = showBanner;
+showBanner = function (title, sub) {
+  const r = showBannerV44.apply(this, arguments);
+  if (/^LEVEL \d+: /.test(String(title)) && G && G.banner) G.banner.t = 1e6;
+  return r;
+};
+// ---- rewards on a win: boss = a free tool of your choice, every 10 stars = a choice, 3 wins in a row = a random known tool,
+// ---- first win of a new day = +5 wool, 3 days in a row = a choice. Choices wait on the map (REW44.pend).
+const winLevelV44 = winLevel;
+winLevel = function () {
+  const before = G && G.result;
+  const r = winLevelV44.apply(this, arguments);
+  if (!G || G.attract || !G.result || before === G.result) return r;
+  takePhantom44(G.level);
+  REW44.losses[G.level] = 0;
+  const mult = choiceMult44(G.level), notes = [];
+  if (G.cfg && G.cfg.goal && G.cfg.goal.type === 'boss') { REW44.pend += mult; notes.push('boss'); }
+  while (totalStars() >= REW44.starNext) { REW44.pend += mult; REW44.starNext += 10; notes.push('stars'); }
+  REW44.streak++;
+  if (REW44.streak >= 3) {
+    REW44.streak = 0;
+    const pool = TOOL_ORDER.filter(function (k) { return known44(k) && (WOOL.inv[k] | 0) < WOOL_RULES.invMax; });
+    for (let i = 0; i < mult && pool.length; i++) { const k = pool[Math.floor(Math.random() * pool.length)]; WOOL.inv[k] = (WOOL.inv[k] | 0) + 1; }
+    if (pool.length) { saveWool(); notes.push('streak'); }
+  }
+  const now = new Date(), day = dayStr44(now);
+  if (REW44.dayWin !== day) {
+    REW44.dayWin = day; addWool(5); notes.push('daily');
+    const y = new Date(now.getTime() - 864e5);
+    REW44.dayStreak = REW44.lastDay === dayStr44(y) ? (REW44.dayStreak | 0) + 1 : 1;
+    REW44.lastDay = day;
+    if (REW44.dayStreak >= 3) { REW44.dayStreak = 0; REW44.pend += mult; notes.push('days'); }
+  }
+  G.result.rew44 = notes;
+  saveRew44();
+  return r;
+};
+const gameOverV44 = gameOver;
+gameOver = function () {
+  const was = state;
+  const r = gameOverV44.apply(this, arguments);
+  if (was !== 'over' && state === 'over' && G && !G.attract && CAMP() && G.level) { REW44.losses[G.level] = (REW44.losses[G.level] | 0) + 1; REW44.streak = 0; saveRew44(); }
+  return r;
+};
+// ---- difficulty after L25: +5% dino speed per area (max +20%), +1 sheep to save from L41, survive levels 10 s longer from L26
+LEVELS.forEach(function (L, i) {
+  if (!L || !L.goal) return;
+  const n = i + 1;
+  if (n >= 26 && L.goal.type === 'survive') L.goal.t = (L.goal.t | 0) + 10;
+  if (n >= 41 && L.goal.type === 'save') L.goal.n = (L.goal.n | 0) + 1;
+});
+const speedMultV44 = speedMult;
+speedMult = function (l) {
+  let m = speedMultV44.apply(this, arguments);
+  if (CAMP() && G && G.level >= 26 && !(G.cfg && G.cfg.goal && G.cfg.goal.type === 'boss')) m *= 1 + Math.min(0.2, 0.05 * (Math.floor((G.level - 26) / 5) + 1));   // boss fights keep their tuned speed
+  if (G && G.slow44) m *= 0.9;   // safety net: dinos 10% slower on this try
+  return m;
+};
+// ---- the free-tool choice on the map
+function drawGift44() {
+  REW44.btns = null;
+  if (!REW44.pend || SHOPUI.open || SETUI.open || state !== 'map') return;
+  const list = TOOL_ORDER.filter(function (k) { return known44(k); });
+  const cols = Math.min(3, list.length), bw = PHONE.on ? 192 : 172, bh = 78, gx = 12;
+  const pw = Math.min(W - 30, cols * (bw + gx) + 36), ph = 66 + Math.ceil(list.length / cols) * (bh + gx) + 14, px = W / 2 - pw / 2, py = Math.max(60, H / 2 - ph / 2);
+  ctx.fillStyle = 'rgba(15,25,10,0.55)'; ctx.fillRect(0, 0, W, H);
+  drawPanel(px, py, pw, ph, true);
+  FONT44.scr = false;
+  t43('Free tool! Pick one:', W / 2, py + 34, PHONE.on ? 30 : 24, '#5a2e0e', 'center', true);
+  if (REW44.pend > 1) t43('\u00d7' + REW44.pend, px + pw - 30, py + 34, PHONE.on ? 28 : 22, '#a8542a', 'center', true);
+  REW44.btns = [];
+  list.forEach(function (k, i) {
+    const full = (WOOL.inv[k] | 0) >= WOOL_RULES.invMax, bx = px + 18 + (i % cols) * (bw + gx), by = py + 58 + Math.floor(i / cols) * (bh + gx);
+    if (full) { ctx.save(); ctx.globalAlpha = 0.45; gloss43(bx, by, bw, bh, 12, GL43.cream[0], GL43.cream[1], '#7a4a1e'); ctx.restore(); }
+    else gloss43(bx, by, bw, bh, 12, GL43.green[0], GL43.green[1], 'rgba(20,60,10,0.6)');
+    ctx.save(); drawToolIcon(k, bx + 30, by + bh / 2, 34, animT); ctx.restore();
+    const nm = TOOLS[k].name + ' \u00d7' + (WOOL.inv[k] | 0);
+    t43(nm, bx + 52, by + bh / 2 + 1, fit43(nm, bw - 62, PHONE.on ? 26 : 22, true, PHONE.on ? 26 : 20), full ? '#7a5a30' : '#ffffff', 'left', true, full ? null : 'rgba(0,0,0,0.4)');
+    if (!full) REW44.btns.push({ x: bx, y: by, w: bw, h: bh, k: k });
+  });
+}
+window.addEventListener('mousedown', function (ev) {
+  if (ev.target !== canvas || !REW44.btns || state !== 'map') return;
+  const p = canvasXY(ev);
+  for (const b of REW44.btns) if (p[0] >= b.x && p[0] <= b.x + b.w && p[1] >= b.y && p[1] <= b.y + b.h) {
+    WOOL.inv[b.k] = clamp((WOOL.inv[b.k] | 0) + 1, 0, WOOL_RULES.invMax); REW44.pend--; saveWool(); saveRew44(); SFX.pop();
+    ev.stopImmediatePropagation(); ev.preventDefault(); return;
+  }
+  ev.stopImmediatePropagation(); ev.preventDefault();   // the gift panel swallows other map clicks until a tool is picked
+}, true);
+// ---- briefing / win / lose screens in the v43 fonts, with a barn-red ribbon on the panel (desktop; phones already get the glossy buttons)
+var FONT44 = { scr: false };
+const txtV44 = txt;
+txt = function () {
+  if (FONT44.scr && !FONT43F) { FONT43F = FONTS43.nun; FONT43W = '800'; try { return txtV44.apply(this, arguments); } finally { FONT43F = ''; FONT43W = ''; } }
+  return txtV44.apply(this, arguments);
+};
+function ribbon44() {
+  const P = PANEL35.last; if (!P || phoneScreens()) return;
+  const cx = P.x + P.w / 2, y = P.y - 4;
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.25)'; rr(ctx, cx - 62, y - 9, 124, 26, 7); ctx.fill();
+  ctx.fillStyle = grad43(y - 12, y + 14, '#e2533b', '#a8281a'); rr(ctx, cx - 62, y - 12, 124, 26, 7); ctx.fill();
+  ctx.strokeStyle = '#6a1a0e'; ctx.lineWidth = 2.5; rr(ctx, cx - 62, y - 12, 124, 26, 7); ctx.stroke();
+  ctx.restore();
+  star43(cx, y + 1, 10, '#ffd04a');
+}
+function scrWrap44(fn) {
+  return function () { FONT44.scr = true; try { const r = fn.apply(this, arguments); ribbon44(); return r; } finally { FONT44.scr = false; } };
+}
+function pickerBar44() {
+  BRIEFX.chips.length = 0;
+  if (state !== 'brief' || !G || G.briefT < 0.3) return;
+  const ex = TOOL_ORDER.filter(function (k) { return G.tools[k] && G.tools[k] !== 'na' && (WOOL.inv[k] | 0) > 0; });
+  if (!ex.length) return;
+  const K = frame43().K, fs = Math.max(20, 16.5 * K);
+  const bh = 58, by = H - bh - 8, labW = Math.max(150, tw43('Your tools:', fs, true) + 26, tw43('pick up to 9', fs * 0.92) + 26);
+  const cw = Math.min(200, (W - 24 - labW - (ex.length - 1) * 10) / ex.length);
+  ctx.save(); ctx.fillStyle = 'rgba(18,12,5,0.94)'; rr(ctx, 8, by, W - 16, bh, 14); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,220,150,0.6)'; ctx.lineWidth = 1.5; rr(ctx, 8, by, W - 16, bh, 14); ctx.stroke(); ctx.restore();
+  t43('Your tools:', 22, by + 20, fs, '#ffe9a0', 'left', true, 'rgba(0,0,0,0.4)');
+  t43('pick up to ' + slots44(G.level), 22, by + 44, fs * 0.92, '#d8c8a8', 'left', false);
+  ex.forEach(function (k, i) {
+    const c = { x: 16 + labW + i * (cw + 10), y: by + 7, w: cw, h: bh - 14, k: k }, on = !!(G.bring && G.bring[k]);
+    const cc44 = on ? GL43.gold : GL43.green; gloss43(c.x, c.y, c.w, c.h, 12, cc44[0], cc44[1], '#7a4a1e');
+    ctx.save(); drawToolIcon(k, c.x + 24, c.y + c.h / 2, 26, animT); ctx.restore();
+    const nm = TOOLS[k].name + ' \u00d7' + (WOOL.inv[k] | 0);
+    t43(nm, c.x + 44, c.y + c.h / 2 + 1, fit43(nm, c.w - 52, fs, true, fs * 0.8), on ? '#5a2e0e' : '#ffffff', 'left', true, on ? null : 'rgba(0,0,0,0.4)');
+    BRIEFX.chips.push(c);
+  });
+}
+function briefWrap44(fn) { return function () { const r = scrWrap44(fn).apply(this, arguments); try { pickerBar44(); } catch (e) { /* decoration */ } return r; }; }
+drawBrief = briefWrap44(drawBrief); drawBriefPhone = briefWrap44(drawBriefPhone);
+drawWon = scrWrap44(drawWon); drawWonPhone = scrWrap44(drawWonPhone);
+drawGameOver = scrWrap44(drawGameOver); if (typeof drawFailPhone === 'function') drawFailPhone = scrWrap44(drawFailPhone);
+if (typeof drawCampFail === 'function') drawCampFail = scrWrap44(drawCampFail);
+// ---- the map: 2 areas per screen, signs pinned to the left edge, wood header, structured area data for a future world map
+const AREAS44 = AREAS.map(function (A, i) {
+  return { name: A.name, short: A.short, col: A.col, icon: ['\ud83c\udf31', '\ud83c\udfe1', '\ud83c\udfde\ufe0f', '\u26f0\ufe0f', '\ud83c\udf05', '\u2702\ufe0f', '\ud83c\udf42', '\u2744\ufe0f', '\ud83c\udf38', '\u2600\ufe0f', '\ud83c\udf41', '\ud83d\udc51', '\u267e\ufe0f'][i] || '\ud83c\udf31', band: MAP_BANDS[i] || null, firstLevel: i * 5 + 1 };
+});
+MAPZ.on = true; MAPZ.z = 2.05;
+mapStickySigns = function () {
+  const z = MAPZ.z;
+  AREAS44.forEach(function (A, i) {
+    if (!A.band) return;
+    const y = (A.band[0] + 8 - MAP.cam) * z;
+    if (y < 46 || y > H - 30) return;
+    const label = (i + 1) + '. ' + A.name, fs = PHONE.on ? 26 : 20;
+    ctx.font = '400 ' + fs + 'px ' + FONTS43.lil; ctx.fillStyle = '#fff4dc';
+    const w = ctx.measureText(A.icon + ' ' + label).width + 26;
+    let x = 8; if (PHONE.on && typeof vis35 === 'function') { const v = vis35(); if (v) x = Math.max(8, v.l); }
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; rr(ctx, x, y + 3, w, 34, 8); ctx.fill();
+    ctx.fillStyle = grad43(y, y + 34, '#a06a38', '#7a4a20'); rr(ctx, x, y, w, 34, 8); ctx.fill();
+    ctx.strokeStyle = '#4a2c10'; ctx.lineWidth = 2; rr(ctx, x, y, w, 34, 8); ctx.stroke();
+    ctx.restore();
+    t43(A.icon + ' ' + label, x + 13, y + 18, fs, '#fff4dc', 'left', true, 'rgba(0,0,0,0.4)');
+  });
+};
+const drawMapV44 = drawMap;
+drawMap = function () {
+  const r = drawMapV44.apply(this, arguments);
+  if (SETUI.open || SHOPUI.open) return r;
+  // wood header over the old green one
+  ctx.save();
+  ctx.fillStyle = grad43(0, 58, '#3b2a17', '#24180b'); ctx.fillRect(0, 0, W, 58);
+  ctx.fillStyle = '#8a5a2a'; ctx.fillRect(0, 58, W, 2);
+  ctx.restore();
+  const K = UI43.f ? UI43.f.K : 1;
+  t43("RONALD'S FARM", 16, 30, PHONE.on ? 32 : 26, '#ffb347', 'left', true, 'rgba(0,0,0,0.45)');
+  const sT = totalStars() + ' / ' + (LAST_LEVEL * 3);
+  let sR = W - 16; if (PHONE.on && typeof vis35 === 'function') { const v = vis35(); if (v) sR = v.r - 10; }
+  const pw = tw43(sT, 20) + 52;
+  pill43(sR - pw, 15, pw); star43(sR - pw + 14, 29, 13, '#ffe27a');
+  t43(sT, sR - 12, 30, 20, '#ffffff', 'right', false);
+  if (MAP.sel === ENDLESS_N && !MAP.walk) {
+    t43('ENDLESS: how long can you keep the sheep safe?', W / 2 + 30, 80, PHONE.on ? 26 : 18, '#ffffff', 'center', false, 'rgba(0,0,0,0.4)');
+  }
+  try { mapStickySigns(); } catch (e) { /* signs are decoration */ }
+  drawGift44();
+  return r;
+};
+// map side buttons (desktop canvas ones) in the glossy style; phone DOM rails get the same fonts/colours
+function overBtn44(b, label) {
+  gloss43(b.x, b.y, b.w, b.h, Math.min(13, b.h / 2), GL43.light[0], GL43.light[1], '#7a4a1e');
+  t43(label, b.x + b.w / 2, b.y + b.h / 2 + 1, PHONE.on ? 24 : 17, '#5a2e0e', 'center', true);
+}
+const drawGearBtnV44 = drawGearBtn;
+drawGearBtn = function () { const r = drawGearBtnV44.apply(this, arguments); if (!SETUI.open) overBtn44(GEAR_BTN, 'Settings (O)'); return r; };
+(function () {
+  try {
+    const st = document.createElement('style');
+    st.textContent = ".msp{font-family:'Lilita One','Trebuchet MS',sans-serif !important;} .msp button,.msp .b{border-radius:14px !important;}";
+    document.head.appendChild(st);
+  } catch (e) { /* decoration only */ }
+})();
+Object.assign(I18N35.pt, { 'Your tools:': 'Suas ferramentas:', 'pick up to # \u2022 1-#': 'escolha at\u00e9 # \u2022 1-#', 'Free tool! Pick one:': 'Ferramenta gr\u00e1tis! Escolha uma:', 'pick up to #': 'escolha at\u00e9 #', 'Spring Meadow': 'Prado da Primavera' });
+window.__picker44 = true;
+if (window.__dbg) window.__dbg.v44 = { REW44: REW44, slots44: slots44, AREAS44: AREAS44, saveRew44: saveRew44, grantIntro44: grantIntro44, winLevel: winLevel, beginLevel: beginLevel, toggleBring: toggleBring, useExtra: useExtra, extraBlocked: extraBlocked };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
