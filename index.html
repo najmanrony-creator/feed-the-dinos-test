@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 41
+  Sheep vs. Dinos 42
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 41</title>
+<title>Sheep vs. Dinos 42</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1492,6 +1492,7 @@ function updateMeats(dt) {
     let hit = null, hd = 1e9;
     for (const d of G.dinos) {
       if (d.state === 'devour' || d.mood || d.post) continue;
+      if (m.tgt42 && skip42(m, d)) continue;
       const h = headPos(d);
       const dd = Math.hypot(m.x - h.x, m.y - h.y);
       if (dd < h.r + F.r && dd < hd) { hd = dd; hit = d; }
@@ -17907,7 +17908,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v41';
+const GAME_VER = 'v42';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20778,7 +20779,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 41'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 42'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -21339,6 +21340,115 @@ bossBarH = function () { return BAR41.h || bossBarHV41(); };
 // the floating dino name tags (desktop) are gone in play too, like on the phone
 const drawDinoLabelV41 = drawDinoLabel;
 drawDinoLabel = function (d) { if ((state === 'play' || state === 'over' || state === 'won') && !(G && G.attract)) return; return drawDinoLabelV41.apply(this, arguments); };
+
+// ---- v42: Level 5 (the first boss, Mama Raptor) about 10% easier, campaign L5 only (L61 finale / Endless unchanged):
+// her hunger bar empties ~10% faster per feed (food and fed babies) and the babies move ~10% slower
+const MAMA42 = { base: JSON.parse(JSON.stringify(BOSS_TUNE.mama)), baby: { speed: TYPES.baby.speed, chase: TYPES.baby.chase }, on: null };
+function l5Tune42() {
+  const on = !!(G && CAMP() && G.level === 5 && !G.attract);
+  if (on === MAMA42.on) return;
+  MAMA42.on = on;
+  const k = on ? 1.1 : 1, B0 = MAMA42.base;
+  BOSS_TUNE.mama.dmg = B0.dmg.map(function (v) { return v * k; });
+  BOSS_TUNE.mama.babyDmg = B0.babyDmg * k;
+  TYPES.baby.speed = MAMA42.baby.speed / k; TYPES.baby.chase = MAMA42.baby.chase / k;
+}
+const updateV42 = update;
+update = function (dt) { l5Tune42(); return updateV42.apply(this, arguments); };
+
+// ---- v42: clearer tosses when dinos overlap
+// (1) an aimed toss (touch / tap) picks the dino whose HEAD is closest to the tap; a small landing marker shows at the tap
+//     point and that dino's head gets a soft, brief glow (both fade in ~0.4 s)
+// (2) the food prefers that dino: another dino whose head overlaps the chosen head does not steal it (dinos that are
+//     simply in the way, further apart, still catch it as before)
+// (3) dinos on the field are gently pushed apart so they don't stand right on top of each other
+const AIM42 = { marks: [], glows: [], pickR: 34 };
+function aimable42(d) { return d && G.dinos.indexOf(d) >= 0 && d.state !== 'devour' && !d.mood && !d.post && !d.leaving; }
+function pickTarget42(x, y) {
+  let best = null, bd = 1e9;
+  for (const d of G.dinos) {
+    if (!aimable42(d)) continue;
+    const h = headPos(d), dd = Math.hypot(h.x - x, h.y - y);
+    if (dd < h.r + AIM42.pickR && dd < bd) { bd = dd; best = d; }
+  }
+  return best;
+}
+// called from the meat hit loop: skip a dino whose head overlaps the chosen target's head
+function skip42(m, d) {
+  const t = m.tgt42;
+  if (!t || d === t || !aimable42(t)) return false;
+  const a = headPos(d), b = headPos(t);
+  return Math.hypot(a.x - b.x, a.y - b.y) < (a.r + b.r) * 0.9;
+}
+const updateFarmerV42 = updateFarmer;
+updateFarmer = function (dt) {
+  const n0 = G && G.meats ? G.meats.length : 0;
+  updateFarmerV42.apply(this, arguments);
+  if (!G || G.attract || !G.meats || G.meats.length <= n0) return;
+  const m = G.meats[G.meats.length - 1];
+  if (!m || !m.aimed || m.tgt42 !== undefined || !TOUCH.aim) return;
+  const ax = TOUCH.aim.x, ay = clamp(TOUCH.aim.y, HUD_H + 10, THROW_Y - 50);
+  m.tgt42 = pickTarget42(ax, ay);
+  AIM42.marks.push({ x: ax, y: ay, t: 0 });
+  if (AIM42.marks.length > 3) AIM42.marks.shift();
+  if (m.tgt42) { AIM42.glows = AIM42.glows.filter(function (g) { return g.d !== m.tgt42; }); AIM42.glows.push({ d: m.tgt42, t: 0 }); if (AIM42.glows.length > 3) AIM42.glows.shift(); }
+};
+// soft separation (field dinos only; bosses are never moved, only others step aside)
+function separate42(dt) {
+  const L = G.dinos, k = Math.min(1, dt * 3);
+  for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) {
+    const a = L[i], b = L[j];
+    if (!a.T || !b.T) continue;
+    const dx = b.x - a.x, dy = (b.y - a.y) * 1.6, dist = Math.hypot(dx, dy);
+    const minD = 22 * (a.T.s + b.T.s) + 10;
+    if (dist >= minD) continue;
+    const ma = move42(a), mb = move42(b);
+    if (!ma && !mb) continue;
+    const ux = dist > 0.5 ? dx / dist : (i % 2 ? 1 : -1), uy = dist > 0.5 ? dy / dist / 1.6 : 0.3;
+    const push = (minD - dist) * k * 0.5, sa = ma && mb ? 1 : 2;
+    if (ma) nudge42(a, -ux * push * sa, -uy * push * sa);
+    if (mb) nudge42(b, ux * push * sa, uy * push * sa);
+  }
+}
+function move42(d) { return !d.boss && !d.leaving && !d.post && d.state !== 'devour' && !d.carry && !(d.flip || d.swim || d.rollS); }
+function nudge42(d, px, py) {
+  const inX = d.x >= ZONE.x1 && d.x <= maxX(d), inY = d.y >= ZONE.y1 && d.y <= ZONE.y2;
+  let x = d.x + px, y = d.y + py;
+  if (inX) x = clamp(x, ZONE.x1, maxX(d));
+  if (inY) y = clamp(y, ZONE.y1, ZONE.y2);
+  if (x > PEN.x - 10 && x < PEN.x + PEN.w + 10 && y > PEN.y - 10 && y < PEN.y + PEN.h + 10) return;
+  d.x = x; d.y = y;
+}
+const updateV42b = update;
+update = function (dt) {
+  updateV42b.apply(this, arguments);
+  if (!G || state !== 'play') return;
+  AIM42.marks.forEach(function (q) { q.t += dt; }); AIM42.marks = AIM42.marks.filter(function (q) { return q.t < 0.45; });
+  AIM42.glows.forEach(function (q) { q.t += dt; }); AIM42.glows = AIM42.glows.filter(function (q) { return q.t < 0.5 && G.dinos.indexOf(q.d) >= 0; });
+  if (!G.attract && dt > 0) separate42(Math.min(dt, 0.05));
+};
+// drawn over the field, after the dinos
+const drawWeatherV12V42 = drawWeatherV12;
+drawWeatherV12 = function () {
+  drawWeatherV12V42.apply(this, arguments);
+  if (!G || state !== 'play') return;
+  ctx.save();
+  AIM42.glows.forEach(function (q) {
+    const h = headPos(q.d), a = 1 - q.t / 0.5;
+    ctx.globalAlpha = 0.55 * a; ctx.strokeStyle = '#fff3b0'; ctx.lineWidth = 3;
+    ctx.shadowColor = 'rgba(255,240,170,0.9)'; ctx.shadowBlur = 8;
+    ell(ctx, h.x, h.y, h.r + 3, h.r * 0.85 + 3); ctx.stroke();
+  });
+  ctx.shadowBlur = 0;
+  AIM42.marks.forEach(function (q) {
+    const a = 1 - q.t / 0.45, r = 6 + q.t * 14;
+    ctx.globalAlpha = 0.75 * a; ctx.lineWidth = 3.2; ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ell(ctx, q.x, q.y, r, r * 0.7); ctx.stroke();
+    ctx.lineWidth = 1.8; ctx.strokeStyle = '#ffffff'; ell(ctx, q.x, q.y, r, r * 0.7); ctx.stroke();
+    ctx.globalAlpha = 0.85 * a; ctx.fillStyle = '#ffffff'; ell(ctx, q.x, q.y, 2, 1.5); ctx.fill();
+  });
+  ctx.restore();
+};
+if (window.__dbg) window.__dbg.v42 = { AIM: AIM42, pick: pickTarget42, separate: separate42 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
