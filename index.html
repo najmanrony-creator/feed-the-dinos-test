@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 49
+  Sheep vs. Dinos 50
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 49</title>
+<title>Sheep vs. Dinos 50</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17899,7 +17899,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v49';
+const GAME_VER = 'v50';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20770,7 +20770,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 49'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 50'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -22440,7 +22440,7 @@ function drawBrief45() {
   const L = G.cfg, t = G.briefT, f = frame43(), K = f.K;
   const wasSkin = SKIN34.on; SKIN34.on = false;
   dim45();
-  const pw = Math.min(f.Wm - 20, 660), ph = Math.min(f.Hm - 44, 400), px = (f.Wm - pw) / 2, py = Math.max(6, (f.Hm - 44 - ph) / 2);
+  const pw = Math.min(f.Wm - 20, 660), ph = Math.min(f.Hm - 30, 424), px = (f.Wm - pw) / 2, py = Math.max(16, (f.Hm - 26 - ph) / 2);
   const kk = easeOutBack(clamp(t / 0.35, 0, 1));
   ctx.save(); ctx.scale(K, K); ctx.translate(f.Wm / 2, py + ph / 2); ctx.scale(kk, kk); ctx.translate(-f.Wm / 2, -(py + ph / 2));
   try {
@@ -22477,23 +22477,23 @@ function drawBrief45() {
     drawVegBadge(L, lx + lw / 2, y0 + picH - 16);
     wrap45(L.tip, lw - 6, 16.5).slice(0, 3).forEach(function (l, i) { t43(l, lx + lw / 2, y0 + picH + 18 + i * 19, fit43(l, lw - 6, 16.5, false, 16.5), '#6a4a28', 'center', false); });
     // right column
-    ctx.save(); ctx.strokeStyle = 'rgba(122,74,30,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(rx - 12, y0 + 4); ctx.lineTo(rx - 12, py + ph - 72); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.strokeStyle = 'rgba(122,74,30,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(rx - 12, y0 + 4); ctx.lineTo(rx - 12, py + ph - 68); ctx.stroke(); ctx.restore();
     t43('GOAL', rx + rw / 2, y0 + 8, 17, '#a86a10', 'center', true);
     wrap45(goalText(L), rw, 19, true).slice(0, 2).forEach(function (l, i) { t43(l, rx + rw / 2, y0 + 30 + i * 22, fit43(l, rw, 19, true, 16.5), '#7a4a08', 'center', true); });
     let yy = y0 + 74;
     wrap45(L.news, rw, 16.5).slice(0, 2).forEach(function (l, i) { t43(l, rx + rw / 2, yy + i * 19, fit43(l, rw, 16.5, false, 16.5), '#2a6a9a', 'center', false); yy += 0; });
-    yy = y0 + 116;
+    yy = y0 + 108;
     const rules = starRules(L), have = PROG.stars[L.n] | 0;
     rules.forEach(function (r, i) {
-      const ry = yy + i * 29;
+      const ry = yy + i * 36;
       starsRow45(rx + 26, ry, i + 1, have > i, 8);
-      wrap45(r, rw - 62, 16.5).slice(0, 2).forEach(function (l, j) { t43(l, rx + 58, ry - 5 + j * 17, fit43(l, rw - 62, 16.5, false, 16.5), have > i ? '#8a5f10' : '#6a5a42', 'left', false); });
+      wrap45(r, rw - 62, 16.5).slice(0, 2).forEach(function (l, j) { t43(l, rx + 58, ry - 6 + j * 19, fit43(l, rw - 62, 16.5, false, 16.5), have > i ? '#8a5f10' : '#6a5a42', 'left', false); });
     });
     UI_BTNS.length = 0;
     if (t > 0.3) {
-      btn45('ESC  Map', px + 22, py + ph - 64, 128, 40, function () { openMap(); }, false);
+      btn45('ESC  Map', px + 22, py + ph - 58, 128, 40, function () { openMap(); }, false);
       ctx.save(); ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
-      btn45('ENTER  Play!', px + pw - 190, py + ph - 64, 168, 40, function () { beginLevel(); }, true);
+      btn45('ENTER  Play!', px + pw - 190, py + ph - 58, 168, 40, function () { beginLevel(); }, true);
       ctx.restore();
     }
   } finally { ctx.restore(); SKIN34.on = wasSkin; }
@@ -22584,7 +22584,7 @@ function drawFail45() {
     if (L.tip) wrap45(L.tip, pw - 90, 16.5).slice(0, 2).forEach(function (l, i) { t43(l, f.Wm / 2, py + 248 + i * 21, fit43(l, pw - 90, 16.5, false, 16.5), '#6a5a42', 'center', false); });
     UI_BTNS.length = 0;
     if (t > 0.8) {
-      btn45('ESC  Map', px + 22, py + ph - 64, 128, 40, function () { openMap(); }, false);
+      btn45('ESC  Map', px + 22, py + ph - 58, 128, 40, function () { openMap(); }, false);
       ctx.save(); ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
       btn45('ENTER  Try again', px + pw - 212, py + ph - 54, 190, 40, function () { retryLevel(); }, true);
       ctx.restore();
@@ -22748,11 +22748,11 @@ function drawSlots46() {
   const slots = slots44(G.level);
   if (!slots) return;
   const f = frame43(), K = f.K;
-  const pw = Math.min(f.Wm - 20, 660), ph = Math.min(f.Hm - 44, 400), px = (f.Wm - pw) / 2, py = Math.max(6, (f.Hm - 44 - ph) / 2);
+  const pw = Math.min(f.Wm - 20, 660), ph = Math.min(f.Hm - 30, 424), px = (f.Wm - pw) / 2, py = Math.max(16, (f.Hm - 26 - ph) / 2);
   const picked = TOOL_ORDER.filter(function (k) { return G.bring && G.bring[k]; });
   ctx.save(); ctx.scale(K, K);
   try {
-    const sq = 40, gap = 8, cw2 = 100, by = py + ph - 64, totW = sq * 3 + gap * 2 + 10 + cw2;
+    const sq = 40, gap = 8, cw2 = 100, by = py + ph - 58, totW = sq * 3 + gap * 2 + 10 + cw2;
     let x = px + 158 + Math.max(0, (pw - 356 - totW) / 2);
     t43('Tools:', x + totW / 2, by - 14, 16.5, '#7a4a1e', 'center', true);
     for (let i = 0; i < 3; i++) {
