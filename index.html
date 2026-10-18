@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 48
+  Sheep vs. Dinos 49
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 48</title>
+<title>Sheep vs. Dinos 49</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17899,7 +17899,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v48';
+const GAME_VER = 'v49';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20770,7 +20770,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 48'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 49'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -22942,6 +22942,94 @@ MAPZ.z = 1.45;
   MAP.segs = null; try { buildMapBG(); } catch (e) { MAP.bg = null; }
 })();
 if (window.__dbg) window.__dbg.v48 = { signsOff: true };
+
+// ================================================================ v49: the map's left controls column restored to the
+// old side-rail look (see Rony's screenshot): a dark-green strip at the far left with, top to bottom, a red
+// Shop square (wool tuft), a green Settings square (gear), a white wool pill, a tall white lives pill with
+// the hearts stacked vertically, and the red TEST refill button under it (test builds only, as before).
+// The v47 glossy canvas column is replaced; on a real phone the DOM side panels (MAPSIDE) still take over.
+const COL49 = { x: 0, w: 134, shop: { x: 27, y: 72, w: 80, h: 80 }, gear: { x: 27, y: 164, w: 80, h: 80 }, wool: { x: 29, y: 258, w: 76, h: 62 }, lives: { x: 29, y: 334, w: 76, h: 158 }, testY: 506 };
+SHOP_BTN.x = COL49.shop.x; SHOP_BTN.y = COL49.shop.y; SHOP_BTN.w = COL49.shop.w; SHOP_BTN.h = COL49.shop.h;
+GEAR_BTN.x = COL49.gear.x; GEAR_BTN.y = COL49.gear.y; GEAR_BTN.w = COL49.gear.w; GEAR_BTN.h = COL49.gear.h;
+// an older wrapper re-widens these buttons to fit their text every frame; the squares keep their size
+try {
+  Object.defineProperty(SHOP_BTN, 'w', { get: function () { return COL49.shop.w; }, set: function () { }, configurable: true });
+  Object.defineProperty(GEAR_BTN, 'w', { get: function () { return COL49.gear.w; }, set: function () { }, configurable: true });
+} catch (e) { /* decoration only */ }
+function colOpen49() { return state === 'map' && !SHOPUI.open && !SETUI.open && !LIVESUI.open && !(AD.playing && AD.playing.map); }
+// the v47 canvas pills go away: the column draws its own (the DOM panels keep theirs when they are on)
+const woolPillV49 = woolPill;
+woolPill = function (x, y, n, size, align) {
+  if (state === 'map' && (MAPSIDE.on || (!SHOPUI.open && !SETUI.open && x === W - 14 && y === 74))) return 0;
+  return woolPillV49.apply(this, arguments);
+};
+const livesPillV49 = livesPill;
+livesPill = function (xr, y, size) {
+  if (state === 'map' && (MAPSIDE.on || y === 102)) return { x: -1000, w: 0, h: 0 };
+  return livesPillV49.apply(this, arguments);
+};
+const livesPointerV49 = livesPointer;
+livesPointer = function (mx, my) {
+  if (colOpen49() && !MAPSIDE.on) {
+    const a = COL49.wool, b = COL49.lives;
+    if ((mx >= a.x && mx <= a.x + a.w && my >= a.y && my <= a.y + a.h) || (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h)) { openLivesUI(); return true; }
+  }
+  return livesPointerV49.apply(this, arguments);
+};
+const tapTargetsV49 = tapTargets;
+tapTargets = function () {
+  const T = tapTargetsV49.apply(this, arguments);
+  if (colOpen49() && !MAPSIDE.on) T.push({ x: COL49.lives.x, y: COL49.lives.y, w: COL49.lives.w, h: COL49.lives.h });
+  return T;
+};
+const livesTestBtnV49 = livesTestBtn;
+livesTestBtn = function (x, y) {
+  if (state === 'map' && !MAPSIDE.on) return livesTestBtnV49(22, COL49.testY);
+  return livesTestBtnV49.apply(this, arguments);
+};
+function drawCol49() {
+  const C = COL49;
+  ctx.save();
+  // the dark-green frame strip
+  const sg = ctx.createLinearGradient(0, 0, C.w, 0); sg.addColorStop(0, '#16261a'); sg.addColorStop(1, '#22382a');
+  ctx.fillStyle = sg; ctx.fillRect(0, 58, C.w, H - 58);
+  ctx.fillStyle = 'rgba(200,150,80,0.45)'; ctx.fillRect(C.w - 2, 58, 2, H - 58);
+  const sq = function (b, c1, c2) {
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = grad43(b.y, b.y + b.h, c1, c2); rr(ctx, b.x, b.y, b.w, b.h, 14); ctx.fill(); ctx.restore();
+    ctx.strokeStyle = 'rgba(255,235,200,0.55)'; ctx.lineWidth = 1.5; rr(ctx, b.x, b.y, b.w, b.h, 14); ctx.stroke();
+  };
+  // Shop (red) and Settings (green) squares
+  const open = shopOpen(), sb = C.shop, gb = C.gear;
+  sq(sb, open ? '#c0392b' : '#6a6a62', open ? '#8a2418' : '#45453f');
+  drawWoolTuft(sb.x + sb.w / 2, sb.y + 30, 15, open ? 1 : 0.6);
+  if (!open) drawPadlock(sb.x + sb.w - 14, sb.y + 14, 0.55);
+  t43('Shop', sb.x + sb.w / 2, sb.y + 62, 20, '#fff4dc', 'center', true, 'rgba(0,0,0,0.35)');
+  sq(gb, '#3c5a34', '#1c3020');
+  drawGear(gb.x + gb.w / 2, gb.y + 30, 13, '#e8e2cc');
+  t43('Settings', gb.x + gb.w / 2, gb.y + 62, fit43('Settings', gb.w - 8, 20, true, 17), '#fff4dc', 'center', true, 'rgba(0,0,0,0.35)');
+  // white wool pill
+  const wp = C.wool;
+  ctx.save(); ctx.shadowColor = 'rgba(40,25,10,0.28)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+  ctx.fillStyle = '#fbf6ec'; rr(ctx, wp.x, wp.y, wp.w, wp.h, 14); ctx.fill(); ctx.restore();
+  drawWoolTuft(wp.x + wp.w / 2, wp.y + 20, 11, 1);
+  txt(String(WOOL.wool), wp.x + wp.w / 2, wp.y + 46, 23, '#3a3230', 'center', 'bold', false);
+  // tall white lives pill: hearts stacked, then the label
+  const lp = C.lives, n = livesSync(), full = n >= LIVES_CFG.max;
+  ctx.save(); ctx.shadowColor = 'rgba(40,25,10,0.28)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+  ctx.fillStyle = '#fbf6ec'; rr(ctx, lp.x, lp.y, lp.w, lp.h, 14); ctx.fill(); ctx.restore();
+  for (let i = 0; i < LIVES_CFG.max; i++) drawLifeHeart(lp.x + lp.w / 2, lp.y + 22 + i * 23, 8, i < n);
+  const lt = full ? 'full' : fmtMS(livesLeftMs());
+  txt(lt, lp.x + lp.w / 2, lp.y + lp.h - 14, full ? 19 : 16, n ? '#6a5a48' : '#c0392b', 'center', 'bold', false);
+  ctx.restore();
+}
+const drawMapV49 = drawMap;
+drawMap = function () {
+  const r = drawMapV49.apply(this, arguments);
+  if (colOpen49() && !MAPSIDE.on) { try { drawCol49(); } catch (e) { /* the column is decoration */ } }
+  return r;
+};
+if (window.__dbg) window.__dbg.v49 = { COL49: COL49 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
