@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 50
+  Sheep vs. Dinos 51
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 50</title>
+<title>Sheep vs. Dinos 51</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -118,7 +118,7 @@
   body.phone #phRow { display: flex; position: absolute; z-index: 3; flex-direction: row; justify-content: flex-end; gap: 8px; touch-action: none; visibility: hidden; pointer-events: none; }
   body.phone.playing #phRow { visibility: visible; }
   body.phone.playing.pmodal #phRow { visibility: hidden; }
-  .pb.spec { display: none; width: 42px; height: 40px; border-radius: 9px; background: rgba(20,14,6,.4); border-color: rgba(255,220,150,.3); }
+  .pb.spec { display: none; width: 66px; height: 44px; border-radius: 9px; background: rgba(20,14,6,.4); border-color: rgba(255,220,150,.3); }
   .pb.spec::after { inset: -3px -2px; }   /* tap area 46 x 46 (the 8px gap keeps neighbours apart) */
   .pb.spec canvas.pbc { inset: 1px; width: calc(100% - 2px); height: calc(100% - 2px); }
   .pb.spec .pbl { display: none; }   /* the slot picture already shows the tool, xN badge and READY / TAP */
@@ -17899,7 +17899,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v50';
+const GAME_VER = 'v51';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20770,7 +20770,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 50'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 51'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -23030,6 +23030,170 @@ drawMap = function () {
   return r;
 };
 if (window.__dbg) window.__dbg.v49 = { COL49: COL49 };
+
+// ================================================================ v51: four fixes from phone testing.
+// 1) Briefing tool squares are real buttons: tapping one opens the tool picker (Change) - it must NEVER
+//    start the level (before, the squares were decoration, so the tap fell through to "any tap = Play").
+// 2) Only the tools picked on the briefing (plus the tool a level introduces, with its tutorial) exist
+//    in the level: everything not picked becomes 'na' when the level starts, so it cannot show in the
+//    tool bar / phone buttons or be used. The introduced tool is only offered once a dino is on the
+//    field, and its tutorial finger waits for dinos too.
+// 3) The briefing picture box for boss levels was empty: drawBossPicture drew at screen-centre (W/2)
+//    coordinates, far outside the little picture box it is clipped to. It now draws inside the box.
+// 4) The in-level phone tool buttons were squished (icon + badge + ribbon crammed into 40x40):
+//    the cell is now 64x42 - icon left, count badge clear at the top-right, tool name on a bottom strip.
+// ---------- 1) briefing squares open the picker
+const drawSlots46V51 = drawSlots46;
+drawSlots46 = function () {
+  const r = drawSlots46V51.apply(this, arguments);
+  try {
+    if (state !== 'brief' || !G || G.briefT < 0.3 || PICK46.open) return r;
+    const slots = slots44(G.level); if (!slots) return r;
+    const f = frame43(), K = f.K;
+    const pw = Math.min(f.Wm - 20, 660), ph = Math.min(f.Hm - 30, 424), px = (f.Wm - pw) / 2, py = Math.max(16, (f.Hm - 26 - ph) / 2);
+    const sq = 40, gap = 8, cw2 = 100, by = py + ph - 58, totW = sq * 3 + gap * 2 + 10 + cw2;
+    const x = px + 158 + Math.max(0, (pw - 356 - totW) / 2);
+    ctx.save(); ctx.scale(K, K);
+    const m = ctx.getTransform(), bs = m.a / dpr;
+    for (let i = 0; i < 3; i++) {
+      const bx = x + i * (sq + gap);
+      UI_BTNS.push({ x: (m.a * bx + m.e) / dpr, y: (m.d * by + m.f) / dpr, w: sq * bs, h: sq * bs, act: function () { PICK46.open = true; }, label: 'Tools' });
+    }
+    ctx.restore();
+  } catch (e) { /* buttons are decoration if anything above fails */ }
+  return r;
+};
+pickerBar44 = drawSlots46;
+// ---------- 2) unpicked tools do not enter the level; the new tool waits for the first dino
+const beginLevelV51 = beginLevel;
+beginLevel = function () {
+  const r = beginLevelV51.apply(this, arguments);
+  try {
+    if (G && !G.attract && typeof CAMP === 'function' && CAMP() && G.cfg && G.tools) {
+      const intro = G.cfg.newTool || null;
+      G.picked51 = Object.assign({}, G.bring || {});
+      TOOL_ORDER.forEach(function (k) {
+        if (!G.tools[k] || G.tools[k] === 'na' || k === intro) return;
+        if (!G.picked51[k]) G.tools[k] = 'na';   // not picked: not visible, not usable in this level
+      });
+    }
+  } catch (e) { /* the level still starts */ }
+  return r;
+};
+const campToolTickV51 = campToolTick;
+campToolTick = function (dt) {
+  // the introduced tool appears only once a dino has actually hatched and is on the field
+  if (G && G.cfg && G.cfg.newTool && G.tools && G.tools[G.cfg.newTool] === 'locked' && !(G.dinos && G.dinos.length)) return;
+  return campToolTickV51.apply(this, arguments);
+};
+const tutScan36V51 = tutScan36;
+tutScan36 = function () {
+  const r = tutScan36V51.apply(this, arguments);
+  try { if (!(G && G.dinos && G.dinos.length)) TUT36.q = TUT36.q.filter(function (s) { return !(s.id || '').startsWith('tool-'); }); } catch (e) { /* tutorial is decoration */ }
+  return r;
+};
+// the tool bar only lists tools that are really in this level (no greyed future tools on campaign levels)
+const trayToolsV51 = trayTools;
+trayTools = function () {
+  if (G && G.tools && typeof CAMP === 'function' && CAMP()) return TOOL_ORDER.filter(function (k) { return G.tools[k] && G.tools[k] !== 'na'; });
+  return trayToolsV51.apply(this, arguments);
+};
+// ---------- 3) boss pictures inside the briefing picture box
+drawBossPicture = function (L, picY, picH) {
+  const f = frame43(), pw = Math.min(f.Wm - 20, 660), px = (f.Wm - pw) / 2;
+  const lx = px + 22, lw = pw * 0.56, cx = lx + lw / 2, top = picY + 54, realH = Math.max(30, picH - 54), base = top + realH - 7;
+  if (L.boss === 'mama') { drawDinoPicture(TYPES.mama, cx - lw * 0.10, base, lw * 0.52, realH - 4, animT); for (let i = 0; i < 2; i++) drawDinoPicture(TYPES.baby, cx + lw * 0.24 + i * lw * 0.13, base, lw * 0.15, realH * 0.55, animT + i); }
+  else if (L.boss === 'twins') { drawDinoPicture(TYPES.twinA, cx - lw * 0.22, base, lw * 0.42, realH - 6, animT); drawDinoPicture(TYPES.twinB, cx + lw * 0.22, base, lw * 0.42, realH - 6, animT + 1.3); }
+  else if (L.boss === 'queen') { drawDinoPicture(TYPES.queen, cx, base, lw * 0.5, realH - 4, animT); drawDinoPicture(TYPES.raptor, cx + lw * 0.36, base, lw * 0.2, realH * 0.6, animT); drawDinoPicture(TYPES.carno, cx - lw * 0.37, base, lw * 0.22, realH * 0.65, animT + 2); }
+  else if (L.boss === 'ptera') {
+    drawPtera({ x: cx - lw * 0.08, y: top + realH * 0.62, dir: 1, flap: animT * 7, st: 'circle', t: animT }, 0.8);
+    drawSheep({ x: cx + lw * 0.30, y: base, phase: 0 }, 0.9, -1, false); drawSheep({ x: cx + lw * 0.22, y: base + 2, phase: 0 }, 0.45, 1, false);
+    drawRam({ x: cx - lw * 0.36, y: base, phase: 0 }, 0.9, 1, false, 0, false);
+  } else if (L.boss === 'bigmama') { drawDinoPicture(TYPES.bigmama, cx - lw * 0.06, base, lw * 0.55, realH - 2, animT); drawDinoPicture(TYPES.babyallo, cx + lw * 0.34, base, lw * 0.18, realH * 0.55, animT + 1); }
+  else { drawDinoPicture(TYPES.king, cx - lw * 0.08, base, lw * 0.52, realH - 4, animT); drawDinoPicture(TYPES.raptor, cx + lw * 0.33, base, lw * 0.22, realH * 0.62, animT); }
+};
+// ---------- 4) clean phone tool buttons: bigger cell, badge clear of the icon, name strip at the bottom
+PHONE_SPEC.x = 140; PHONE_SPEC.y = 1; PHONE_SPEC.w = 64; PHONE_SPEC.h = 42; PHONE_SPEC.step = 70;
+PHONE_SPEC_CSS.w = 66;
+const SPEC_NAME51 = { vicky: 'Vicky', mrsdino: 'Mrs Dino', faketeor: 'Faketeor', lullaby: 'Lullaby', scarecrow: 'Scare Dino', whistle: 'Whistle' };
+phoneSpecIcons = function () {
+  const keys = phoneSpecKeys();
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i], st = G.tools[k], xl = extraLook(k), ready = phoneToolReady(k), active = st === 'active' && !ready;
+    const x = PHONE_SPEC.x + i * PHONE_SPEC.step, y = PHONE_SPEC.y, w = PHONE_SPEC.w, h = PHONE_SPEC.h;
+    ctx.save();
+    const g = ctx.createLinearGradient(0, y, 0, y + h);
+    if (ready) { g.addColorStop(0, 'rgba(255,224,120,0.6)'); g.addColorStop(1, 'rgba(190,120,30,0.5)'); }
+    else if (xl === 'ready') { g.addColorStop(0, 'rgba(34,92,54,0.97)'); g.addColorStop(1, 'rgba(16,50,28,0.97)'); }
+    else if (active) { g.addColorStop(0, 'rgba(150,220,255,0.45)'); g.addColorStop(1, 'rgba(60,120,190,0.4)'); }
+    else { g.addColorStop(0, 'rgba(70,60,40,0.92)'); g.addColorStop(1, 'rgba(40,32,20,0.92)'); }
+    ctx.fillStyle = g; rr(ctx, x, y, w, h, 8); ctx.fill();
+    ctx.strokeStyle = ready ? '#ffd65a' : 'rgba(255,235,190,0.5)'; ctx.lineWidth = ready ? 2 : 1.2; rr(ctx, x, y, w, h, 8); ctx.stroke();
+    ctx.save(); rr(ctx, x + 1, y + 1, w - 2, h - 12, 7); ctx.clip();
+    drawToolIcon(k, x + 27, y + 16, 24, ready || active ? animT : 0);
+    ctx.restore();
+    if (G.costume && k === 'mrsdino' && ready) { ctx.fillStyle = '#ffd65a'; ell(ctx, x + 8, y + 8, 6.5, 6.5); ctx.fill(); txt('\u2715', x + 8, y + 8.5, 10, '#1d2a18', 'center', 'bold', false); }
+    if (active) { ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, x + 4, y + h - 13, w - 8, 3, 1.5); ctx.fill(); ctx.fillStyle = '#9fe0ff'; rr(ctx, x + 4, y + h - 13, Math.max(3, (w - 8) * toolLeft(k)), 3, 1.5); ctx.fill(); }
+    if (xl !== 'none') countBadge(x + w - 11, y + 9, WOOL.inv[k] | 0, xl === 'ready');
+    // the name strip: the whole bottom of the button, nothing drawn over it
+    ctx.fillStyle = ready ? 'rgba(255,214,90,0.95)' : xl === 'ready' ? 'rgba(61,220,132,0.92)' : 'rgba(0,0,0,0.45)';
+    rr(ctx, x + 3, y + h - 11, w - 6, 10, 4); ctx.fill();
+    txt(SPEC_NAME51[k] || TOOLS[k].name, x + w / 2, y + h - 5.8, 9.5, ready || xl === 'ready' ? '#14240c' : '#ffe9b0', 'center', 'bold', false);
+    ctx.restore();
+  }
+};
+// the introduced tool cannot be used from the bag before its tutorial moment either: until it has
+// been offered it is invisible in the tray / phone buttons and every use path says "wait".
+function introPending51(k) {   // the level's new tool, not picked, and not offered yet
+  return !!(G && G.cfg && k === G.cfg.newTool && G.tools && G.tools[k] === 'locked' && !(G.bring && G.bring[k]) && !(G.picked51 && G.picked51[k]));
+}
+const extraBlockedV51 = extraBlocked;
+extraBlocked = function (k) {
+  if (introPending51(k)) return 'wait';
+  return extraBlockedV51.apply(this, arguments);
+};
+const extraLookV51 = extraLook;
+extraLook = function (k) {
+  if (introPending51(k)) return 'none';
+  return extraLookV51.apply(this, arguments);
+};
+const phoneSpecKeysV51 = phoneSpecKeys;
+phoneSpecKeys = function () {
+  let ks = phoneSpecKeysV51.apply(this, arguments);
+  if (G && G.cfg && G.cfg.newTool) ks = ks.filter(function (q) { return !introPending51(q); });
+  return ks;
+};
+// ---------- 5) map: level spots at the right edge were clipped, and the stars chip's star touched its number.
+// Re-fit the path so the rightmost spot CENTRE sits at least 48 px inside the visible right edge (a spot's
+// selection ring needs ~38 px), not 24 px inside the canvas edge. Re-checked whenever the visible width changes.
+const A48_51 = 205 / 1.45, F48_51 = ((W - 24) / 1.45 - A48_51) / 700;
+const ORIG51 = MAP_PTS.map(function (p) { return 100 + (p[0] - A48_51) / F48_51; });
+let FIT51 = '';
+function refit51(force) {
+  const z = MAPZ.z;
+  let R = W - 70;
+  try { const v = (typeof vis35 === 'function') ? vis35() : null; if (v && v.r) R = Math.min(R, v.r - 48); } catch (e) { /* canvas not laid out yet */ }
+  const key = Math.round(R); if (!force && key === FIT51) return; FIT51 = key;
+  const L = 205;
+  MAP_PTS.forEach(function (p, i) { p[0] = (L + (ORIG51[i] - 100) * (R - L) / 700) / z; });
+  MAP.segs = null; try { buildMapBG(); } catch (e) { MAP.bg = null; }
+}
+const drawMapV51 = drawMap;
+drawMap = function () {
+  refit51(false);
+  const r = drawMapV51.apply(this, arguments);
+  try {   // the stars chip, redrawn with real padding: star well clear of the number
+    if (state === 'map' && !SHOPUI.open && !SETUI.open) {
+      const sT = totalStars() + ' / ' + (LAST_LEVEL * 3);
+      let sR = W - 16; if (PHONE.on && typeof vis35 === 'function') { const v = vis35(); if (v) sR = v.r - 10; }
+      const pw = tw43(sT, 20) + 72;
+      pill43(sR - pw, 15, pw); star43(sR - pw + 18, 29, 12, '#ffe27a');
+      t43(sT, sR - 14, 30, 20, '#ffffff', 'right', false);
+    }
+  } catch (e) { /* the chip is decoration */ }
+  return r;
+};
+if (window.__dbg) window.__dbg.v51 = { drawSlots46: drawSlots46, beginLevel: beginLevel, campToolTick: campToolTick, drawBossPicture: drawBossPicture, phoneSpecIcons: phoneSpecIcons, PHONE_SPEC: PHONE_SPEC, refit51: refit51, MAP_PTS: MAP_PTS };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
