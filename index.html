@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  Sheep vs. Dinos 51
+  Sheep vs. Dinos 52
 
   Sound credits (all real recordings are public domain or CC0, from Wikimedia Commons and freesound.org;
   they were trimmed, mixed, pitch-shifted and volume-levelled for the game):
@@ -40,7 +40,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sheep vs. Dinos 51</title>
+<title>Sheep vs. Dinos 52</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17899,7 +17899,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v51';
+const GAME_VER = 'v52';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -20770,7 +20770,7 @@ function dom35(root) {
 }
 document.documentElement.lang = LANG35.cur === 'pt' ? 'pt-BR' : 'en';
 (function () {
-  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 51'; };
+  const go = function () { dom35(document.body); if (LANG35.cur === 'pt') document.title = 'Sheep vs. Dinos 52'; };
   if (document.body) go(); else document.addEventListener('DOMContentLoaded', go);
   try { new MutationObserver(function (ms) { ms.forEach(function (m) { dom35(m.target.nodeType === 3 ? m.target.parentNode : m.target); }); }).observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* ignore */ }
 })();
@@ -22451,10 +22451,17 @@ function drawBrief45() {
     ctx.save(); ctx.fillStyle = AREAS[L.area].col; rr(ctx, f.Wm / 2 - aw / 2, py + 36, aw, 25, 12.5); ctx.fill();
     ctx.strokeStyle = 'rgba(60,40,10,0.5)'; ctx.lineWidth = 1.5; rr(ctx, f.Wm / 2 - aw / 2, py + 36, aw, 25, 12.5); ctx.stroke(); ctx.restore();
     t43(area, f.Wm / 2, py + 49.5, fit43(area, aw - 16, 16.5, false, 16.5), '#1d2a18', 'center', false);
-    t43(L.place, f.Wm / 2 - 90, py + 74, fit43(L.place, pw - 330, 23, true, 18), '#5a2e0e', 'center', true);
-    t43('"' + L.title + '"', f.Wm / 2 + (pw / 2 - 150), py + 74, fit43('"' + L.title + '"', 240, 16.5, false, 16.5), '#8a6a42', 'right', false);
     // columns: picture + tip (left), goal / news / stars (right)
     const lx = px + 22, lw = pw * 0.56, rx = px + pw * 0.60, rw = pw - (rx - px) - 22, y0 = py + 88;
+    // v52: the place name sits over the picture column and the level title over the right column, each fitted to its
+    // own column, so a long boss title ('BOSS: Ankylosaurus Tank') can never run into the place name
+    t43(L.place, lx + lw / 2, py + 74, fit43(L.place, lw - 8, 23, true, 16.5), '#5a2e0e', 'center', true);
+    { // the 'BOSS FIGHT!' line below already says it is a boss, so the title drops its 'BOSS:' prefix; if it is still too wide it shrinks to 16.5px and then wraps to 2 lines
+      let tt = String(tr35(L.title)).replace(/^\s*(BOSS|CHEF\u00c3O)\s*:\s*/i, '');
+      const cw = rw + 10, tcx = rx - 6 + cw / 2, tf = fit43(tt, cw, 18, false, 16.5);
+      if (tw43(tt, tf, false) <= cw) t43(tt, tcx, py + 74, tf, '#8a6a42', 'center', false);
+      else wrap45(tt, cw, 16.5).slice(0, 2).forEach(function (l, i) { t43(l, tcx, py + 66 + i * 17, fit43(l, cw, 16.5, false, 16.5), '#8a6a42', 'center', false); });
+    }
     ctx.save();
     const picH = 72;
     const sky = ctx.createLinearGradient(0, y0, 0, y0 + picH);
@@ -22474,18 +22481,31 @@ function drawBrief45() {
     ctx.strokeStyle = '#6a3a12'; ctx.lineWidth = 2.5; rr(ctx, lx, y0, lw, picH, 10); ctx.stroke();
     ctx.restore();
     if (L.newDino) { ctx.save(); ctx.fillStyle = '#e8473a'; rr(ctx, lx + 8, y0 + 8, 104, 25, 12.5); ctx.fill(); ctx.restore(); t43('NEW DINO!', lx + 60, y0 + 21, 16.5, '#ffffff', 'center', true, 'rgba(0,0,0,0.35)'); }
-    drawVegBadge(L, lx + lw / 2, y0 + picH - 16);
-    wrap45(L.tip, lw - 6, 16.5).slice(0, 3).forEach(function (l, i) { t43(l, lx + lw / 2, y0 + picH + 18 + i * 19, fit43(l, lw - 6, 16.5, false, 16.5), '#6a4a28', 'center', false); });
+    if (L.herb) {   // v52: the veggie badge lives inside the picture box (top edge), sized to the box, never over the tip
+      const vt = 'Veggie level: plant-eaters only!', vf = fit43(vt, lw - (L.newDino ? 140 : 56), 16.5, true, 16.5), vw = Math.min(lw - (L.newDino ? 124 : 16), tw43(vt, vf, true) + 40);
+      const vx = L.newDino ? lx + lw - 8 - vw : lx + lw / 2 - vw / 2;
+      ctx.save(); ctx.fillStyle = 'rgba(40,110,30,0.94)'; rr(ctx, vx, y0 + 8, vw, 25, 12.5); ctx.fill(); ctx.strokeStyle = '#c8ff9a'; ctx.lineWidth = 1.5; rr(ctx, vx, y0 + 8, vw, 25, 12.5); ctx.stroke();
+      ctx.translate(vx + 15, y0 + 20.5); ctx.rotate(-0.3); VEG_DRAW = true; drawFood(0, 0.5); VEG_DRAW = null; ctx.restore();
+      t43(vt, vx + 26 + (vw - 30) / 2, y0 + 21, vf, '#ffffff', 'center', true, 'rgba(0,0,0,0.35)');
+    }
+    { const tl = wrap45(L.tip, lw - 6, 16.5), room = Math.min(4, Math.max(3, Math.floor((py + ph - 98 - (y0 + picH + 18)) / 18) + 1)), sp = tl.length > 3 ? 18 : 19;   // v52: long tips get a 4th line when there is room
+    tl.slice(0, room).forEach(function (l, i) { t43(l, lx + lw / 2, y0 + picH + 18 + i * sp, fit43(l, lw - 6, 16.5, false, 16.5), '#6a4a28', 'center', false); }); }
     // right column
     ctx.save(); ctx.strokeStyle = 'rgba(122,74,30,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(rx - 12, y0 + 4); ctx.lineTo(rx - 12, py + ph - 68); ctx.stroke(); ctx.restore();
     t43('GOAL', rx + rw / 2, y0 + 8, 17, '#a86a10', 'center', true);
-    wrap45(goalText(L), rw, 19, true).slice(0, 2).forEach(function (l, i) { t43(l, rx + rw / 2, y0 + 30 + i * 22, fit43(l, rw, 19, true, 16.5), '#7a4a08', 'center', true); });
-    let yy = y0 + 74;
-    wrap45(L.news, rw, 16.5).slice(0, 2).forEach(function (l, i) { t43(l, rx + rw / 2, yy + i * 19, fit43(l, rw, 16.5, false, 16.5), '#2a6a9a', 'center', false); yy += 0; });
-    yy = y0 + 108;
+    let gfs = 19, gl = wrap45(goalText(L), rw, gfs, true);
+    while (gl.length > 2 && gfs > 16.5) { gfs = Math.max(16.5, gfs - 1); gl = wrap45(goalText(L), rw, gfs, true); }
+    const g3 = gl.length > 2, gsp = g3 ? 19 : 22;
+    gl.slice(0, 3).forEach(function (l, i) { t43(l, rx + rw / 2, y0 + (g3 ? 27 : 30) + i * gsp, fit43(l, rw, gfs, true, 16.5), '#7a4a08', 'center', true); });
+    let yy = g3 ? y0 + 86 : y0 + 74;
+    const nl = wrap45(L.news, rw, 16.5).slice(0, g3 ? 1 : 2);
+    nl.forEach(function (l, i) { t43(l, rx + rw / 2, yy + i * 19, fit43(l, rw, 16.5, false, 16.5), '#2a6a9a', 'center', false); });
+    // v52: the star rows start below the last news line (a 2-line news no longer runs into the first star row)
+    const sTop = Math.max(y0 + 108, yy + (nl.length - 1) * 19 + 26), sSp = Math.min(36, Math.max(30, (py + ph - 100 - sTop) / 2));
+    yy = sTop;
     const rules = starRules(L), have = PROG.stars[L.n] | 0;
     rules.forEach(function (r, i) {
-      const ry = yy + i * 36;
+      const ry = yy + i * sSp;
       starsRow45(rx + 26, ry, i + 1, have > i, 8);
       wrap45(r, rw - 62, 16.5).slice(0, 2).forEach(function (l, j) { t43(l, rx + 58, ry - 6 + j * 19, fit43(l, rw - 62, 16.5, false, 16.5), have > i ? '#8a5f10' : '#6a5a42', 'left', false); });
     });
@@ -23110,6 +23130,10 @@ drawBossPicture = function (L, picY, picH) {
     drawSheep({ x: cx + lw * 0.30, y: base, phase: 0 }, 0.9, -1, false); drawSheep({ x: cx + lw * 0.22, y: base + 2, phase: 0 }, 0.45, 1, false);
     drawRam({ x: cx - lw * 0.36, y: base, phase: 0 }, 0.9, 1, false, 0, false);
   } else if (L.boss === 'bigmama') { drawDinoPicture(TYPES.bigmama, cx - lw * 0.06, base, lw * 0.55, realH - 2, animT); drawDinoPicture(TYPES.babyallo, cx + lw * 0.34, base, lw * 0.18, realH * 0.55, animT + 1); }
+  else if (L.boss === 'carnogang') { drawDinoPicture(TYPES.gangL, cx - lw * 0.30, base - 3, lw * 0.30, realH * 0.75, animT); drawDinoPicture(TYPES.gangR, cx + lw * 0.30, base - 3, lw * 0.30, realH * 0.75, animT + 0.8); drawDinoPicture(TYPES.gangM, cx, base, lw * 0.36, realH - 4, animT + 1.6); }
+  else if (L.boss === 'anky') { drawDinoPicture(TYPES.anky, cx - lw * 0.10, base, lw * 0.55, realH - 4, animT); drawVicky({ x: cx + lw * 0.33, y: base - 2, dir: -1, pose: 'sit', ph: 0, t: animT, hop: 0, bark: 0 }, 0.75); }
+  else if (L.boss === 'woolly' || L.boss === 'thaw' || L.boss === 'sneezy' || L.boss === 'mudwallow') { drawDinoPicture(TYPES[L.boss], cx, base, lw * 0.6, realH - 4, L.boss === 'thaw' ? animT * 0.3 : animT); }
+  else if (L.boss === 'rush') { ['raptor', 'spino', 'carno', 'woolly', 'sneezy'].forEach(function (k, i) { drawDinoPicture(TYPES[k], cx + (i - 2) * lw * 0.19, base, lw * 0.19, realH * 0.7, animT + i); }); }
   else { drawDinoPicture(TYPES.king, cx - lw * 0.08, base, lw * 0.52, realH - 4, animT); drawDinoPicture(TYPES.raptor, cx + lw * 0.33, base, lw * 0.22, realH * 0.62, animT); }
 };
 // ---------- 4) clean phone tool buttons: bigger cell, badge clear of the icon, name strip at the bottom
@@ -23129,16 +23153,17 @@ phoneSpecIcons = function () {
     else { g.addColorStop(0, 'rgba(70,60,40,0.92)'); g.addColorStop(1, 'rgba(40,32,20,0.92)'); }
     ctx.fillStyle = g; rr(ctx, x, y, w, h, 8); ctx.fill();
     ctx.strokeStyle = ready ? '#ffd65a' : 'rgba(255,235,190,0.5)'; ctx.lineWidth = ready ? 2 : 1.2; rr(ctx, x, y, w, h, 8); ctx.stroke();
-    ctx.save(); rr(ctx, x + 1, y + 1, w - 2, h - 12, 7); ctx.clip();
-    drawToolIcon(k, x + 27, y + 16, 24, ready || active ? animT : 0);
+    // v52: no name label any more: one centred icon + one count badge (how many of this tool you can use now)
+    ctx.save(); rr(ctx, x + 1, y + 1, w - 2, h - 2, 7); ctx.clip();
+    drawToolIcon(k, x + 22, y + h / 2, 28, ready || active ? animT : 0);
     ctx.restore();
     if (G.costume && k === 'mrsdino' && ready) { ctx.fillStyle = '#ffd65a'; ell(ctx, x + 8, y + 8, 6.5, 6.5); ctx.fill(); txt('\u2715', x + 8, y + 8.5, 10, '#1d2a18', 'center', 'bold', false); }
-    if (active) { ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, x + 4, y + h - 13, w - 8, 3, 1.5); ctx.fill(); ctx.fillStyle = '#9fe0ff'; rr(ctx, x + 4, y + h - 13, Math.max(3, (w - 8) * toolLeft(k)), 3, 1.5); ctx.fill(); }
-    if (xl !== 'none') countBadge(x + w - 11, y + 9, WOOL.inv[k] | 0, xl === 'ready');
-    // the name strip: the whole bottom of the button, nothing drawn over it
-    ctx.fillStyle = ready ? 'rgba(255,214,90,0.95)' : xl === 'ready' ? 'rgba(61,220,132,0.92)' : 'rgba(0,0,0,0.45)';
-    rr(ctx, x + 3, y + h - 11, w - 6, 10, 4); ctx.fill();
-    txt(SPEC_NAME51[k] || TOOLS[k].name, x + w / 2, y + h - 5.8, 9.5, ready || xl === 'ready' ? '#14240c' : '#ffe9b0', 'center', 'bold', false);
+    if (active) { ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, x + 6, y + h - 6, w - 12, 3, 1.5); ctx.fill(); ctx.fillStyle = '#9fe0ff'; rr(ctx, x + 6, y + h - 6, Math.max(3, (w - 12) * toolLeft(k)), 3, 1.5); ctx.fill(); }
+    const avail = (ready ? 1 : 0) + (xl !== 'none' ? (WOOL.inv[k] | 0) : 0);
+    { const bx = x + w - 14, by = y + h / 2, on = avail > 0;
+      ctx.fillStyle = on ? (ready ? '#ffd65a' : '#3ddc84') : 'rgba(0,0,0,0.55)'; ell(ctx, bx, by, 10, 10); ctx.fill();
+      ctx.strokeStyle = on ? '#3a2408' : 'rgba(255,235,190,0.5)'; ctx.lineWidth = 1.5; ell(ctx, bx, by, 10, 10); ctx.stroke();
+      txt(String(avail), bx, by + 0.5, 13, on ? '#1d2a18' : '#ffe9b0', 'center', 'bold', false); }
     ctx.restore();
   }
 };
@@ -23194,6 +23219,110 @@ drawMap = function () {
   return r;
 };
 if (window.__dbg) window.__dbg.v51 = { drawSlots46: drawSlots46, beginLevel: beginLevel, campToolTick: campToolTick, drawBossPicture: drawBossPicture, phoneSpecIcons: phoneSpecIcons, PHONE_SPEC: PHONE_SPEC, refit51: refit51, MAP_PTS: MAP_PTS };
+
+// ================================================================ v52: wooden 'TOO MUCH LOVE!' lose screen + no HUD strip behind the briefing
+// The love lose screen used the old pink v8 panel: tip line ran outside the box, the world (costumed Ronald + the
+// lovestruck dino) showed through behind it, and on phone it said 'Tap a button to go on' with no buttons at all.
+// Now it is the same wooden card as every other lose screen (panel45 + ribbon45 + btn45), with the kiss scene drawn
+// small inside its own picture box, the tip wrapped inside the card, and real Map / Try again buttons.
+function dimStrong52() { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = 'rgba(20,14,6,0.78)'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore(); }
+function loveScene52(cx, base, s) {
+  if (!G.loveDino) return;
+  ctx.save(); ctx.translate(cx, base); ctx.scale(s, s);
+  const d = Object.assign({}, G.loveDino, { x: 0, y: 0, dir: 1, vx: 0, vy: 0, roarAnim: 0, appear: 0, carry: null, mood: { kind: 'love', t: animT }, post: null, state: 'roam' });
+  const h = headPos(d), hh = -h.y, k = clamp(70 / hh, 0.7, 1.35), fx = 40;
+  ctx.save(); ctx.translate(fx - 18 - h.x * k, 0); ctx.scale(k, k); ctx.translate(0, Math.sin(animT * 3) * 1.5); drawDino(d); ctx.restore();
+  ctx.save(); ctx.translate(0, -FARMER_Y); drawMrsDino({ x: fx, moving: false, step: 0, throwAnim: 0 }); ctx.restore();
+  ctx.save(); ctx.translate(fx - 4, -56); ctx.rotate(-0.3); ctx.fillStyle = '#e8304e';
+  ctx.beginPath(); ctx.ellipse(-2.5, 0, 3.4, 2.2, 0.3, 0, Math.PI * 2); ctx.ellipse(2.5, 0, 3.4, 2.2, -0.3, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  ctx.restore();
+}
+function drawLove52() {
+  const t = G.overT, f = frame43(), K = f.K, pt = LANG35.cur === 'pt';
+  const wasSkin = SKIN34.on; SKIN34.on = false;
+  dimStrong52();   // strong dim: the costumed Ronald and the dino in the field must not read as a second copy of the scene
+  const pw = Math.min(f.Wm - 20, 620), ph = Math.min(f.Hm - 24, 356), px = (f.Wm - pw) / 2, py = Math.max(8, (f.Hm - ph) / 2 - 8);
+  ctx.save(); ctx.globalAlpha = clamp(t / 0.4, 0, 1); ctx.scale(K, K);
+  try {
+    panel45(px, py, pw, ph);
+    ribbon45(f.Wm / 2, py - 10, 330, 'TOO MUCH LOVE!', 27);
+    const name = (G.loveDino && G.loveDino.T && G.loveDino.T.name) || 'dino';
+    const sub = pt ? 'Um ' + tr35(name) + ' apaixonado beijou a Dona Dino!' : 'A lovestruck ' + name + ' kissed Mrs. Dino!';
+    t43(sub, f.Wm / 2, py + 52, fit43(sub, pw - 50, 19, true, 16.5), '#7a2a4a', 'center', true);
+    // picture box: hearts + the kiss, clipped so nothing leaks out
+    const bw = Math.min(300, pw * 0.5), bh = Math.max(84, ph - 236), bx = f.Wm / 2 - bw / 2, by = py + 68;
+    ctx.save(); ctx.fillStyle = '#ffe3ee'; rr(ctx, bx, by, bw, bh, 12); ctx.fill(); ctx.beginPath(); rr(ctx, bx, by, bw, bh, 12); ctx.clip();
+    for (let i = 0; i < 8; i++) {
+      const q = (animT * 0.25 + i / 8) % 1, hx = bx + 18 + ((i * 71) % (bw - 36));
+      ctx.save(); ctx.globalAlpha *= Math.sin(q * Math.PI) * 0.7; drawHeart(hx, by + bh - 8 - q * (bh - 16), 8 + (i % 3) * 3, ['#ff3d6e', '#ff8fb3', '#ff5c8a'][i % 3]); ctx.restore();
+    }
+    loveScene52(f.Wm / 2 - 20, by + bh - 6, Math.min(1, (bh - 10) / 130));
+    ctx.restore();
+    ctx.save(); ctx.strokeStyle = '#b0607e'; ctx.lineWidth = 2; rr(ctx, bx, by, bw, bh, 12); ctx.stroke(); ctx.restore();
+    t43('MWAH!', bx + bw - 40, by + 24, 19, '#e8406e', 'center', true);
+    let y = by + bh + 22;
+    if (CAMP()) {
+      const L = G.cfg;
+      const prog = L && L.goal && L.goal.type === 'survive' ? 'You lasted ' + fmtTime(G.levelTime) + ' of ' + fmtTime(L.goal.t)
+        : L && L.goal && L.goal.type === 'boss' ? 'Boss hunger left: ' + Math.ceil(G.boss ? G.boss.hp : 0) + '%' : 'Saved ' + G.levelSaved + ' of ' + ((L && L.goal && L.goal.n) || 0);
+      t43(prog, f.Wm / 2, y, fit43(prog, pw - 60, 18, false, 16.5), '#7a4a08', 'center', false);
+    } else {
+      const sc = 'Score: ' + G.score + '    Sheep saved: ' + G.saved;
+      t43(sc, f.Wm / 2, y, fit43(sc, pw - 60, 19, true, 16.5), '#a86a10', 'center', true);
+    }
+    y += 24;
+    const tip = 'Tip: run sideways, or press F to take the costume off';
+    const tipPhone = 'Tip: run sideways, or tap the costume to take it off';
+    const tl = wrap45(PHONE.on ? tipPhone : tip, pw - 90, 16.5).slice(0, 2);
+    tl.forEach(function (l, i) { t43(l, f.Wm / 2, y + i * 20, fit43(l, pw - 90, 16.5, false, 16.5), '#7a3a8a', 'center', false); });
+    UI_BTNS.length = 0;
+    if (t > 0.8) {
+      if (CAMP()) {
+        btn45('ESC  Map', px + 22, py + ph - 54, 128, 40, function () { openMap(); }, false);
+        ctx.save(); ctx.globalAlpha *= 0.85 + 0.15 * Math.sin(animT * 4);
+        btn45('ENTER  Try again', px + pw - 212, py + ph - 54, 190, 40, function () { retryLevel(); }, true);
+        ctx.restore();
+      } else {
+        ctx.save(); ctx.globalAlpha *= 0.85 + 0.15 * Math.sin(animT * 4);
+        btn45('ENTER  Play again', f.Wm / 2 - 95, py + ph - 54, 190, 40, function () { startGame(); }, true);
+        ctx.restore();
+      }
+    }
+  } finally { ctx.restore(); SKIN34.on = wasSkin; }
+}
+drawLoveOver = drawLove52;
+// the game HUD strip (score / sheep bar) peeked out above the briefing card as a dark bar: hide it while briefing
+const drawHUDV52 = drawHUD;
+drawHUD = function () { if (state === 'brief') return; return drawHUDV52.apply(this, arguments); };
+Object.assign(I18N35.pt, { 'TOO MUCH LOVE!': 'AMOR DEMAIS!', 'Tip: run sideways, or press F to take the costume off': 'Dica: corra para o lado, ou aperte F para tirar a fantasia',
+  'Tip: run sideways, or tap the costume to take it off': 'Dica: corra para o lado, ou toque na fantasia para tirá-la', 'MWAH!': 'SMACK!', 'ENTER  Play again': 'ENTER  Jogar de novo',
+  'Flip the Tank (Vicky or Faketeor), then feed its mouth': 'Vire o Tanque (Vicky ou Meteoro Falso) e alimente a boca',
+  'Flip the Tank (Vicky or Faketeor), then feed its mouth!': 'Vire o Tanque (Vicky ou Meteoro Falso) e alimente a boca!',
+  'Food bounces off its armor! Vicky or the Faketeor flips it over: then feed its mouth. They come back again and again.': 'A comida quica na armadura! A Vicky ou o Meteoro Falso o viram: a\u00ed alimente a boca. Eles voltam sem parar.' });
+if (window.__dbg) window.__dbg.v52 = { drawLove52: drawLove52, loveOver: loveOver, LEVELS: LEVELS, goalText: goalText, tr35: tr35 };
+// the phone tool buttons sit on top of the canvas UI: keep them off the lose / win / brief cards
+const phoneSpecIconsV52 = phoneSpecIcons;
+phoneSpecIcons = function () { if (state !== 'play') return; return phoneSpecIconsV52.apply(this, arguments); };
+// PT for the boss briefings that still showed English goals / tips
+Object.assign(I18N35.pt, {
+  'Feed Mama Raptor until the hunger bar is empty': 'Alimente a Mam\u00e3e Raptor at\u00e9 a barra de fome esvaziar',
+  'Feed King T-Rex until the hunger bar is empty': 'Alimente o Rei T-Rex at\u00e9 a barra de fome esvaziar',
+  'Feed Spino Twins until the hunger bar is empty': 'Alimente os G\u00eameos Espino at\u00e9 a barra de fome esvaziar',
+  'Food only fills the twin it hits. When they huddle and squabble, only a Big Ham splits them up!': 'A comida s\u00f3 enche o g\u00eameo que ela acerta. Quando eles se juntam e brigam, s\u00f3 um Pernil separa os dois!',
+  'Feed Dino Queen until the hunger bar is empty': 'Alimente a Rainha Dino at\u00e9 a barra de fome esvaziar',
+  "Feed the BABY until Big Mama's hunger bar is empty": 'Alimente o FILHOTE at\u00e9 a barra de fome da Mam\u00e3ezona esvaziar',
+  'Big Mama never eats sheep: she guards the gate and ROARS them off the path. Her babies hatch from eggs: feed THEM to calm her. Feeding Big Mama makes her hungrier!': 'A Mam\u00e3ezona n\u00e3o come ovelhas: ela guarda o port\u00e3o e RUGE. Alimente os FILHOTES para acalm\u00e1-la. Comida nela s\u00f3 d\u00e1 mais fome!',
+  'Feed the MIDDLE Carnotaurus, then fill up all three': 'Alimente o Carnotauro do MEIO e depois encha os tr\u00eas',
+  'Three Carnotaurus charge in a line! Feed the MIDDLE one to break the line, then feed them all.': 'Tr\u00eas Carnotauros atacam em fila! Alimente o do MEIO para quebrar a fila, depois alimente todos.',
+  'Fill up the Woolly Dino: its coat soaks up the food!': 'Encha o Dino Lanudo: o pelo dele absorve a comida!',
+  'Its thick fur coat soaks up the food: it takes LOTS of feeding. When it shakes off the snow, sheep get knocked off the path!': 'O pelo grosso absorve a comida: ele precisa de MUITA comida. Quando ele sacode a neve, as ovelhas saem voando do caminho!',
+  'Feed the Thawing Dino before it melts free': 'Alimente o Dino Congelado antes que ele derreta e se solte',
+  'A giant dino is frozen in the ice! Feed it while it is stuck: as it thaws it gets faster and faster.': 'Um dino gigante est\u00e1 congelado no gelo! Alimente enquanto ele est\u00e1 preso: ao derreter ele fica cada vez mais r\u00e1pido.',
+  'Feed the Sneezy Stegosaurus between sneezes': 'Alimente o Estegossauro Espirrento entre os espirros',
+  'Feed the Mud Wallow Dino when it is clean': 'Alimente o Dino do Lama\u00e7al quando ele estiver limpo',
+  'Stomps splash mud that slows sheep. Muddy food barely works: wait till it shakes the mud off!': 'As pisadas espirram lama que deixa as ovelhas lentas. Comida com lama quase n\u00e3o funciona: espere ele sacudir a lama!',
+  'Feed all 5 bosses, one after another': 'Alimente os 5 chef\u00f5es, um depois do outro'
+});
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
