@@ -11188,8 +11188,8 @@ function winterTop(b, R) {
 function winterPost(b, f, R) {
   b.save();
   b.strokeStyle = 'rgba(250,252,255,0.97)'; b.lineWidth = 7; b.lineJoin = 'round'; b.lineCap = 'round';
-  b.beginPath(); b.moveTo(-8, 212); b.lineTo(1, 185); b.lineTo(37, 166); b.lineTo(73, 185); b.lineTo(82, 212); b.stroke();
-  b.fillStyle = 'rgba(250,252,255,0.95)'; [[4, 192], [18, 180], [56, 180], [70, 192]].forEach(function (p) { ell(b, p[0], p[1] + 4, 3, 5); b.fill(); });
+  const rp57 = roof57(); b.beginPath(); rp57.forEach(function (p, i) { if (i) b.lineTo(p[0], p[1]); else b.moveTo(p[0], p[1]); }); b.stroke();
+  b.fillStyle = 'rgba(250,252,255,0.95)'; [[0, 1, 0.55], [1, 2, 0.5], [2, 3, 0.5], [3, 4, 0.45]].forEach(function (q) { const a = rp57[q[0]], c = rp57[q[1]]; ell(b, a[0] + (c[0] - a[0]) * q[2], a[1] + (c[1] - a[1]) * q[2] + 5, 3, 5); b.fill(); });
   [[18, 400, 18], [40, 440, 16], [14, 478, 20], [812, 432, 18], [846, 462, 22], [884, 420, 17], [870, 492, 16]].forEach(function (p) { b.fillStyle = 'rgba(248,251,255,0.92)'; ell(b, p[0] - 2, p[1] - p[2] * 0.5, p[2] * 0.85, p[2] * 0.45); b.fill(); });
   // pen fence tops
   b.strokeStyle = 'rgba(250,252,255,0.9)'; b.lineWidth = 3;
@@ -11605,7 +11605,7 @@ function xmasBulbs() {
   string(h.x - 10, h.y - h.h + 2, h.x + h.w / 2, h.y - h.h - 44, 0, 9); string(h.x + h.w / 2, h.y - h.h - 44, h.x + h.w + 10, h.y - h.h + 2, 0, 9);
   string(h.x, h.y - h.h + 8, h.x + h.w, h.y - h.h + 8, 6, 10);
   for (let k = 0; k < 4; k++) { const ty = t.y - 14 - k * 20, tw = 30 - k * 7; string(t.x - tw, ty, t.x + tw, ty - 6, 4, 6 - k); }
-  string(-8, 212, 37, 166, 0, 6); string(37, 166, 82, 212, 0, 6);
+  { const rp = roof57(); for (let k = 0; k < 4; k++) string(rp[k][0], rp[k][1] + 3, rp[k + 1][0], rp[k + 1][1] + 3, 0, 3); }   // v57: on the drawn roof
   string(0, LANE_TOP - 14, W / 2, LANE_TOP - 14, 8, 22); string(W / 2, LANE_TOP - 14, W, LANE_TOP - 14, 8, 22);
   string(PEN.x, PEN.y - 30, PEN.x + PEN.w, PEN.y - 30, 6, 8);
   XMAS.bulbs = B; return B;
@@ -17943,7 +17943,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v56';
+const GAME_VER = 'v57';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23720,6 +23720,14 @@ if (window.__dbg) window.__dbg.v56.ins = function () { return safeInsets(); };
     return txtV56.apply(this, arguments);
   };
 })();
+
+// ---- v57: the winter roof snow follows the barn that is actually drawn (barn32(b, R, 8, 100, 160, 326)):
+// the same gambrel points as the shingle line, a few px higher so the snow sits on top of the shingles
+function roof57() {
+  const x0 = 8, x1 = 100, top = 160, gnd = 326, w = x1 - x0, H = gnd - top, mid = (x0 + x1) / 2, eave = top + H * 0.36, knee = top + H * 0.13, kx = w * 0.14;
+  return [[x0 - 5, eave + 2], [x0 + kx - 3, knee - 6], [mid, top - 11], [x1 - kx + 3, knee - 6], [x1 + 5, eave + 2]];
+}
+if (window.__dbg) window.__dbg.v57 = { roof57: roof57 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
