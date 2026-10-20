@@ -23702,7 +23702,7 @@ const ROW56 = { last: null };
       if (state === 'brief' || state === 'won' || state === 'over' || (G && G.paused)) {
         const f = UI43.f, Kc = f ? cr.width / f.Wm : 1, B = (UI_BTNS || []).map(function (b) { return dekey45(String(b.label || '?')).slice(0, 7) + ' ' + Math.round(b.x) + '-' + Math.round(b.x + b.w); });
         const R = ROW56.last;
-        L.push('card ' + (f ? Math.round(cr.left + (f.Wm - Math.min(f.Wm - 20, 660)) / 2 * Kc) + '-' + Math.round(cr.left + (f.Wm + Math.min(f.Wm - 20, 660)) / 2 * Kc) : '-') + (R && state === 'brief' ? ['map', 'slots', 'change', 'play'].map(function (n) { const o = R[n]; return o && o.w ? '  ' + n + ' ' + Math.round(cr.left + o.x * Kc) + '-' + Math.round(cr.left + (o.x + o.w) * Kc) : ''; }).join('') : '') + '  btns(canvas px) ' + B.join(' | '));
+        L.push('card ' + (f ? Math.round(cr.left + (f.Wm - Math.min(f.Wm - 20, 660)) / 2 * Kc) + '-' + Math.round(cr.left + (f.Wm + Math.min(f.Wm - 20, 660)) / 2 * Kc) : '-') + (R && state === 'brief' ? ['map', 'slots', 'change', 'play'].map(function (n) { const o = R[n]; return o && o.w ? '  ' + n + ' ' + Math.round(cr.left + o.x * Kc) + '-' + Math.round(cr.left + (o.x + o.w) * Kc) : ''; }).join('') : '') + '' + (state === 'brief' ? '' : (state === 'brief' ? '' : '  btns(canvas px) ' + B.join(' | '))));
       }
       box.textContent = L.join('\n');
     } catch (e) { box.textContent = 'info: ' + e; }
@@ -23710,6 +23710,16 @@ const ROW56 = { last: null };
 })();
 
 if (window.__dbg) window.__dbg.v56 = { ROW56: ROW56, row56: row56 };
+if (window.__dbg) window.__dbg.v56.ins = function () { return safeInsets(); };
+// v56: phone boss bars: the single-digit phase marks drawn on the bar (Dino Queen 3 / 2 / 1) ran into the big name line;
+// the tick lines on the bar still show the phases
+(function () {
+  const txtV56 = txt;
+  txt = function (t) {
+    if (BAR41.on && BAR55.d && BAR55.shift && !BAR55.depth && /^\d$/.test(String(t))) return;
+    return txtV56.apply(this, arguments);
+  };
+})();
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
