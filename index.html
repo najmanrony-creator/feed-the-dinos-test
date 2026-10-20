@@ -16030,8 +16030,8 @@ function phoneLayout() {
   let ch = ah, cw = ch * W / H;
   if (cw > aw) { cw = aw; ch = cw * H / W; }
   cw = Math.round(cw); ch = Math.round(ch);
-  const cx = Math.round(ins.l + (WIDE_E ? (aw - cw >= 48 ? aw - cw - 48 : aw - cw) : (aw - cw) / 2)), cy = Math.round(ins.t + (ah - ch) / 2);   // v24: wider field sits at the right edge   // whole pixels: no seam against the backdrop
-  const key = [iw, ih, cw, ch, ins.l, ins.r].join(',');
+  const cx = Math.round(ins.l + (WIDE_E ? (aw - cw >= 48 && state !== 'map' && state !== 'title' ? aw - cw - 48 : aw - cw) : (aw - cw) / 2)), cy = Math.round(ins.t + (ah - ch) / 2);   // v24: wider field sits at the right edge   // whole pixels: no seam against the backdrop
+  const key = [iw, ih, cw, ch, ins.l, ins.r, state === 'map' || state === 'title'].join(',');
   if (key === PHONE.lastLayout) return;
   PHONE.lastLayout = key;
   PHONE.cv = { x: cx, y: cy, w: cw, h: ch, safeL: ins.l, safeR: ins.l + aw, iw: iw, ih: ih };
