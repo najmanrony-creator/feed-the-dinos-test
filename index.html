@@ -227,6 +227,15 @@ function safe54(q) {
     d.remove(); return r;
   } catch (e) { return { t: 0, r: 0, b: 0, l: 0 }; }
 }
+// v55: in the iOS app (WKWebView) the safe-area insets still read 0 while this runs at load (they arrive after the
+// first layout), so the field was sized for the FULL width and the tool column landed on the pen. When the insets read 0
+// on a long touch phone (all such iPhones have a notch / Dynamic Island) assume a typical inset; phoneLayout then
+// measures the real insets and fits the field between the two columns either way.
+function guess55(ins, iw, ih) {
+  if (ins.l || ins.r || new URLSearchParams(location.search).get('noguess')) return ins;
+  const touch = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  return touch && iw / ih > 1.9 ? { l: 50, r: 50, t: 0, b: 21 } : ins;
+}
 const WIDE_E = (function () {
   try {
     const q = new URLSearchParams(location.search);
@@ -235,7 +244,7 @@ const WIDE_E = (function () {
     if (!ph) return 0;
     let iw = window.innerWidth, ih = window.innerHeight;
     if (iw < ih) { const t = iw; iw = ih; ih = t; }
-    const ins = safe54(q);
+    const ins = guess55(q.get('safeload') !== null ? safe54(new URLSearchParams('safe=' + q.get('safeload'))) : safe54(q), iw, ih);
     const aw = iw - ins.l - ins.r, ah = ih - ins.t - ins.b, room = 2 * (48 + 6) + 8;   // v54: both side columns get a strip
     const fw = (aw - room) * 600 / ah;
     return Math.max(0, Math.min(280, Math.floor((fw - 900) / 10) * 10));
@@ -16043,10 +16052,13 @@ function phoneLayout() {
   // v21 (phone-wide): the 3:2 field is as tall as the safe area and centred; the strips left and right of it are painted with
   // the same farm (grass, lane, fence, HUD bar) on a backdrop canvas, so the screen is filled edge to edge. The food cards,
   // pause and specials sit on top of those strips (on the field only when a strip is too narrow).
+  // v55: ONE layout: in play the food column (left) and tool column (right) each get 52px inside the safe area; the field
+  // fits between them and sits against the tool column (pen just left of it), whatever WIDE_E was guessed at load
+  const play55 = !(state === 'map' || state === 'title'), col55 = play55 ? 52 : 0, fw55 = aw - 2 * col55;
   let ch = ah, cw = ch * W / H;
-  if (cw > aw) { cw = aw; ch = cw * H / W; }
+  if (cw > fw55) { cw = fw55; ch = cw * H / W; }
   cw = Math.round(cw); ch = Math.round(ch);
-  const cx = Math.round(ins.l + (WIDE_E || aw - cw >= 100 ? (aw - cw) / 2 : (aw - cw) / 2)), cy = Math.round(ins.t + (ah - ch) / 2);   // v24: wider field sits at the right edge   // whole pixels: no seam against the backdrop
+  const cx = Math.round(col55 ? ins.l + aw - col55 - cw : ins.l + (aw - cw) / 2), cy = Math.round(ins.t + (ah - ch) / 2);   // v24: wider field sits at the right edge   // whole pixels: no seam against the backdrop
   const key = [iw, ih, cw, ch, ins.l, ins.r, state === 'map' || state === 'title'].join(',');
   if (key === PHONE.lastLayout) return;
   PHONE.lastLayout = key;
@@ -16380,12 +16392,13 @@ drawHUD = function () {
   ctx.fillStyle = 'rgba(200,150,80,0.55)'; ctx.fillRect(0, HUD_H - 2, W, 2);
   const y = HUD_H / 2;
   txt('Level ' + G.level, 10, y + 1, 25, '#ffffff', 'left', 'bold', false);   // v26: one big line (score is on the results screen)
-  drawSheep({ x: 158, y: y + 12, phase: 0 }, 0.95, 1, false);
+  drawSheep({ x: 158 + Math.round(WIDE_E * 0.2), y: y + 12, phase: 0 }, 0.95, 1, false);
   const st = CAMP() ? campHudText() : 'Saved: ' + G.saved;
-  txt(st, 182, y + 1, fitFont(st, 228, 28), '#a8ff8a', 'left', 'bold', false);
-  txt('Lost', 416, y + 1, 22.5, '#ff9a8a', 'left', 'bold', false);
+  const e55 = WIDE_E, sx55 = 182 + Math.round(e55 * 0.2), lx55 = 416 + Math.round(e55 * 0.5), gx55 = 662 + Math.round(e55 * 0.85);
+  txt(st, sx55, y + 1, fitFont(st, 228, 28), '#a8ff8a', 'left', 'bold', false);
+  txt('Lost', lx55, y + 1, 22.5, '#ff9a8a', 'left', 'bold', false);
   for (let i = 0; i < MAX_LOST; i++) {
-    const lx36 = Math.max(490, 416 + tw31('Lost', 22.5) + 26), cx = lx36 + i * Math.min(34, (640 - lx36) / Math.max(1, MAX_LOST - 1));
+    const lx36 = Math.max(490 + lx55 - 416, lx55 + tw31('Lost', 22.5) + 26), cx = lx36 + i * Math.min(34, (gx55 - 22 - lx36) / Math.max(1, MAX_LOST - 1));
     if (i < G.lost) {
       ctx.globalAlpha = 0.45; drawSheep({ x: cx - 2, y: y + 11, phase: 0 }, 0.88, 1, false); ctx.globalAlpha = 1;
       ctx.strokeStyle = '#ff4a3d'; ctx.lineWidth = 3.4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(cx - 9, y - 9); ctx.lineTo(cx + 9, y + 9); ctx.moveTo(cx + 9, y - 9); ctx.lineTo(cx - 9, y + 9); ctx.stroke();
@@ -16393,8 +16406,8 @@ drawHUD = function () {
   }
   // goal progress
   const prog = CAMP() ? campProgress() : clamp(Math.max(G.levelSaved / levelNeed(G.level), G.levelTime / 50), 0, 1);
-  txt('Goal', 662, y + 1, 19.5, '#c8e8ff', 'left', 'bold', false);
-  const gx36 = Math.max(742, 662 + tw31('Goal', 19.5) + 12), gw36 = 892 - gx36;
+  txt('Goal', gx55, y + 1, 19.5, '#c8e8ff', 'left', 'bold', false);
+  const gx36 = Math.max(gx55 + 80, gx55 + tw31('Goal', 19.5) + 12), gw36 = W - 8 - gx36;
   ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, gx36, y - 7.5, gw36, 16, 8); ctx.fill();
   const pg = ctx.createLinearGradient(0, y - 7.5, 0, y + 8.5); pg.addColorStop(0, '#a8e4ff'); pg.addColorStop(1, '#3c9ad8');
   ctx.fillStyle = pg; rr(ctx, gx36, y - 7.5, Math.max(10, gw36 * prog), 16, 8); ctx.fill();
@@ -17915,7 +17928,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v54';
+const GAME_VER = 'v55';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23574,6 +23587,50 @@ Object.assign(I18N35.pt, {
 });
 Object.assign(I18N35.pt, { 'Tap a button to go on': 'Toque em um bot\u00e3o para seguir' });
 (function(){const s=document.createElement('style');s.textContent='#pbPause{opacity:1!important;background:rgba(34,22,10,.92)!important;border:2px solid rgba(255,226,170,.85)!important;color:#fff1cc!important;border-radius:9px!important}';document.head.appendChild(s);})();
+
+// ---- v55: ONE phone layout: food column | field (barn..pen) | tool column. phoneLayout (patched) reserves both columns
+// inside the measured safe area; the tool column always hugs the right safe edge, the field ends just left of it.
+const COL55 = 52;   // 4px margin + 40px card + 8px gap
+phoneRowPlace = function () {
+  const row = PHONE.els.row, cv = PHONE.cv;
+  if (!row || !cv) return;
+  const n = (PHONE.spKeys || []).length, colH = n * 56 + Math.max(0, n - 1) * 12;
+  const right = cv.iw - cv.safeR + 4, top = cv.y + cv.h / 2 - colH / 2;
+  const key = [cv.x, cv.y, cv.w, n, top, right, cv.iw].join(',');
+  if (key === PHONE.rowKey) return;
+  PHONE.rowKey = key;
+  Object.assign(row.style, { top: top + 'px', right: right + 'px' });
+};
+// v55: no top-left pause button on any device: the bottom Menu button pauses
+(function () { const s = document.createElement('style'); s.textContent = '#pbPause{display:none!important}'; document.head.appendChild(s); })();
+// v55: boss bars on phones: the name line is drawn bigger (min phone text size), so everything under it moves down
+const BAR55 = { d: 0, shift: false, depth: 0 };
+const txtV55 = txt, hungerBarV55 = hungerBar, rrV55 = rr;
+// (the phone text code resets the canvas transform, so the offset is added to y by hand)
+txt = function (t, x, y) {
+  const a = Array.prototype.slice.call(arguments);
+  if (BAR55.depth) return txtV55.apply(this, a);   // inner passes of one txt call (outline etc.)
+  if (BAR41.on && BAR55.d && G && G.boss && !BAR55.multi) {
+    // phones: the big name line and the 'HUNGER n%' label would overlap, so the percentage joins the name line
+    if (!BAR55.shift && y <= UI_TOP + 15 && typeof G.boss.hp === 'number' && G.boss.max) a[0] = String(t) + '  ' + Math.ceil(clamp(G.boss.hp / G.boss.max, 0, 1) * 100) + '%';
+    else if (BAR55.shift && a[5] === 'right' && /%$/.test(String(t))) return;
+  }
+  BAR55.depth++;
+  let r; try { r = txtV55.apply(this, a); } finally { BAR55.depth--; }
+  if (BAR41.on && BAR55.d && !BAR55.shift && y <= UI_TOP + 15) BAR55.shift = true;
+  return r;
+};
+rr = function (c, x, y, w) { const a = Array.prototype.slice.call(arguments); if (BAR41.on && c === ctx && y === UI_TOP && w === 316) { BAR55.shift = false; const k = PHONE.on && PHONE.cv ? PHONE.cv.w / W : 1; BAR55.d = PHONE.on && k < 0.95 ? Math.max(0, Math.round(16.2 / k * 0.9 - 8)) : 0; } return rrV55.apply(this, a); };
+const drawBossBarV55 = drawBossBar;
+drawBossBar = function () {
+  const k = PHONE.on && PHONE.cv ? PHONE.cv.w / W : 1;
+  BAR55.d = PHONE.on && k < 0.95 ? Math.max(0, Math.round(16.2 / k * 0.9 - 8)) : 0;
+  BAR55.shift = false; BAR55.multi = !!(G && G.boss && (G.boss.kind === 'twins' || G.boss.kind === 'carnogang'));
+  const r = drawBossBarV55.apply(this, arguments);
+  BAR55.shift = false;
+  return r;
+};
+if (window.__dbg) window.__dbg.v55 = { WIDE_E: WIDE_E, W: W, PEN: PEN, BAR55: BAR55, BAR41: BAR41 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
