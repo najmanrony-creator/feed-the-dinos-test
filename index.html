@@ -215,15 +215,30 @@ window.__MUS26 = window.__MUS26 || {}; Object.assign(window.__MUS26, {"egtr": "d
 // ---------------------------------------------------------------- constants
 // v24: on a phone the field is logically wider to the RIGHT (the space that was filler scenery right of the field): the pen moves
 // to the new right edge and the path runs on to it. WIDE_E = extra world units (0 on desktop, multiple of 10, max 280).
+// v54: safe-area insets (iPhone notch / Dynamic Island / home bar), readable before the body exists
+function safe54(q) {
+  const f = q && q.get('safe');
+  if (f) { const v = f.split(',').map(Number); return { l: v[0] || 0, r: v[1] || 0, t: v[2] || 0, b: v[3] || 0 }; }
+  try {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
+    document.documentElement.appendChild(d); const cs = getComputedStyle(d);
+    const r = { t: parseFloat(cs.paddingTop) || 0, r: parseFloat(cs.paddingRight) || 0, b: parseFloat(cs.paddingBottom) || 0, l: parseFloat(cs.paddingLeft) || 0 };
+    d.remove(); return r;
+  } catch (e) { return { t: 0, r: 0, b: 0, l: 0 }; }
+}
 const WIDE_E = (function () {
   try {
     const q = new URLSearchParams(location.search);
     if (q.get('fieldw') === 'off') return 0;
     const ph = q.get('phone') === '1' || (q.get('phone') !== '0' && !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches && (navigator.maxTouchPoints || 0) > 0));
     if (!ph) return 0;
-    const iw = window.innerWidth, ih = window.innerHeight;
-    const a = iw > ih ? iw / ih : Math.max(screen.width, screen.height) / Math.min(screen.width, screen.height);
-    return Math.max(0, Math.min(280, Math.round((a * 600 - 900) / 2 / 10) * 10));
+    let iw = window.innerWidth, ih = window.innerHeight;
+    if (iw < ih) { const t = iw; iw = ih; ih = t; }
+    const ins = safe54(q);
+    const aw = iw - ins.l - ins.r, ah = ih - ins.t - ins.b, room = 2 * (48 + 6) + 8;   // v54: both side columns get a strip
+    const fw = (aw - room) * 600 / ah;
+    return Math.max(0, Math.min(280, Math.floor((fw - 900) / 10) * 10));
   } catch (e) { return 0; }
 })();
 const W = 900 + WIDE_E, H = 600, HUD_H = 44;
@@ -16016,6 +16031,7 @@ function unlockAudio() {
 }
 // ---- layout: canvas as big as the screen allows (safe areas respected), the buttons in the side bars
 function safeInsets() {
+  if (params.get('safe')) return safe54(params);
   const p = PHONE.els.probe; if (!p) return { t: 0, r: 0, b: 0, l: 0 };
   const cs = getComputedStyle(p);
   return { t: parseFloat(cs.paddingTop) || 0, r: parseFloat(cs.paddingRight) || 0, b: parseFloat(cs.paddingBottom) || 0, l: parseFloat(cs.paddingLeft) || 0 };
@@ -16030,7 +16046,7 @@ function phoneLayout() {
   let ch = ah, cw = ch * W / H;
   if (cw > aw) { cw = aw; ch = cw * H / W; }
   cw = Math.round(cw); ch = Math.round(ch);
-  const cx = Math.round(ins.l + (WIDE_E ? (aw - cw >= 48 && state !== 'map' && state !== 'title' ? aw - cw - 48 : aw - cw) : (aw - cw) / 2)), cy = Math.round(ins.t + (ah - ch) / 2);   // v24: wider field sits at the right edge   // whole pixels: no seam against the backdrop
+  const cx = Math.round(ins.l + (WIDE_E || aw - cw >= 100 ? (aw - cw) / 2 : (aw - cw) / 2)), cy = Math.round(ins.t + (ah - ch) / 2);   // v24: wider field sits at the right edge   // whole pixels: no seam against the backdrop
   const key = [iw, ih, cw, ch, ins.l, ins.r, state === 'map' || state === 'title'].join(',');
   if (key === PHONE.lastLayout) return;
   PHONE.lastLayout = key;
@@ -17899,7 +17915,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v53';
+const GAME_VER = 'v54';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23404,7 +23420,7 @@ phoneSpecIcons = function () {   // icon only (the box and the count are the DOM
     const k = keys[i], st = G.tools[k], ready = phoneToolReady(k), active = st === 'active' && !ready;
     const x = PHONE_SPEC.x + i * PHONE_SPEC.step, y = PHONE_SPEC.y, w = PHONE_SPEC.w, h = PHONE_SPEC.h;
     ctx.save(); ctx.clearRect(x, y, w, h);
-    ctx.globalAlpha = (ready || active || toolCount53(k) > 0) ? 1 : 0.45;
+    ctx.globalAlpha = 1;   // v54: the card dims an empty tool (CSS)
     drawToolIcon(k, x + w / 2, y + h / 2 + 1, 28, 0);
     ctx.globalAlpha = 1;
     if (active) { ctx.fillStyle = 'rgba(0,0,0,0.4)'; rr(ctx, x + 4, y + h - 3, w - 8, 3, 1.5); ctx.fill(); ctx.fillStyle = '#9fe0ff'; rr(ctx, x + 4, y + h - 3, Math.max(3, (w - 8) * toolLeft(k)), 3, 1.5); ctx.fill(); }
@@ -23456,6 +23472,108 @@ Object.assign(I18N35.pt, {
   'The T-Rex needs # pieces of food, or just # Big Ham (tap Big Ham).': 'O T-Rex precisa de # peda\u00e7os de comida, ou s\u00f3 # Pernil (toque no Pernil).',
   'Lose no sheep, never get kissed': 'Sem perdas e sem beijo'
 });
+
+// ================================================================ v54
+// side-column cards are solid and high-contrast on every area (snow, grass, mud, night): a dark wood card with a light
+// frame. The tool cards no longer fade out when empty (only the icon dims), so they read like the food cards.
+(function () {
+  const st = document.createElement('style');
+  st.textContent =
+    'body.phone .pb.food { background: rgba(34,22,10,.92); border: 1.5px solid rgba(255,226,170,.85); box-shadow: 0 2px 0 rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.35); }\n' +
+    'body.phone .pb.food .pbl { color: #fff1cc; text-shadow: 0 1px 0 rgba(0,0,0,.8); }\n' +
+    'body.phone .pb.food.sel { opacity: 1; background: rgba(70,46,12,.95); border-color: #ffd65a; box-shadow: 0 0 0 2px rgba(255,205,70,.55), 0 2px 0 rgba(0,0,0,.45); }\n' +
+    'body.phone .pb.food.tool53.off { opacity: 1; }\n' +
+    'body.phone .pb.food.tool53.off canvas.pbc { opacity: .45; }\n' +
+    'body.phone .pb.food.tool53.off .pbl { color: #c8b48c; }\n';
+  document.head.appendChild(st);
+})();
+// the tool icon is drawn at full strength (the card dims it with CSS when the tool is empty)
+const phoneSpecIconsV54 = phoneSpecIcons;
+if (window.__dbg) window.__dbg.v54 = { WIDE_E: WIDE_E, W: W, PEN: PEN };
+// ---------- phone wording for every remaining keyboard string (v54 audit). Exact strings -> touch wording, applied by
+// dekey33 (before translating, so PT gets the touch wording too) and at draw time.
+const KEYFIX54 = {
+  'VEGGIE LEVEL: plant-eaters only! Throw veggies (1 2 3)': 'VEGGIE LEVEL: plant-eaters only! Throw veggies',
+  'Plant-eaters! 1 2 3 = Lettuce, Carrots, Watermelon': 'Plant-eaters! Tap the veggie buttons: Lettuce, Carrots, Melon',
+  'Meat-eaters again! 1 2 3 = Sausage, Meat, Big Ham': 'Meat-eaters again! Tap Sausage, Meat or Big Ham',
+  'Normal food just makes them fight. Press 3 and throw a Big Ham!': 'Normal food just makes them fight. Tap Big Ham and throw it!',
+  'paused  \u00b7  ENTER / click to go on': 'paused  \u00b7  tap to go on',
+  'Done (Esc)': 'Done',
+  'ENTER = try again      ESC = map': 'Tap a button to go on',
+  'ENTER = watch ad   \u00b7   P = play on   \u00b7   ESC = no thanks': 'Tap a button',
+  '1 / 2 = wool continue   \u00b7   P = play on   \u00b7   ESC = no thanks': 'Tap a button',
+  'press F': 'tap the tool',
+  '\u2190 \u2192  walk     ENTER / click  play     wheel  look around     ESC  title     M  sound     O  settings': 'swipe to look around     tap a level to play',
+  '\u2190 \u2192 \u2191 \u2193 choose     ENTER buy     TAB characters     ESC back to the map': 'tap an item to choose it, then tap the buy button',
+  '\u2190 \u2192 \u2191 \u2193 choose     ENTER buy     ESC back to the map': 'tap an item to choose it, then tap the buy button',
+  'TAB  Tools / Characters     ESC back to the map': 'tap a tab: Tools / Characters',
+  'click or press a key to skip': 'tap to skip',
+  'Press \u2190 \u2192 (or A / D) to move Ronald': 'Tap here to move Ronald',
+  'Press SPACE to throw food': 'Tap here to throw food',
+  'Click Vicky (or press F) to call her!': 'Tap Vicky to call her!',
+  'Click the costume (or press F)!': 'Tap the costume to put it on!',
+  'Click (or press F) to throw the Faketeor!': 'Tap to throw the Faketeor!',
+  'Click the music box (or press F)!': 'Tap the music box!',
+  'Click (or press F) for the Scare-Dino!': 'Tap to put up the Scare-Dino!',
+  'Click (or press F) to blow the whistle!': 'Tap to blow the whistle!'
+};
+if (KEY33.on) Object.keys(KEYFIX54).forEach(function (k) { if (KEY33.exact[k] === undefined) KEY33.exact[k] = KEYFIX54[k]; });
+Object.assign(I18N35.pt, {
+  'VEGGIE LEVEL: plant-eaters only! Throw veggies': 'FASE DE VEGETAIS: s\u00f3 herb\u00edvoros! Jogue vegetais',
+  'Plant-eaters! Tap the veggie buttons: Lettuce, Carrots, Melon': 'Herb\u00edvoros! Toque nos vegetais: Alface, Cenoura, Melancia',
+  'Meat-eaters again! Tap Sausage, Meat or Big Ham': 'Carn\u00edvoros de novo! Toque em Lingui\u00e7a, Carne ou Pernil',
+  'Normal food just makes them fight. Tap Big Ham and throw it!': 'Comida normal s\u00f3 faz eles brigarem. Toque no Pernil e jogue!',
+  'paused  \u00b7  tap to go on': 'pausa  \u00b7  toque para seguir',
+  'Done': 'Pronto', 'Tap a button': 'Toque em um bot\u00e3o', 'tap the tool': 'toque na ferramenta',
+  'swipe to look around     tap a level to play': 'deslize para olhar     toque numa fase para jogar',
+  'tap to skip': 'toque para pular'
+});
+// last v54 audit items + a safety net: if a Portuguese keyboard sentence is ever drawn as-is, it is swapped at draw time too
+const KEYFIX54B = {
+  'Meat bounces off: use 1 2 3 veggies!': 'Meat bounces off: use veggies!',
+  'A carne quica: use os vegetais 1 2 3!': 'A carne quica: use vegetais!',
+  'Pronto (Esc)': 'Pronto', 'F = FERRAMENTA': 'FERRAMENTA', 'M = silenciar tudo': 'toque no bot\u00e3o para silenciar tudo',
+  'A Carne deixa o dino ocupado por mais tempo. Aperte 1 / 2 (ou Q / E) para trocar de comida.': 'A Carne deixa o dino ocupado por mais tempo. Toque nos bot\u00f5es de comida para trocar.',
+  'Mova o fazendeiro Ronald para a esquerda e a direita (ou A / D)': 'Arraste para mover o fazendeiro Ronald para a esquerda e a direita',
+  'Escolha a comida: Lingui\u00e7a, Carne ou Pernil (Q / E tamb\u00e9m trocam)': 'Toque numa comida: Lingui\u00e7a, Carne ou Pernil',
+  'Aperte ENTER ou clique para come\u00e7ar': 'Toque para come\u00e7ar',
+  'Aperte F para usar:  Mire! O BUM assusta uma \u00e1rea': 'Toque para usar:  Mire! O BUM assusta uma \u00e1rea',
+  'Aperte F para usar:  Assusta os dinos perto dela': 'Toque para usar:  Assusta os dinos perto dela',
+  'Aperte F: Caixinha de Ninar!': 'Toque: Caixinha de Ninar!', 'Aperte F: fantasia de Dona Dino!': 'Toque: fantasia de Dona Dino!',
+  'Aperte F: Apito do Pastor!': 'Toque: Apito do Pastor!', 'Aperte F: o Meteoro Falso!': 'Toque: o Meteoro Falso!',
+  'Aperte F: o Espanta-Dino!': 'Toque: o Espanta-Dino!', 'Aperte F: Vicky, a c\u00e3o pastora!': 'Toque: Vicky, a c\u00e3o pastora!',
+  'Aperte F: tire a fantasia!': 'Toque: tire a fantasia!',
+  'Aperte P (ou clique em Continuar jogando) para seguir': 'Toque em Continuar jogando para seguir',
+  'TAB  Ferramentas / Personagens     ESC volta ao mapa': 'toque numa aba: Ferramentas / Personagens',
+  'O T-Rex precisa de 2 peda\u00e7os de comida, ou s\u00f3 1 Pernil (aperte 3).': 'O T-Rex precisa de 2 peda\u00e7os de comida, ou s\u00f3 1 Pernil (toque no Pernil).',
+  'Quando a Vicky estiver pronta, aperte F: ela espanta os dinos do caminho.': 'Quando a Vicky estiver pronta, toque no bot\u00e3o dela: ela espanta os dinos do caminho.',
+  'clique ou aperte uma tecla para pular': 'toque para pular',
+  'pausa  \u00b7  ENTER / clique para seguir': 'pausa  \u00b7  toque para seguir',
+  '\u2190 \u2192  andar     ENTER / clique  jogar     rodinha  olhar     ESC  in\u00edcio     M  som     O  ajustes': 'deslize para olhar     toque numa fase para jogar',
+  '\u2190 \u2192 \u2191 \u2193 escolher     ENTER comprar     TAB personagens     ESC volta ao mapa': 'toque num item para escolher e depois no bot\u00e3o de comprar',
+  'Comida normal s\u00f3 faz eles brigarem. Aperte 3 e jogue um Pernil!': 'Comida normal s\u00f3 faz eles brigarem. Toque no Pernil e jogue!',
+  'Aperte \u2190 \u2192 (ou A / D) para mover o Ronald': 'Toque aqui para mover o Ronald',
+  'Aperte ESPA\u00c7O para jogar comida': 'Toque aqui para jogar comida',
+  'Clique na Vicky (ou aperte F) para cham\u00e1-la!': 'Toque na Vicky para cham\u00e1-la!',
+  'Clique na fantasia (ou aperte F)!': 'Toque na fantasia para vestir!',
+  'Clique (ou aperte F) para jogar o Meteoro Falso!': 'Toque para jogar o Meteoro Falso!',
+  'Clique na caixinha de m\u00fasica (ou aperte F)!': 'Toque na caixinha de m\u00fasica!',
+  'Clique (ou aperte F) no Espanta-Dino!': 'Toque para colocar o Espanta-Dino!',
+  'Clique (ou aperte F) para soprar o apito!': 'Toque para soprar o apito!',
+  'Dica: corra para o lado, ou aperte F para tirar a fantasia': 'Dica: corra para o lado, ou toque na fantasia para tir\u00e1-la'
+};
+if (KEY33.on) Object.keys(KEYFIX54B).forEach(function (k) { if (KEY33.exact[k] === undefined) KEY33.exact[k] = KEYFIX54B[k]; });
+Object.assign(I18N35.pt, { 'Meat bounces off: use veggies!': 'A carne quica: use vegetais!' });
+Object.assign(I18N35.pt, {
+  'tap a tab: Tools / Characters': 'toque numa aba: Ferramentas / Personagens', 'Sound OFF': 'Som DESLIGADO', 'Dino name labels': 'Nomes dos dinos',
+  'tap the switch to mute all': 'toque no bot\u00e3o para silenciar tudo', 'Drag to move Ronald the farmer left and right': 'Arraste para mover o fazendeiro Ronald para a esquerda e a direita',
+  'Tap to toss the food straight up': 'Toque para jogar a comida para cima', 'Tap a food button: Sausage, Meat or Big Ham': 'Toque numa comida: Lingui\u00e7a, Carne ou Pernil',
+  'Special tools pop up now and then. Tap one to use it, once per level:': 'Ferramentas especiais aparecem de vez em quando. Toque numa para usar, uma vez por fase:',
+  'Tap the tool: take the costume off!': 'Toque na ferramenta: tire a fantasia!', 'Take the costume off first (tap the tool)': 'Tire a fantasia primeiro (toque na ferramenta)',
+  'Tap to keep playing': 'Toque para continuar jogando', 'tap an item to choose it, then tap the buy button': 'toque num item para escolher e depois no bot\u00e3o de comprar'
+});
+Object.assign(I18N35.pt, { 'Tap a button to go on': 'Toque em um bot\u00e3o para seguir' });
+(function(){const s=document.createElement('style');s.textContent='#pbPause{opacity:1!important;background:rgba(34,22,10,.92)!important;border:2px solid rgba(255,226,170,.85)!important;color:#fff1cc!important;border-radius:9px!important}';document.head.appendChild(s);})();
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
