@@ -236,6 +236,19 @@ function guess55(ins, iw, ih) {
   const touch = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
   return touch && iw / ih > 1.9 ? { l: 50, r: 50, t: 0, b: 21 } : ins;
 }
+// v56: in landscape iOS reports the SAME inset on both sides (59px), but the Dynamic Island / notch only sits on ONE side
+// (the side the top of the phone points to). Keep a 50px clearance on that side only, use the full edge on the other.
+// orientation angle 90 = top of the phone on the LEFT (island left), 270 = island right; unknown = keep both.
+const EDGEQ56 = new URLSearchParams(location.search), SAFE56 = { load: null, used: null, now: null };
+function edge56(ins) {
+  const q = EDGEQ56;
+  if (q.get('edge') === 'sym' || !(ins.l > 0 && ins.r > 0)) return ins;
+  let a = q.get('angle') !== null ? +q.get('angle') : (screen.orientation && typeof screen.orientation.angle === 'number' ? screen.orientation.angle : (typeof window.orientation === 'number' ? window.orientation : NaN));
+  a = ((a % 360) + 360) % 360;
+  if (a === 90) return { l: Math.min(ins.l, 50), r: 0, t: ins.t, b: ins.b, island: 'left' };
+  if (a === 270) return { l: 0, r: Math.min(ins.r, 50), t: ins.t, b: ins.b, island: 'right' };
+  return ins;
+}
 const WIDE_E = (function () {
   try {
     const q = new URLSearchParams(location.search);
@@ -244,7 +257,8 @@ const WIDE_E = (function () {
     if (!ph) return 0;
     let iw = window.innerWidth, ih = window.innerHeight;
     if (iw < ih) { const t = iw; iw = ih; ih = t; }
-    const ins = guess55(q.get('safeload') !== null ? safe54(new URLSearchParams('safe=' + q.get('safeload'))) : safe54(q), iw, ih);
+    SAFE56.load = q.get('safeload') !== null ? safe54(new URLSearchParams('safe=' + q.get('safeload'))) : safe54(q);
+    const ins = edge56(guess55(SAFE56.load, iw, ih)); SAFE56.used = ins;
     const aw = iw - ins.l - ins.r, ah = ih - ins.t - ins.b, room = 2 * (48 + 6) + 8;   // v54: both side columns get a strip
     const fw = (aw - room) * 600 / ah;
     return Math.max(0, Math.min(280, Math.floor((fw - 900) / 10) * 10));
@@ -16039,7 +16053,8 @@ function unlockAudio() {
   } catch (e) { /* ignore */ }
 }
 // ---- layout: canvas as big as the screen allows (safe areas respected), the buttons in the side bars
-function safeInsets() {
+function safeInsets() { const r56 = safeInsetsRaw56(); SAFE56.now = r56; return edge56(r56); }
+function safeInsetsRaw56() {
   if (params.get('safe')) return safe54(params);
   const p = PHONE.els.probe; if (!p) return { t: 0, r: 0, b: 0, l: 0 };
   const cs = getComputedStyle(p);
@@ -17928,7 +17943,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v55';
+const GAME_VER = 'v56';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -22577,9 +22592,10 @@ function drawBrief45() {
     });
     UI_BTNS.length = 0;
     if (t > 0.3) {
-      btn45('ESC  Map', px + 22, py + ph - 58, 128, 40, function () { openMap(); }, false);
+      const R56 = row56(px, pw, G && slots44(G.level));
+      btn45('ESC  Map', R56.map.x, py + ph - 58, R56.map.w, 40, function () { openMap(); }, false);
       ctx.save(); ctx.globalAlpha = 0.85 + 0.15 * Math.sin(animT * 4);
-      btn45('ENTER  Play!', px + pw - 190, py + ph - 58, 168, 40, function () { beginLevel(); }, true);
+      btn45('ENTER  Play!', R56.play.x, py + ph - 58, R56.play.w, 40, function () { beginLevel(); }, true);
       ctx.restore();
     }
   } finally { ctx.restore(); SKIN34.on = wasSkin; }
@@ -22839,9 +22855,9 @@ function drawSlots46() {
   const picked = TOOL_ORDER.filter(function (k) { return G.bring && G.bring[k]; });
   ctx.save(); ctx.scale(K, K);
   try {
-    const sq = 40, gap = 8, cw2 = 100, by = py + ph - 58, totW = sq * 3 + gap * 2 + 10 + cw2;
-    let x = px + 158 + Math.max(0, (pw - 356 - totW) / 2);
-    t43('Tools:', x + totW / 2, by - 14, 16.5, '#7a4a1e', 'center', true);
+    const R56 = row56(px, pw, slots), sq = 40, gap = 8, cw2 = R56.change.w, by = py + ph - 58;
+    const x = R56.slots.x;
+    t43('Tools:', x + (sq * 3 + gap * 2) / 2, by - 14, 16.5, '#7a4a1e', 'center', true);   // v56: centred over the slots
     for (let i = 0; i < 3; i++) {
       const bx = x + i * (sq + gap), k = picked[i], locked = i >= slots;
       ctx.save();
@@ -22850,7 +22866,7 @@ function drawSlots46() {
       else { ctx.fillStyle = 'rgba(255,250,235,0.75)'; rr(ctx, bx, by, sq, sq, 10); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = '#a87c46'; ctx.lineWidth = 2; rr(ctx, bx, by, sq, sq, 10); ctx.stroke(); ctx.setLineDash([]); }
       ctx.restore();
     }
-    btn45('Change', x + sq * 3 + gap * 2 + 10, by, cw2, 40, function () { PICK46.open = true; }, false);
+    btn45('Change', R56.change.x, by, cw2, 40, function () { PICK46.open = true; }, false);
   } finally { ctx.restore(); }
   if (PICK46.open) drawPicker46(f);
 }
@@ -23139,7 +23155,7 @@ drawSlots46 = function () {
     const f = frame43(), K = f.K;
     const pw = Math.min(f.Wm - 20, 660), ph = Math.min(f.Hm - 30, 424), px = (f.Wm - pw) / 2, py = Math.max(16, (f.Hm - 26 - ph) / 2);
     const sq = 40, gap = 8, cw2 = 100, by = py + ph - 58, totW = sq * 3 + gap * 2 + 10 + cw2;
-    const x = px + 158 + Math.max(0, (pw - 356 - totW) / 2);
+    const x = row56(px, pw, slots).slots.x;   // v56: tap areas follow the drawn slots
     ctx.save(); ctx.scale(K, K);
     const m = ctx.getTransform(), bs = m.a / dpr;
     for (let i = 0; i < 3; i++) {
@@ -23631,6 +23647,69 @@ drawBossBar = function () {
   return r;
 };
 if (window.__dbg) window.__dbg.v55 = { WIDE_E: WIDE_E, W: W, PEN: PEN, BAR55: BAR55, BAR41: BAR41 };
+
+// ---- v56: briefing bottom row in ONE calculation: Map | 3 tool slots | Change | Play, with 10px gaps, inside the card.
+// The card width follows the canvas (narrower in the iOS app where the field is fitted between the side columns), so the
+// buttons shrink with it: Play stays the widest, no button narrower than 92 (labels stay >= 16.5px).
+function row56(px, pw, slots) {
+  const pad = 22, gap = 10, sq = 40, slotW = sq * 3 + 8 * 2, x0 = px + pad, x1 = px + pw - pad, avail = x1 - x0;
+  const has = !!slots;
+  let mapW = 128, chW = has ? 100 : 0, plW = 168;
+  const need = function () { return mapW + plW + (has ? slotW + chW + gap * 3 : gap); };
+  if (need() > avail) {
+    const rest = avail - (has ? slotW + gap * 3 : gap);
+    plW = Math.max(108, Math.round(rest * (has ? 0.38 : 0.55)));
+    mapW = chW = has ? Math.max(92, Math.floor((rest - plW) / 2)) : 0;
+    if (!has) mapW = Math.max(92, rest - plW);
+    plW = Math.max(plW, rest - mapW - chW);
+    plW = Math.min(plW, rest - mapW - chW);
+  }
+  const map = { x: x0, w: mapW }, play = { x: x1 - plW, w: plW };
+  let slotsBox = null, change = { x: 0, w: chW };
+  if (has) {
+    change.x = play.x - gap - chW;
+    const sx = map.x + mapW + gap, ex = change.x - gap;            // the slots sit centred in the space between Map and Change
+    slotsBox = { x: Math.round(sx + Math.max(0, (ex - sx - slotW) / 2)), w: slotW };
+  }
+  ROW56.last = { map: map, slots: slotsBox, change: change, play: play, avail: avail };
+  return ROW56.last;
+}
+const ROW56 = { last: null };
+// ---- v56 TEST BUILD ONLY: layout readout (screen / viewport / safe areas / column and button x ranges).
+// Hidden with ?info=off, or tap the small 'i' pill in the bottom-right corner to hide / show it.
+(function () {
+  if (!PHONE.on && EDGEQ56.get('info') !== 'on') return;
+  const box = document.createElement('div'), pill = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:33vw;bottom:calc(env(safe-area-inset-bottom) + 2px);z-index:99998;pointer-events:none;font:600 9px/11px Menlo,monospace;color:#fff;background:rgba(0,0,0,.62);padding:2px 6px;border-radius:6px;white-space:pre;max-width:66vw;overflow:hidden';
+  pill.style.cssText = 'position:fixed;right:2px;bottom:2px;z-index:99999;width:18px;height:18px;border-radius:9px;background:rgba(0,0,0,.6);color:#fff;font:700 12px/18px sans-serif;text-align:center';
+  pill.textContent = 'i';
+  let show = EDGEQ56.get('info') !== 'off';
+  pill.addEventListener('pointerdown', function (e) { e.stopPropagation(); e.preventDefault(); show = !show; box.style.display = show ? '' : 'none'; }, true);
+  document.body.appendChild(box); document.body.appendChild(pill);
+  box.style.display = show ? '' : 'none';
+  const xr = function (sel) { const a = [...document.querySelectorAll(sel)].filter(function (e) { return e.offsetWidth && getComputedStyle(e).display !== 'none'; }).map(function (e) { return e.getBoundingClientRect(); }); if (!a.length) return '-'; return Math.round(Math.min.apply(null, a.map(function (r) { return r.left; }))) + '-' + Math.round(Math.max.apply(null, a.map(function (r) { return r.right; }))); };
+  const si = function (o) { return o ? [o.l, o.r, o.t, o.b].map(function (v) { return Math.round(v || 0); }).join(',') + (o.island ? ' ' + o.island : '') : '-'; };
+  setInterval(function () {
+    if (!show) return;
+    try {
+      const cv = PHONE.cv, vv = window.visualViewport, k = cv ? cv.w / W : 1;
+      const app = !!(window.webkit && window.webkit.messageHandlers) ? 'WKWebView(app)' : (navigator.standalone ? 'home-screen' : 'Safari/browser');
+      const cr = canvas.getBoundingClientRect();
+      const L = [];
+      L.push(GAME_VER + ' ' + app + '  inner ' + innerWidth + 'x' + innerHeight + '  vv ' + (vv ? Math.round(vv.width) + 'x' + Math.round(vv.height) : '-') + '  screen ' + screen.width + 'x' + screen.height + '  dpr ' + devicePixelRatio + '  angle ' + (screen.orientation ? screen.orientation.angle : window.orientation));
+      L.push('safe l,r,t,b  load ' + si(SAFE56.load) + '  used@load ' + si(SAFE56.used) + '  now ' + si(SAFE56.now) + '  used ' + si(safeInsets()) + '  WIDE_E ' + WIDE_E);
+      L.push('canvas ' + Math.round(cr.width) + 'x' + Math.round(cr.height) + ' @' + Math.round(cr.left) + '  food ' + xr('.pb.food:not(.tool53)') + '  field ' + Math.round(cr.left) + '-' + Math.round(cr.right) + '  pen ' + (cv ? Math.round(cv.x + PEN.x * k) + '-' + Math.round(cv.x + (PEN.x + PEN.w) * k) : '-') + '  tools ' + xr('.pb.tool53'));
+      if (state === 'brief' || state === 'won' || state === 'over' || (G && G.paused)) {
+        const f = UI43.f, Kc = f ? cr.width / f.Wm : 1, B = (UI_BTNS || []).map(function (b) { return dekey45(String(b.label || '?')).slice(0, 7) + ' ' + Math.round(b.x) + '-' + Math.round(b.x + b.w); });
+        const R = ROW56.last;
+        L.push('card ' + (f ? Math.round(cr.left + (f.Wm - Math.min(f.Wm - 20, 660)) / 2 * Kc) + '-' + Math.round(cr.left + (f.Wm + Math.min(f.Wm - 20, 660)) / 2 * Kc) : '-') + (R && state === 'brief' ? ['map', 'slots', 'change', 'play'].map(function (n) { const o = R[n]; return o && o.w ? '  ' + n + ' ' + Math.round(cr.left + o.x * Kc) + '-' + Math.round(cr.left + (o.x + o.w) * Kc) : ''; }).join('') : '') + '  btns(canvas px) ' + B.join(' | '));
+      }
+      box.textContent = L.join('\n');
+    } catch (e) { box.textContent = 'info: ' + e; }
+  }, 400);
+})();
+
+if (window.__dbg) window.__dbg.v56 = { ROW56: ROW56, row56: row56 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
