@@ -17943,7 +17943,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v57';
+const GAME_VER = 'v58';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23728,6 +23728,118 @@ function roof57() {
   return [[x0 - 5, eave + 2], [x0 + kx - 3, knee - 6], [mid, top - 11], [x1 - kx + 3, knee - 6], [x1 + 5, eave + 2]];
 }
 if (window.__dbg) window.__dbg.v57 = { roof57: roof57 };
+
+// ---- v58: the boss health panel is redrawn from scratch as a wooden board (like the level sign / menus):
+// wood fill, cream border, rounded corners, the boss name centred on top, rounded bars with the percentage in its own
+// column right of the bar, and a box height computed from the number of rows (1, 2 or 3 bars, plus the THAW / POLLEN /
+// MUD meter) so nothing is ever clipped. It never covers the pen sign: if the board is too tall to fit above the sign it
+// moves left of it. Phones: text >= 16.5 px on screen, the % sits on the name line for single bosses (v55) and the
+// Queen's phase digits stay hidden (the tick lines show the phases, v56). The v41 rule stays: no hint lines.
+const BOSS58 = { last: null };
+function bossRows58(b) {
+  const RED = ['#ffb36a', '#ff6a3a', '#b8281a'], rows = [];
+  if (b.kind === 'twins' || b.kind === 'carnogang') {
+    const lead = b.kind === 'carnogang' && !b.done && b.phase !== 'broken' && typeof gangLead === 'function' ? gangLead() : null;
+    const gc = [['#ffd0a8', '#e8703a', '#9a3a1a'], ['#ffb0a0', '#c03a2a', '#6a1a10'], ['#ffe8b0', '#d09a3a', '#8a5a1a']];
+    const tc = [['#b8fff8', '#3ac0c0', '#1a7a80'], ['#d8d0ff', '#8a7ae8', '#4a3aa8']];
+    b.parts.forEach(function (p, i) {
+      const ld = lead && p.d === lead;
+      rows.push({ lab: tr35(p.name) + (ld ? ' \u2605' : ''), labCol: b.kind === 'twins' ? TWIN_COLS[i] : (ld ? '#ffe066' : '#fff1cc'),
+        f: clamp(p.hp / p.max, 0, 1), flash: p.flash, cols: b.kind === 'twins' ? tc[i] : gc[i], pct: p.done ? tr35('FULL') : Math.ceil(clamp(p.hp / p.max, 0, 1) * 100) + '%' });
+    });
+    return rows;
+  }
+  let cols = RED;
+  if (b.kind === 'queen') cols = b.phase === 1 ? ['#f0c0ff', '#b060d8', '#6a2a90'] : RED;
+  else if (b.kind === 'ptera') cols = b.rise > 0 ? ['#ff8a6a', '#ff3a2a', '#a01a10'] : ['#d0e8ff', '#6a9ad8', '#2a4a90'];
+  else if (b.kind === 'bigmama') cols = b.rise > 0 ? ['#ff8a6a', '#ff3a2a', '#a01a10'] : RED;
+  else if (b.kind === 'anky') cols = b.d && b.d.flip ? ['#d8ffc0', '#6ac04a', '#2a7a1a'] : ['#e0e8d0', '#8a9a6a', '#4a5a3a'];
+  else if (b.kind === 'woolly') cols = ['#f0d8b8', '#b08458', '#6a4a2a'];
+  else if (b.kind === 'thaw') cols = ['#e0f4ff', '#6ab0e0', '#2a6aa0'];
+  else if (b.kind === 'sneezy') cols = ['#d8f0a0', '#7ab048', '#3a6a20'];
+  else if (b.kind === 'mudwallow') cols = ['#e8d0a8', '#a07850', '#5a4028'];
+  const f = clamp(b.hp / b.max, 0, 1), ticks = [];
+  if (b.kind === 'king' && b.eaten && !(b.eaten[0] && b.eaten[1] && b.eaten[2])) ticks.push(BOSS_TUNE.king.floor / 100);
+  if (b.kind === 'queen') ticks.push(0.66, 0.33);
+  rows.push({ main: true, f: f, flash: b.flash, cols: cols, ticks: ticks });
+  if (b.kind === 'thaw') rows.push({ lab: tr35('THAW'), labCol: '#bfe8ff', f: clamp(b.thaw || 0, 0, 1), meter: ['#bfe8ff', '#ff9a6a'] });
+  if (b.kind === 'sneezy') rows.push({ lab: tr35('POLLEN'), labCol: '#fff6a0', f: clamp(b.pollen || 0, 0, 1), meter: ['#fff6a0', '#ffb020'] });
+  if (b.kind === 'mudwallow') rows.push({ lab: tr35('MUD'), labCol: '#e8c890', f: clamp(b.mud || 0, 0, 1), meter: ['#c8a878', '#4e331a'] });
+  return rows;
+}
+function t58(s, x, y, size, col, align) {
+  ctx.font = 'bold ' + size + 'px ' + (FONT43F || '"Segoe UI", "Trebuchet MS", Arial, sans-serif');
+  ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(40,20,6,0.95)'; ctx.lineWidth = Math.max(3, size / 4.5); ctx.strokeText(s, x, y);
+  ctx.fillStyle = col; ctx.fillText(s, x, y);
+}
+function w58(s, size) { ctx.font = 'bold ' + size + 'px ' + (FONT43F || '"Segoe UI", "Trebuchet MS", Arial, sans-serif'); return ctx.measureText(s).width; }
+function bar58(x, y, w, h, r) {
+  ctx.fillStyle = 'rgba(30,16,6,0.7)'; rr(ctx, x, y, w, h, h / 2); ctx.fill();
+  if (r.f > 0) {
+    let fill;
+    if (r.meter) { fill = ctx.createLinearGradient(x, 0, x + w, 0); fill.addColorStop(0, r.meter[0]); fill.addColorStop(1, r.meter[1]); }
+    else { fill = ctx.createLinearGradient(0, y, 0, y + h); fill.addColorStop(0, r.flash > 0 ? '#ffffff' : r.cols[0]); fill.addColorStop(0.5, r.cols[1]); fill.addColorStop(1, r.cols[2]); }
+    ctx.fillStyle = fill; rr(ctx, x, y, Math.max(h, w * r.f), h, h / 2); ctx.fill();
+  }
+  (r.ticks || []).forEach(function (q) { ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2; line(ctx, x + w * q, y - 2, x + w * q, y + h + 2); });
+  ctx.strokeStyle = '#f4e2b8'; ctx.lineWidth = 1.6; rr(ctx, x, y, w, h, h / 2); ctx.stroke();
+}
+function layout58(b) {
+  const k = PHONE.on && PHONE.cv ? PHONE.cv.w / W : 1, ph = PHONE.on && k < 0.95;
+  const F = ph ? 16.6 / k : 12.5, T = ph ? 17.2 / k : 15, pad = Math.round(F * 0.5), bh = Math.round(ph ? F * 0.6 : 13), gap = Math.round(F * 0.4);
+  const rows = bossRows58(b), single = rows[0].main;
+  let title = b.kind === 'twins' ? tr35('SPINO TWINS') : tr35(b.name.toUpperCase() + (b.cycle ? '  (round ' + (b.cycle + 1) + ')' : ''));
+  if (single) title += '  ' + (b.rise > 0 ? '\u25B2 ' : '') + Math.ceil(rows[0].f * 100) + '%';
+  const labW = rows.reduce(function (m, r) { return r.lab ? Math.max(m, w58(r.lab, F)) : m; }, 0);
+  const pctW = rows.some(function (r) { return r.pct; }) ? Math.max(w58('100%', F), w58(tr35('FULL'), F)) : 0;
+  const rh = Math.round(Math.max(F, bh) * 1.12);
+  const minBar = Math.round(ph ? 110 / k : 150);
+  let pw = Math.max(w58(title, T) + 2 * pad + 12, (labW ? labW + gap : 0) + minBar + (pctW ? gap + pctW : 0) + 2 * pad, ph ? 200 / k : 300);
+  pw = Math.ceil(Math.min(pw, W - 16));
+  const h = Math.ceil(pad + T + gap + (single ? bh : 0) + (rows.length - (single ? 1 : 0)) * rh + (single && rows.length > 1 ? gap : 0) + pad * 1.2);
+  // never on the pen sign (PEN.y - 66 .. PEN.y - 37, x = centre of the pen +- 47)
+  const sTop = PEN.y - 66, sL = PEN.x + PEN.w / 2 - 47;
+  let x = W - 8 - pw, where = 'right';
+  if (UI_TOP + h > sTop - 4) { x = Math.min(x, sL - 8 - pw); where = 'left of pen sign'; }
+  x = Math.max(8, x);
+  return { k: k, F: F, T: T, pad: pad, bh: bh, gap: gap, rh: rh, rows: rows, single: single, title: title, labW: labW, pctW: pctW, x: x, y: UI_TOP, w: pw, h: h, where: where };
+}
+drawBossBar = function () {
+  const b = G && G.boss;
+  if (!b) return;
+  const L = layout58(b), x = L.x, y = L.y, w = L.w, h = L.h;
+  BOSS58.last = { x: Math.round(x), y: y, w: w, h: h, bottom: y + h, right: Math.round(x + w), where: L.where, rows: L.rows.length, signTop: PEN.y - 66, signL: Math.round(PEN.x + PEN.w / 2 - 47) };
+  window.__boss58 = BOSS58.last;
+  ctx.save(); ctx.globalAlpha = clamp(b.enterT / 0.6, 0, 1);
+  // board: shadow, wood, highlight, dark edge, cream border
+  ctx.fillStyle = 'rgba(0,0,0,0.32)'; rr(ctx, x, y + 3, w, h, 12); ctx.fill();
+  ctx.fillStyle = grad43(y, y + h, '#a8703c', '#6e4320'); rr(ctx, x, y, w, h, 12); ctx.fill();
+  ctx.save(); rr(ctx, x, y, w, h, 12); ctx.clip();
+  ctx.fillStyle = 'rgba(255,230,190,0.18)'; ctx.fillRect(x, y, w, 4);
+  ctx.strokeStyle = 'rgba(60,30,10,0.18)'; ctx.lineWidth = 1.5; for (let gy = y + 14; gy < y + h - 4; gy += 17) line(ctx, x + 6, gy, x + w - 6, gy + 1.5);
+  ctx.restore();
+  const hot = b.rise > 0;
+  ctx.strokeStyle = '#4a2a10'; ctx.lineWidth = 4; rr(ctx, x, y, w, h, 12); ctx.stroke();
+  ctx.strokeStyle = hot ? '#ff6a4a' : '#f4e2b8'; ctx.lineWidth = hot ? 2.6 : 2; rr(ctx, x + 2.5, y + 2.5, w - 5, h - 5, 10); ctx.stroke();
+  // name on top, centred
+  const tcol = b.kind === 'queen' ? '#f6c4ff' : b.kind === 'ptera' ? '#cfe8ff' : '#ffd866';
+  let cy = y + L.pad + L.T / 2;
+  t58(L.title, x + w / 2, cy, L.T, b.done ? '#b8ff9a' : tcol, 'center');
+  cy += L.T / 2 + L.gap;
+  const x0 = x + L.pad, x1 = x + w - L.pad;
+  L.rows.forEach(function (r) {
+    if (r.main) { bar58(x0, cy, x1 - x0, L.bh, r); cy += L.bh + (L.rows.length > 1 ? L.gap : 0); return; }
+    const my = cy + L.rh / 2, bx = x0 + (L.labW ? L.labW + L.gap : 0), bxe = x1 - (L.pctW ? L.pctW + L.gap : 0);
+    t58(r.lab, x0, my, L.F, r.labCol, 'left');
+    bar58(bx, my - L.bh / 2, bxe - bx, L.bh, r);
+    if (r.pct) t58(r.pct, x1, my, L.F, '#ffffff', 'right');
+    cy += L.rh;
+  });
+  ctx.restore();
+};
+bossBarH = function () { const b = G && G.boss; return b ? layout58(b).h : 64; };
+if (window.__dbg) window.__dbg.v58 = { BOSS58: BOSS58, layout58: layout58 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
