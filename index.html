@@ -17943,7 +17943,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v59';
+const GAME_VER = 'v60';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23868,6 +23868,58 @@ function fade59() {
   return BOSS59.k;
 }
 if (window.__dbg) window.__dbg.v59 = { BOSS59: BOSS59, under59: under59 };
+
+// ---- v60: the boss panel is ONE thin row at the top of the field: no title line; each bar has just its dino's name
+// and its % (or FULL); the THAW / POLLEN / MUD meter is folded into the same row. Same wooden look as v58, same
+// colours / ticks / rising red border, and the v59 fade while something is under it.
+layout58 = function (b) {
+  const k = PHONE.on && PHONE.cv ? PHONE.cv.w / W : 1, ph = PHONE.on && k < 0.95;
+  const F = ph ? 15.4 / k : 12, pad = Math.round(F * 0.32), bh = Math.round(ph ? F * 0.55 : 12), gap = Math.round(F * 0.3), sep = Math.round(F * 0.8);
+  const rows = bossRows58(b);
+  const segs = rows.map(function (r) {
+    if (r.main) {
+      const nm = tr35(b.name) + (b.cycle ? ' (' + (b.cycle + 1) + ')' : '');
+      return { r: r, lab: nm, labCol: b.kind === 'queen' ? '#f6c4ff' : b.kind === 'ptera' ? '#cfe8ff' : '#ffd866', pct: b.done ? tr35('FULL') : (b.rise > 0 ? '\u25B2 ' : '') + Math.ceil(r.f * 100) + '%' };
+    }
+    return { r: r, lab: r.lab, labCol: r.labCol, pct: r.pct || '' };
+  });
+  segs.forEach(function (s) { s.lw = w58(s.lab, F); s.pw = s.pct ? Math.max(w58(s.pct, F), s.r.main || s.r.pct ? w58('100%', F) : 0) : 0; });
+  const fixed = segs.reduce(function (m, s) { return m + s.lw + gap + (s.pw ? gap + s.pw : 0); }, 0) + (segs.length - 1) * sep + 2 * pad + 10;
+  const minBar = Math.round(ph ? 56 / k : 80), maxBar = Math.round(ph ? (segs.length === 1 ? 140 : 120) / k : (segs.length === 1 ? 220 : 130));
+  const avail = W - 16;
+  const barW = Math.max(minBar, Math.min(maxBar, Math.floor((avail - fixed) / segs.length)));
+  const pw = Math.ceil(Math.min(avail, fixed + barW * segs.length));
+  const h = Math.ceil(2 * pad + Math.max(F, bh) + 2);
+  const sTop = PEN.y - 66, sL = PEN.x + PEN.w / 2 - 47;
+  let x = W - 8 - pw, where = 'right';
+  if (UI_TOP + h > sTop - 4) { x = Math.min(x, sL - 8 - pw); where = 'left of pen sign'; }
+  x = Math.max(8, x);
+  return { k: k, F: F, pad: pad, bh: bh, gap: gap, sep: sep, segs: segs, barW: barW, rows: rows, x: x, y: UI_TOP, w: pw, h: h, where: where };
+};
+drawBossBar = function () {
+  const b = G && G.boss;
+  if (!b) return;
+  const L = layout58(b), x = L.x, y = L.y, w = L.w, h = L.h;
+  BOSS58.last = { x: Math.round(x), y: y, w: w, h: h, bottom: y + h, right: Math.round(x + w), where: L.where, rows: 1, segs: L.segs.length, barW: L.barW, signTop: PEN.y - 66, signL: Math.round(PEN.x + PEN.w / 2 - 47) };
+  window.__boss58 = BOSS58.last;
+  ctx.save(); ctx.globalAlpha = clamp(b.enterT / 0.6, 0, 1) * fade59();
+  ctx.fillStyle = 'rgba(0,0,0,0.32)'; rr(ctx, x, y + 3, w, h, 10); ctx.fill();
+  ctx.fillStyle = grad43(y, y + h, '#a8703c', '#6e4320'); rr(ctx, x, y, w, h, 10); ctx.fill();
+  ctx.save(); rr(ctx, x, y, w, h, 10); ctx.clip(); ctx.fillStyle = 'rgba(255,230,190,0.18)'; ctx.fillRect(x, y, w, 3); ctx.restore();
+  const hot = b.rise > 0;
+  ctx.strokeStyle = '#4a2a10'; ctx.lineWidth = 4; rr(ctx, x, y, w, h, 10); ctx.stroke();
+  ctx.strokeStyle = hot ? '#ff6a4a' : '#f4e2b8'; ctx.lineWidth = hot ? 2.6 : 2; rr(ctx, x + 2.5, y + 2.5, w - 5, h - 5, 8); ctx.stroke();
+  const my = y + h / 2;
+  let cx = x + L.pad + 5;
+  L.segs.forEach(function (s, i) {
+    if (i) { ctx.strokeStyle = 'rgba(244,226,184,0.45)'; ctx.lineWidth = 1.5; line(ctx, cx - L.sep / 2, y + 6, cx - L.sep / 2, y + h - 6); }
+    t58(s.lab, cx, my, L.F, b.done && s.r.main ? '#b8ff9a' : s.labCol, 'left'); cx += s.lw + L.gap;
+    bar58(cx, my - L.bh / 2, L.barW, L.bh, s.r); cx += L.barW;
+    if (s.pw) { cx += L.gap; t58(s.pct, cx + s.pw, my, L.F, '#ffffff', 'right'); cx += s.pw; }
+    cx += L.sep;
+  });
+  ctx.restore();
+};
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
