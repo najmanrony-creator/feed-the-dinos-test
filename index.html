@@ -17943,7 +17943,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v58';
+const GAME_VER = 'v59';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23787,17 +23787,17 @@ function bar58(x, y, w, h, r) {
 }
 function layout58(b) {
   const k = PHONE.on && PHONE.cv ? PHONE.cv.w / W : 1, ph = PHONE.on && k < 0.95;
-  const F = ph ? 16.6 / k : 12.5, T = ph ? 17.2 / k : 15, pad = Math.round(F * 0.5), bh = Math.round(ph ? F * 0.6 : 13), gap = Math.round(F * 0.4);
+  const F = ph ? 15.4 / k : 12, T = ph ? 16 / k : 14, pad = Math.round(F * 0.36), bh = Math.round(ph ? F * 0.55 : 12), gap = Math.round(F * 0.24);   // v59: compact
   const rows = bossRows58(b), single = rows[0].main;
   let title = b.kind === 'twins' ? tr35('SPINO TWINS') : tr35(b.name.toUpperCase() + (b.cycle ? '  (round ' + (b.cycle + 1) + ')' : ''));
   if (single) title += '  ' + (b.rise > 0 ? '\u25B2 ' : '') + Math.ceil(rows[0].f * 100) + '%';
   const labW = rows.reduce(function (m, r) { return r.lab ? Math.max(m, w58(r.lab, F)) : m; }, 0);
   const pctW = rows.some(function (r) { return r.pct; }) ? Math.max(w58('100%', F), w58(tr35('FULL'), F)) : 0;
-  const rh = Math.round(Math.max(F, bh) * 1.12);
+  const rh = Math.round(Math.max(F, bh) * 1.02);   // v59
   const minBar = Math.round(ph ? 110 / k : 150);
-  let pw = Math.max(w58(title, T) + 2 * pad + 12, (labW ? labW + gap : 0) + minBar + (pctW ? gap + pctW : 0) + 2 * pad, ph ? 200 / k : 300);
+  let pw = Math.max(w58(title, T) + 2 * pad + 12, (labW ? labW + gap : 0) + minBar + (pctW ? gap + pctW : 0) + 2 * pad + 10, ph ? 200 / k : 300);
   pw = Math.ceil(Math.min(pw, W - 16));
-  const h = Math.ceil(pad + T + gap + (single ? bh : 0) + (rows.length - (single ? 1 : 0)) * rh + (single && rows.length > 1 ? gap : 0) + pad * 1.2);
+  const h = Math.ceil(pad + T + gap + (single ? bh : 0) + (rows.length - (single ? 1 : 0)) * rh + (single && rows.length > 1 ? gap : 0) + pad * 1.1);   // v59
   // never on the pen sign (PEN.y - 66 .. PEN.y - 37, x = centre of the pen +- 47)
   const sTop = PEN.y - 66, sL = PEN.x + PEN.w / 2 - 47;
   let x = W - 8 - pw, where = 'right';
@@ -23811,7 +23811,7 @@ drawBossBar = function () {
   const L = layout58(b), x = L.x, y = L.y, w = L.w, h = L.h;
   BOSS58.last = { x: Math.round(x), y: y, w: w, h: h, bottom: y + h, right: Math.round(x + w), where: L.where, rows: L.rows.length, signTop: PEN.y - 66, signL: Math.round(PEN.x + PEN.w / 2 - 47) };
   window.__boss58 = BOSS58.last;
-  ctx.save(); ctx.globalAlpha = clamp(b.enterT / 0.6, 0, 1);
+  ctx.save(); ctx.globalAlpha = clamp(b.enterT / 0.6, 0, 1) * fade59();   // v59: fades while something is under it
   // board: shadow, wood, highlight, dark edge, cream border
   ctx.fillStyle = 'rgba(0,0,0,0.32)'; rr(ctx, x, y + 3, w, h, 12); ctx.fill();
   ctx.fillStyle = grad43(y, y + h, '#a8703c', '#6e4320'); rr(ctx, x, y, w, h, 12); ctx.fill();
@@ -23827,7 +23827,7 @@ drawBossBar = function () {
   let cy = y + L.pad + L.T / 2;
   t58(L.title, x + w / 2, cy, L.T, b.done ? '#b8ff9a' : tcol, 'center');
   cy += L.T / 2 + L.gap;
-  const x0 = x + L.pad, x1 = x + w - L.pad;
+  const x0 = x + L.pad + 5, x1 = x + w - L.pad - 5;   // v59: clear of the border
   L.rows.forEach(function (r) {
     if (r.main) { bar58(x0, cy, x1 - x0, L.bh, r); cy += L.bh + (L.rows.length > 1 ? L.gap : 0); return; }
     const my = cy + L.rh / 2, bx = x0 + (L.labW ? L.labW + L.gap : 0), bxe = x1 - (L.pctW ? L.pctW + L.gap : 0);
@@ -23840,6 +23840,34 @@ drawBossBar = function () {
 };
 bossBarH = function () { const b = G && G.boss; return b ? layout58(b).h : 64; };
 if (window.__dbg) window.__dbg.v58 = { BOSS58: BOSS58, layout58: layout58 };
+
+// ---- v59: the boss board fades to ~35% while a dino, a sheep or the boss is under it (smoothly, ~0.25 s), so
+// nobody walking behind it is hidden; it fades back when the area is clear
+const BOSS59 = { k: 1, t: 0, over: false, last: -1 };
+function under59(R) {
+  if (!R || !G) return false;
+  const x0 = R.x - 6, x1 = R.x + R.w + 6, y0 = R.y - 6, y1 = R.y + R.h + 6;
+  const hit = function (a, b, c, d) { return a < x1 && b > x0 && c < y1 && d > y0; };
+  for (const d of (G.dinos || [])) {
+    if (!d || d.gone) continue;
+    const s = d.scale || 1, h = typeof headPos === 'function' ? headPos(d) : null;
+    if (hit(d.x - 40 * s, d.x + 40 * s, d.y - 70 * s, d.y + 12 * s)) return true;
+    if (h && hit(h.x - (h.r || 14), h.x + (h.r || 14), h.y - (h.r || 14), h.y + (h.r || 14))) return true;
+  }
+  const pt = G.ptera; if (pt && typeof pt.x === 'number' && hit(pt.x - 60, pt.x + 60, pt.y - 30, pt.y + 30)) return true;   // the flying Ptera boss
+  for (const s of (G.sheep || [])) if (s && hit(s.x - 16, s.x + 16, s.y - 16, s.y + 10)) return true;
+  return false;
+}
+function fade59() {
+  const now = typeof animT === 'number' ? animT : 0, dt = BOSS59.last < 0 ? 0 : clamp(now - BOSS59.last, 0, 0.1);
+  BOSS59.last = now;
+  BOSS59.over = under59(BOSS58.last);
+  const target = BOSS59.over ? 0.35 : 1, step = dt / 0.25 * 0.65;
+  BOSS59.k = BOSS59.k < target ? Math.min(target, BOSS59.k + step) : Math.max(target, BOSS59.k - step);
+  if (dt === 0 && G && G.boss && G.boss.enterT < 0.05) BOSS59.k = target;
+  return BOSS59.k;
+}
+if (window.__dbg) window.__dbg.v59 = { BOSS59: BOSS59, under59: under59 };
 
 if (window.__dbg) window.__dbg.v26 = { SM: SM, smState: function () { return SM.state + ':' + Object.keys(SM.buf).length; }, calib: smCalib26, shopTab: shopTab26, CHARS: CHARS26, ROB: ROB26, TXT: TXT26, iceShape: iceShape26, title: function () { return PHONE.on ? 'phone' : 'desk'; }, toTitle: function () { startTitle(); }, iceBreak: function (n) { const L = G.dinos.filter(function (d) { return d.T && !d.boss; }); for (let i = 0; i < (n || 1) && i < L.length; i++) iceBreak(L[i]); return (G.iceHoles || []).length; }, costume: function () { startMrsDino(); }, throwY: THROW_Y, farmerY: FARMER_Y, openShop: openShop, shopTap: shopTap, shopKey: shopKey, shopUI: SHOPUI, wool: function () { return JSON.stringify(WOOL); }, txtMin: txtMin26, dims: function () { return [W, H]; }, dinoPic: function (k) { drawDinoPicture(TYPES[k], 300, 300, 120, 90, 1); }, herbMap: HERB_MAP, state: function () { return typeof STATE !== 'undefined' ? STATE : null; }, ui: function (dt) { dt = dt || 0.016; tickV13(dt); tickV15(dt); tickV18(dt); } };
 if (window.__dbg) window.__dbg.v27 = { HUM: HUM27, PEOPLE: PEOPLE27, EGTR: EGTR27, chars: CHARS26, shopUI: SHOPUI, throwY: THROW_Y, person: function (o) { return drawPerson27(o); } };
