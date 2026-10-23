@@ -23666,6 +23666,24 @@ Object.assign(I18N35.pt, {
   setLang35 = function (l) { setLangV62(l); rebake(); };
 })();
 
+// ================================================================ v63: a regular dino that is already eating (its eat timer
+// has started: 'eat', or 'devour' after a sheep) no longer takes more food. The piece bounces off its nose: no extra
+// chew time, no score, no hit counted. Levels 1-10 show a short "Still chewing!" hint; later levels show no text.
+// 'munch' (first of two pieces for a big dino) still takes the second piece; bosses are unchanged.
+Object.assign(I18N35.pt, { "Still chewing!": "Ainda mastigando!" });
+const feedDinoV62 = feedDino;
+feedDino = function (d, m) {
+  if (G && !(d.boss && G.boss) && (d.state === 'eat' || d.state === 'devour')) { bounce63(d, m); return; }
+  return feedDinoV62(d, m);
+};
+function bounce63(d, m) {
+  const h = headPos(d);
+  BLOWN.push({ x: m.x, y: m.y, vx: (m.x < h.x ? -1 : 1) * rand(90, 150), vy: -rand(170, 240), rot: m.rot || 0, vr: rand(-12, 12), f: m.f, veg: !!m.veg, t: 0.5 });
+  if (!G.attract) tone(130, 0.07, 'sine', 0.05, 80);   // soft thud
+  if (!G.attract && G.mode === 'camp' && G.level <= 10) popupV37c(h.x, h.y - 40, 'Still chewing!', '#ffe08a', 16, 0.9);
+}
+if (window.__dbg) window.__dbg.v63 = { feed: function (d, m) { return feedDino(d, m); }, BLOWN: BLOWN, tr35: tr35, bounce63: bounce63 };
+
 // ---- v56 TEST BUILD ONLY: layout readout (screen / viewport / safe areas / column and button x ranges).
 // Hidden with ?info=off, or tap the small 'i' pill in the bottom-right corner to hide / show it.
 (function () {
