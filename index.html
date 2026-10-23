@@ -311,11 +311,11 @@ window.addEventListener('error', function (e) { window.__errs.push(String(e.mess
 
 // dinosaur species
 const TYPES = {
-  raptor: { name: 'Raptor', s: 0.62, speed: 62, chase: 104, eat: 4.8, bites: 1, detect: 150,
+  raptor: { name: 'Raptor', s: 0.62, speed: 62, chase: 104, eat: 7.5, bites: 1, detect: 150,
             color: '#c9a24a', belly: '#efe0a8', snout: 26, br: [27, 13], tail: 98, stripes: true, feathers: true,
             neck: 5.5, headH: 9, jawH: 5.5, thigh: 8.5, tailDrop: -2, tooth: 2.2,
             fact: 'Small, quick and sneaky. Watch it dash!' },
-  carno:  { name: 'Carnotaurus', s: 0.8, speed: 52, chase: 92, eat: 4.5, bites: 1, detect: 160,
+  carno:  { name: 'Carnotaurus', s: 0.8, speed: 52, chase: 92, eat: 6.4, bites: 1, detect: 160,
             color: '#c2553a', belly: '#f0c7a0', snout: 22, br: [29, 16], tail: 86, horns: true, bumps: true,
             neck: 8, headH: 13.5, jawH: 6.5, thigh: 10, tailDrop: 2, tooth: 2.4,
             fact: 'Has bull horns on its head and runs fast.' },
@@ -323,11 +323,11 @@ const TYPES = {
             color: '#d68a2e', belly: '#f5dca0', snout: 28, br: [30, 17], tail: 88, crest: true, blotches: true,
             neck: 8, headH: 12, jawH: 7, thigh: 10.5, tailDrop: 3, tooth: 2.6,
             fact: 'A big hunter with little horns over its eyes.' },
-  spino:  { name: 'Spinosaurus', s: 1.04, speed: 38, chase: 75, eat: 6.4, bites: 2, detect: 175,
+  spino:  { name: 'Spinosaurus', s: 1.04, speed: 38, chase: 75, eat: 4.8, bites: 2, detect: 175,
             color: '#3f8399', belly: '#c4e3ea', snout: 38, br: [33, 17], tail: 92, sail: '#e8743f', spots: true,
             neck: 7, headH: 9, jawH: 5, thigh: 10, tailDrop: 4, tooth: 2.2,
             fact: 'A giant sail on its back and a long snout.' },
-  trex:   { name: 'T-Rex', s: 1.18, speed: 36, chase: 72, eat: 7.5, bites: 2, detect: 180,
+  trex:   { name: 'T-Rex', s: 1.18, speed: 36, chase: 72, eat: 4.5, bites: 2, detect: 180,
             color: '#3f6f2c', belly: '#dae7a2', snout: 30, br: [32, 20], tail: 86, arms: true, faint: true,
             neck: 10.5, headH: 16, jawH: 9, thigh: 12.5, tailDrop: 3, tooth: 3.2,
             fact: 'The king of the dinos! Tiny arms, huge appetite.' }
@@ -17893,7 +17893,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v62';
+const GAME_VER = 'v63';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
