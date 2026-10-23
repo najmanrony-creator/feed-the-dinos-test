@@ -17111,7 +17111,13 @@ widePaint = function () {
       const sg = g.createLinearGradient(xL, 0, 0, 0); sg.addColorStop(0, '#16261a'); sg.addColorStop(1, '#22382a');
       g.fillStyle = sg; g.fillRect(xL - 2, Math.min(0, yTop) - 2, -xL + 2, yBot - Math.min(0, yTop) + 4);
       g.fillStyle = 'rgba(200,150,80,0.45)'; g.fillRect(-2, 56, 2, yBot - 56 + 2);
-      if (xR > W + 0.5) { g.fillStyle = sg; g.fillRect(W, Math.min(0, yTop) - 2, xR - W + 2, yBot - Math.min(0, yTop) + 4); }
+      {   // v62: no dark bands - the map itself continues to the right edge and under the bottom safe strip
+        const z = MAPZ.z, camZ = Math.round(MAP.cam * dpr * z) / (dpr * z), cx0 = MAP.camX || 0;
+        g.save(); g.beginPath(); g.rect(0, 56, xR + 2, yBot - 56 + 2); g.clip();
+        g.fillStyle = '#4f7a34'; g.fillRect(0, 56, xR + 2, yBot - 56 + 2);
+        g.scale(z, z); g.translate(-cx0, -camZ); g.drawImage(MAP.bg, 0, 0, W, MAP_H);
+        g.restore();
+      }
     } else {
     const s = MAP.bg.width / W;
     [[M.L, xL, 0, -1], [M.R, W, xR, 1]].forEach(function (q) {
@@ -17887,7 +17893,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v61';
+const GAME_VER = 'v62';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23618,6 +23624,48 @@ function row56(px, pw, slots) {
   return ROW56.last;
 }
 const ROW56 = { last: null };
+// ================================================================ v62: pt-BR for the last English strings (continue card, lives, finale, small labels)
+Object.assign(I18N35.pt, {
+  "\u25B6  Play on  (+# back)": "\u25B6  Continuar  (+# de volta)",
+  "You have #  \u2192  # left": "Você tem #  \u2192  sobram #",
+  "Yes": "Sim", "No": "Não", "Y  Yes": "Y  Sim", "N  No": "N  Não",
+  "Prices go up after each wool continue this try": "Nesta tentativa, o preço sobe a cada compra com lã",
+  "not enough wool": "lã insuficiente",
+  "not that many lost sheep": "não há tantas ovelhas perdidas",
+  "not enough wool (clear levels to earn more)": "lã insuficiente (vença fases para ganhar mais)",
+  "Sheep back so far:": "Ovelhas de volta:",
+  "1 / 2 = wool continue   \u00b7   P = play on   \u00b7   ESC = no thanks": "1 / 2 = continuar com lã   \u00b7   P = continuar   \u00b7   ESC = não, obrigado",
+  "SHEARING": "TOSQUIA",
+  "READY": "PRONTO",
+  "PAUSE": "PAUSA",
+  "A WHOLE YEAR SAVED!": "UM ANO INTEIRO SALVO!",
+  "You saved the farm for a whole year! ENDLESS mode is now open": "Você salvou a fazenda por um ano inteiro! O modo SEM FIM foi liberado",
+  "To Endless": "Modo sem fim",
+  "ENTER  To Endless": "ENTER  Modo sem fim"
+});
+(function () {
+  const ov = function (n) { return +n === 1 ? 'ovelha' : 'ovelhas'; };
+  const ex = function (x) { const T = I18N35.pt; return Object.prototype.hasOwnProperty.call(T, x) ? T[x] : null; };
+  RULES35.unshift(
+    [/^(\d+) sheep back$/, function (m) { return m[1] + ' ' + ov(m[1]) + ' de volta'; }],
+    [/^(\d+) sheep back for (\d+) wool\?$/, function (m) { return 'Trazer ' + m[1] + ' ' + ov(m[1]) + ' de volta por ' + m[2] + ' de lã?'; }],
+    [/^\+(\d+) sheep back for (\d+) wool!$/, function (m) { return '+' + m[1] + ' ' + ov(m[1]) + ' de volta por ' + m[2] + ' de lã!'; }],
+    [/^\+(\d+) sheep back! Keep going!$/, function (m) { return '+' + m[1] + ' ' + ov(m[1]) + ' de volta! Continue assim!'; }],
+    [/^You have (\d+) li(?:fe|ves)!$/, function (m) { return 'Você tem ' + m[1] + ' ' + (+m[1] === 1 ? 'vida' : 'vidas') + '!'; }],
+    [/^Tap: (Extra .+)!$/, function (m) { const n = ex(m[1]); return n && 'Toque: ' + n + '!'; }],
+    [/^(Extra .+)!$/, function (m) { const n = ex(m[1]); return n && n + '!'; }]
+  );
+  // v62: DOM text with line breaks (phone food cards: "Sausage\n∞", "Big Ham\nlocked") is translated line by line
+  Object.assign(I18N35.pt, { 'locked': 'bloq.', 'Melon': 'Melancia', 'HAY': 'FENO', 'WOOL': 'LÃ', 'HIGH WATER': 'ÁGUA ALTA' });
+  RULES35.unshift([/^([^\n]*\n[\s\S]*)$/, function (m) { return m[1].split('\n').map(function (x) { return tr35(x); }).join('\n'); }]);
+  LANG35.memo.clear();
+  // v62: the level backgrounds (pen sign "SAFE PEN", barn sign "HAY") were baked before the text table existed; rebuild them now and on a language switch
+  const rebake = function () { Object.keys(BGCACHE).forEach(function (k) { delete BGCACHE[k]; }); if (bg) buildBG(); };
+  rebake();
+  const setLangV62 = setLang35;
+  setLang35 = function (l) { setLangV62(l); rebake(); };
+})();
+
 // ---- v56 TEST BUILD ONLY: layout readout (screen / viewport / safe areas / column and button x ranges).
 // Hidden with ?info=off, or tap the small 'i' pill in the bottom-right corner to hide / show it.
 (function () {
