@@ -4486,20 +4486,8 @@ function render() {
   drawUnderV10();
   drawUnderV11();
 
-  // aim guide: shows how high the selected food flies
-  const playing = state === 'play' && !G.announce;
-  if (playing) {
-    const fx = G.farmer.x + 4, F = FOODS[G.food];
-    const topY = Math.max(HUD_H + 40, F.apex);
-    let lined = false;
-    G.dinos.forEach(function (d) { if (d.state !== 'eat' && d.state !== 'devour' && !d.mood && !d.post) { const h = headPos(d); if (Math.abs(h.x - fx) < h.r && h.y + h.r > F.apex) lined = true; } });
-    ctx.save();
-    ctx.setLineDash([6, 10]); ctx.lineDashOffset = -animT * 40;
-    ctx.strokeStyle = lined ? 'rgba(255,230,90,0.7)' : 'rgba(255,255,255,0.22)'; ctx.lineWidth = lined ? 3 : 2;
-    ctx.beginPath(); ctx.moveTo(fx, FARMER_Y - 76); ctx.lineTo(fx, topY); ctx.stroke();
-    if (F.apex > HUD_H + 40) { ctx.setLineDash([]); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(fx - 8, topY); ctx.lineTo(fx + 8, topY); ctx.stroke(); }
-    ctx.restore();
-  }
+  // v64: no aim guide any more (it only pointed straight up); a tap-to-throw leaves a fading landing ring instead
+  if (state === 'play') drawRings64();
 
   // depth-sorted sheep and dinos
   const ents = [];
@@ -16256,7 +16244,7 @@ function onTouchStart(e) {
     const p = tlog(t);
     if (state === 'play' && G && !G.attract && !phoneModal() && p.y > HUD_H + 2 && !inBtn(MENU_BTN, [p.x, p.y]) && !(p.x < 120 && p.x >= 0 && p.y > H - 46)) {
       if (p.y >= LANE_TOP - 8) { TOUCH.roles[t.identifier] = 'move'; TOUCH.moveId = t.identifier; TOUCH.moveX = clamp(p.x, 28, W - 28); }
-      else { TOUCH.roles[t.identifier] = 'fire'; TOUCH.fireId = t.identifier; TOUCH.aim = { x: p.x, y: p.y }; TOUCH.queued = !(G && G.throwCD > 0.1); TOUCH.queuedAim = true; if (!TOUCH.queued && G && state === 'play') foodCapCue(); }
+      else { TOUCH.roles[t.identifier] = 'fire'; TOUCH.fireId = t.identifier; TOUCH.aim = { x: p.x, y: p.y }; ring64(p.x, p.y); TOUCH.queued = !(G && G.throwCD > 0.1); TOUCH.queuedAim = true; if (!TOUCH.queued && G && state === 'play') foodCapCue(); }
       continue;
     }
     if (state === 'map' && !SHOPUI.open && !SETUI.open && !LIVESUI.open && !(CONT.playing && CONT.playing.map)) {
@@ -17893,7 +17881,7 @@ function mapStickySigns() {
 }
 
 // ---- v24: version label, phone vibration, food cap
-const GAME_VER = 'v63';
+const GAME_VER = 'v64';
 function vibe(p) {
   try { if (SET.vibe && PHONE.on && !G.attract && navigator.vibrate) navigator.vibrate(p); } catch (e) {}
 }
@@ -23683,6 +23671,22 @@ function bounce63(d, m) {
   if (!G.attract && G.mode === 'camp' && G.level <= 10) popupV37c(h.x, h.y - 40, 'Still chewing!', '#ffe08a', 16, 0.9);
 }
 if (window.__dbg) window.__dbg.v63 = { feed: function (d, m) { return feedDino(d, m); }, BLOWN: BLOWN, tr35: tr35, bounce63: bounce63 };
+
+// ================================================================ v64: landing ring for tap-to-throw (thin, fades in 0.45 s)
+const RINGS64 = [], RING64_LIFE = 0.45;
+function ring64(x, y) { RINGS64.push({ x: clamp(x, 10, W - 10), y: y, t0: performance.now() }); if (RINGS64.length > 6) RINGS64.shift(); }
+function drawRings64() {
+  const now = performance.now();
+  for (let i = RINGS64.length - 1; i >= 0; i--) if ((now - RINGS64[i].t0) / 1000 >= RING64_LIFE) RINGS64.splice(i, 1);
+  if (!RINGS64.length) return;
+  ctx.save(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
+  RINGS64.forEach(function (r) {
+    const k = (now - r.t0) / 1000 / RING64_LIFE;
+    ctx.globalAlpha = 0.55 * (1 - k); ctx.beginPath(); ctx.ellipse(r.x, r.y, 10 + 6 * k, (10 + 6 * k) * 0.8, 0, 0, Math.PI * 2); ctx.stroke();
+  });
+  ctx.restore();
+}
+if (window.__dbg) window.__dbg.v64 = { RINGS64: RINGS64, ring64: ring64 };
 
 // ---- v56 TEST BUILD ONLY: layout readout (screen / viewport / safe areas / column and button x ranges).
 // Hidden with ?info=off, or tap the small 'i' pill in the bottom-right corner to hide / show it.
